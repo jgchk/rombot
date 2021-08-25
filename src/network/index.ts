@@ -4,11 +4,6 @@ import { REQUEST_TIMEOUT } from '../config'
 import { Emitter } from './emitter'
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-const sleepUntil = async (timestamp: number): Promise<void> => {
-  while (Date.now() < timestamp) {
-    await sleep(timestamp - Date.now())
-  }
-}
 
 class NetworkLimiter {
   emitter: Emitter
@@ -27,7 +22,9 @@ class NetworkLimiter {
     this.last = 0
 
     this.emitter.on('request', async (message, callback) => {
-      await sleepUntil(this.last + this.rate)
+      while (Date.now() < this.last + this.rate) {
+        await sleep(this.last + this.rate - Date.now())
+      }
       this.last = Date.now()
 
       const { id, url } = message
