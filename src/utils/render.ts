@@ -4,7 +4,7 @@ import { TimeoutError } from 'got/dist/source'
 import set from '../commands/set'
 import { Artist } from '../database/schemas/artist'
 import { FullDate } from '../database/schemas/full-date'
-import { AppError, UsernameNotFoundError } from '../errors'
+import { AppError } from '../errors'
 import { getServerPrefix } from '../services/server'
 import { Command, CommandMessage } from '../types'
 import { ifDefined } from './functional'
@@ -46,8 +46,7 @@ export const makeErrorEmbed = async (
   let description = error.message
   if (error instanceof TimeoutError) {
     description += '\n\nIs RYM down?'
-  }
-  if (error instanceof UsernameNotFoundError) {
+  } else if (error.name === 'UsernameNotFoundError') {
     const prefix = await getServerPrefix(message.message.guildId)
     description += `\nYou can set your RYM username with \`${prefix}${set.name}\``
   }
