@@ -1,17 +1,11 @@
 import { isLeft, left, right } from 'fp-ts/Either'
-import { pipe } from 'fp-ts/function'
-import {
-  PartialRelease,
-  releaseToPartialRelease,
-} from '../../database/schemas/partial-release'
+import { releaseToPartialRelease } from '../../database/schemas/partial-release'
 import { MissingDataError } from '../../errors'
 import { getSlowCover } from '../../services/cover'
-import { getLatestRating, getRatingForRelease } from '../../services/rating'
+import { getLatestRating } from '../../services/rating'
 import { searchRelease } from '../../services/release'
 import { Command } from '../../types'
 import { getUsername } from '../../utils/arguments'
-import { ifDefined } from '../../utils/functional'
-import { getRight } from '../../utils/types'
 import { getCoverEmbed } from './embed'
 
 const cover: Command = {
