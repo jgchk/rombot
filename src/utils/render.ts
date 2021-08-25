@@ -1,43 +1,55 @@
 import { MessageEmbed } from 'discord.js'
 import { pipe } from 'fp-ts/function'
 import { TimeoutError } from 'got/dist/source'
-import { PREFIX } from '../config'
+import set from '../commands/set'
 import { Artist } from '../database/schemas/artist'
 import { FullDate } from '../database/schemas/full-date'
-import { AppError } from '../errors'
-import { Command } from '../types'
+import { AppError, UsernameNotFoundError } from '../errors'
+import { getServerPrefix } from '../services/server'
+import { Command, CommandMessage } from '../types'
 import { ifDefined } from './functional'
 import { makeUserUrl } from './links'
 
-export const makeUsageEmbed = (command: Command): MessageEmbed => {
+export const makeUsageEmbed = async (
+  command: Command,
+  message: CommandMessage
+): Promise<MessageEmbed> => {
+  const prefix = await getServerPrefix(message.message.guildId)
   const embed = new MessageEmbed()
-    .setTitle(`${PREFIX}${command.name} usage`)
+    .setTitle(`${prefix}${command.name} usage`)
     .setDescription(command.description)
 
   const aliases = [command.name, ...(command.aliases ?? [])]
   embed.addField(
     'Aliases',
-    aliases.map((alias) => `\`${PREFIX}${alias}\``).join(', ')
+    aliases.map((alias) => `\`${prefix}${alias}\``).join(', ')
   )
 
-  embed.addField('Usage', `\`${PREFIX}${command.usage}\``)
+  embed.addField('Usage', `\`${prefix}${command.usage}\``)
 
   if (command.examples.length > 0) {
     embed.addField(
       'Examples',
-      command.examples.map((example) => `\`${PREFIX}${example}\``).join('\n')
+      command.examples.map((example) => `\`${prefix}${example}\``).join('\n')
     )
   }
 
   return embed
 }
 
-export const makeErrorEmbed = (error: AppError): MessageEmbed => {
+export const makeErrorEmbed = async (
+  error: AppError,
+  message: CommandMessage
+): Promise<MessageEmbed> => {
   const embed = new MessageEmbed().setTitle('Error')
 
   let description = error.message
   if (error instanceof TimeoutError) {
     description += '\n\nIs RYM down?'
+  }
+  if (error instanceof UsernameNotFoundError) {
+    const prefix = await getServerPrefix(message.message.guildId)
+    description += `\nYou can set your RYM username with \`${prefix}${set.name}\``
   }
 
   embed.setDescription(description)

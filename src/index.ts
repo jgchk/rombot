@@ -5,10 +5,13 @@ import album from './commands/album'
 import chart from './commands/chart'
 import cover from './commands/cover'
 import latest from './commands/latest'
+import prefix from './commands/prefix'
 import recent from './commands/recent'
 import set from './commands/set'
 import whoknowsalbum from './commands/whoknowsalbum'
-import { BOT_TOKEN, PREFIX } from './config'
+import { BOT_TOKEN } from './config'
+import { getServerPrefix } from './services/server'
+import { CommandMessage } from './types'
 import { makeErrorEmbed, makeUsageEmbed } from './utils/render'
 
 const client = new Client({
@@ -17,13 +20,23 @@ const client = new Client({
 
 client.once('ready', () => console.log('Ready!'))
 
-const commands = [set, album, latest, whoknowsalbum, recent, chart, cover]
+const commands = [
+  set,
+  album,
+  latest,
+  whoknowsalbum,
+  recent,
+  chart,
+  cover,
+  prefix,
+]
 
 client.on('messageCreate', async (message) => {
-  if (!message.content.startsWith(PREFIX)) return
+  const prefix = await getServerPrefix(message.guildId)
+  if (!message.content.startsWith(prefix)) return
 
   const arguments_ = message.content.split(' ')
-  const name = arguments_.shift()?.slice(PREFIX.length)
+  const name = arguments_.shift()?.slice(prefix.length)
 
   if (name === undefined) return
 
@@ -36,13 +49,18 @@ client.on('messageCreate', async (message) => {
     void message.reply('Unknown command')
   } else {
     await message.channel.sendTyping()
+    const commandMessage: CommandMessage = { message, name, arguments_ }
     void pipe(
-      await command.execute({ message, name, arguments_: arguments_ }),
+      await command.execute(commandMessage),
       fold(
-        (error) => {
+        async (error) => {
           if (error.name === 'UsageError')
-            return message.reply({ embeds: [makeUsageEmbed(command)] })
-          return message.reply({ embeds: [makeErrorEmbed(error)] })
+            return message.reply({
+              embeds: [await makeUsageEmbed(command, commandMessage)],
+            })
+          return message.reply({
+            embeds: [await makeErrorEmbed(error, commandMessage)],
+          })
         },
         (response) => message.reply(response)
       )

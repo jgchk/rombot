@@ -1,8 +1,6 @@
 import { userMention } from '@discordjs/builders'
 import { User } from 'discord.js'
 import { RequestError } from 'got'
-import set from './commands/set'
-import { PREFIX } from './config'
 import { capitalize } from './utils/string'
 
 export type AppError =
@@ -14,6 +12,7 @@ export type AppError =
   | UsernameDoesntExistError
   | RequestError
   | RangeError
+  | NotInServerError
 
 export class UsageError extends Error {
   name: 'UsageError'
@@ -29,11 +28,7 @@ export class UsernameNotFoundError extends Error {
   user: User
 
   constructor(user: User) {
-    super(
-      `No username set for ${userMention(
-        user.id
-      )}\nYou can set your RYM username with \`${PREFIX}${set.name}\``
-    )
+    super(`No username set for ${userMention(user.id)}`)
     this.name = 'UsernameNotFoundError'
     this.user = user
   }
@@ -91,6 +86,15 @@ export class RangeError extends Error {
     this.minimum = minimum
     this.maximum = maximum
     this.name = 'RangeError'
+  }
+}
+
+export class NotInServerError extends Error {
+  name: 'NotInServerError'
+
+  constructor() {
+    super('Not in a server')
+    this.name = 'NotInServerError'
   }
 }
 

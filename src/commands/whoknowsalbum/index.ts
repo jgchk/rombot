@@ -41,7 +41,12 @@ const whoknowsalbum: Command = {
 
       return right({
         embeds: [
-          getWhoKnowsAlbumEmbed(release, ratings, message.message.author),
+          await getWhoKnowsAlbumEmbed(
+            release,
+            ratings,
+            message.message.author,
+            message
+          ),
         ],
       })
     }
@@ -63,7 +68,14 @@ const whoknowsalbum: Command = {
     const ratings = await getRatingsForAllIssues(release)
 
     return right({
-      embeds: [getWhoKnowsAlbumEmbed(release, ratings, message.message.author)],
+      embeds: [
+        await getWhoKnowsAlbumEmbed(
+          release,
+          ratings,
+          message.message.author,
+          message
+        ),
+      ],
     })
   },
 }

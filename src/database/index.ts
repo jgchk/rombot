@@ -5,6 +5,7 @@ import { PartialRelease, PartialReleaseModel } from './schemas/partial-release'
 import { Rating, RatingModel } from './schemas/rating'
 import { Release, ReleaseModel } from './schemas/release'
 import { SearchResult, SearchResultModel } from './schemas/search-result'
+import { Server, ServerModel } from './schemas/server'
 
 export class Database {
   async getAccount(discordId: string): Promise<Account | undefined> {
@@ -92,6 +93,19 @@ export class Database {
   ): Promise<Cover | undefined> {
     const cover = await CoverModel.findOne(searchQuery).exec()
     return cover ?? undefined
+  }
+
+  async setServer(server: Server): Promise<Server> {
+    const updatedServer = await ServerModel.findOneAndUpdate(
+      { id: server.id },
+      { $set: server },
+      { upsert: true, setDefaultsOnInsert: true }
+    ).exec()
+    return updatedServer ?? server
+  }
+  async getServer(id: string): Promise<Server | undefined> {
+    const server = await ServerModel.findOne({ id }).exec()
+    return server ?? undefined
   }
 }
 
