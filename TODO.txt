@@ -1,1 +1,4 @@
+.fmtab https://fmbot.xyz/commands/albums/#topalbums-tab
 .fmf https://fmbot.xyz/commands/friends/#friends-f
+.fmfeatured https://fmbot.xyz/commands/featured/#featured
+  - get featured album from homepage
