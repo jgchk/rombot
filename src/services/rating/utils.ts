@@ -1,10 +1,10 @@
 import cheerio from 'cheerio'
 import { Either, isLeft, left, right } from 'fp-ts/Either'
-import { HTTPError, RequestError } from 'got/dist/source'
+import { RequestError } from 'got/dist/source'
 import getDatabase, { Database } from '../../database'
 import { PartialRelease } from '../../database/schemas/partial-release'
 import { Rating } from '../../database/schemas/rating'
-import { MissingDataError, UsernameDoesntExistError } from '../../errors'
+import { MissingDataError } from '../../errors'
 import network from '../../network'
 import { parseRating } from './scraper'
 
@@ -22,19 +22,10 @@ export const saveReleaseRating = async (
 export const getRatingsFromUrl = async (
   url: string,
   username: string
-): Promise<
-  Either<
-    UsernameDoesntExistError | RequestError | MissingDataError,
-    ReleaseRating[]
-  >
-> => {
+): Promise<Either<RequestError | MissingDataError, ReleaseRating[]>> => {
   const maybeResponse = await network.get(url)
-  if (isLeft(maybeResponse)) {
-    const error = maybeResponse.left
-    return error instanceof HTTPError
-      ? left(new UsernameDoesntExistError(username))
-      : left(error)
-  }
+  if (isLeft(maybeResponse)) return left(maybeResponse.left)
+
   const $ = cheerio.load(maybeResponse.right.body)
 
   const elements = $('[id^=page_catalog_item]')

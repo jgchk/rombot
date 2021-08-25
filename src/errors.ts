@@ -9,7 +9,6 @@ export type AppError =
   | NoReleaseFoundError
   | MissingDataError
   | NoRatingsError
-  | UsernameDoesntExistError
   | RequestError
   | RangeError
   | NotInServerError
@@ -58,17 +57,6 @@ export class NoRatingsError extends Error {
   constructor(username: string) {
     super(`~${username} has no ratings :(`)
     this.name = 'NoRatingsError'
-  }
-}
-
-export class UsernameDoesntExistError extends Error {
-  name: 'UsernameDoesntExistError'
-  username: string
-
-  constructor(username: string) {
-    super(`No account found for ~${username}`)
-    this.name = 'UsernameDoesntExistError'
-    this.username = username
   }
 }
 

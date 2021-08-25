@@ -7,7 +7,6 @@ import {
   MissingDataError,
   NoRatingsError,
   NoReleaseFoundError,
-  UsernameDoesntExistError,
 } from '../../errors'
 import { ReleaseRating, getRatingsFromUrl } from './utils'
 
@@ -15,11 +14,7 @@ export const getLatestRating = async (
   username: string
 ): Promise<
   Either<
-    | NoRatingsError
-    | NoReleaseFoundError
-    | UsernameDoesntExistError
-    | RequestError
-    | MissingDataError,
+    NoRatingsError | NoReleaseFoundError | RequestError | MissingDataError,
     ReleaseRating
   >
 > => {
@@ -34,26 +29,14 @@ export const getLatestRating = async (
 export const getLatestRatings = async (
   username: string
 ): Promise<
-  Either<
-    | NoReleaseFoundError
-    | UsernameDoesntExistError
-    | RequestError
-    | MissingDataError,
-    ReleaseRating[]
-  >
+  Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating[]>
 > => getRatingsPage(username, 1)
 
 export const getNLatestRatings = async (
   username: string,
   n: number
 ): Promise<
-  Either<
-    | NoReleaseFoundError
-    | UsernameDoesntExistError
-    | RequestError
-    | MissingDataError,
-    ReleaseRating[]
-  >
+  Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating[]>
 > => {
   const ratings: ReleaseRating[] = []
   let page = 1
@@ -77,13 +60,7 @@ const getRatingsPage = async (
   username: string,
   page: number
 ): Promise<
-  Either<
-    | NoReleaseFoundError
-    | UsernameDoesntExistError
-    | RequestError
-    | MissingDataError,
-    ReleaseRating[]
-  >
+  Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating[]>
 > =>
   getRatingsFromUrl(
     `https://rateyourmusic.com/collection/${encodeURIComponent(
@@ -96,13 +73,7 @@ export const getRatingForRelease = async (
   username: string,
   release: Release
 ): Promise<
-  Either<
-    | NoReleaseFoundError
-    | UsernameDoesntExistError
-    | RequestError
-    | MissingDataError,
-    ReleaseRating
-  >
+  Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating>
 > => {
   const maybeRatings = await getRatingsFromUrl(
     `https://rateyourmusic.com/collection/${encodeURIComponent(
