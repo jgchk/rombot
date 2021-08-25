@@ -446,6 +446,13 @@
     "@types/bson" "*"
     "@types/node" "*"
 
+"@types/needle@^2.5.2":
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/@types/needle/-/needle-2.5.2.tgz#b92571d2623fbcf91d143b55182494b562f4c926"
+  integrity sha512-FSckojxsXODVYE4oJ7q0OjUki27a6gsdIxp2WJHs9oEmXit/0rjzb/NK+tJnKwFMMyR6mzo+1Nyr83ELw3YT+Q==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*":
   version "16.6.1"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.6.1.tgz#aee62c7b966f55fc66c7b6dfa1d58db2a616da61"

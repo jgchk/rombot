@@ -3,12 +3,15 @@
   "scripts": {
     "dev": "nodemon ./src/index.ts",
     "lint": "eslint ./src",
-    "lint:watch": "nodemon --watch ./src --ext ts --exec \"yarn lint\""
+    "lint:watch": "nodemon --watch ./src --ext ts --exec \"yarn lint\"",
+    "build": "tsc",
+    "start": "node ./dist/index.js"
   },
   "dependencies": {
     "@discordjs/builders": "^0.5.0",
     "@discordjs/rest": "^0.1.0-canary.0",
     "@types/lowdb": "^1.0.11",
+    "@types/needle": "^2.5.2",
     "@types/node": "^16.6.2",
     "canvas": "^2.8.0",
     "cheerio": "^1.0.0-rc.10",
