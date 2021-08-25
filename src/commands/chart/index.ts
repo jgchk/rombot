@@ -3,7 +3,7 @@ import { Either, isLeft, left, right } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 import { compareFullDates } from '../../database/schemas/full-date'
 import { RangeError } from '../../errors'
-import { getLatestRatings } from '../../services/rating'
+import { getNLatestRatings } from '../../services/rating'
 import { Command, CommandMessage } from '../../types'
 import { getUsername } from '../../utils/arguments'
 import { ifDefined } from '../../utils/functional'
@@ -13,11 +13,16 @@ const DEFAULT_SIZE = 3
 const MINIMUM_SIZE = 1
 const MAXIMUM_SIZE = 5
 
+const DEFAULT_NUMBER_RATINGS = 25
+const MINIMUM_NUMBER_RATINGS = 1
+const MAXIMUM_NUMBER_RATINGS = 50
+
 const chart: Command = {
   name: 'chart',
   aliases: ['c'],
-  description: 'creates a chart of your top albums out of your last 25 ratings',
-  usage: 'c [SIZE] [USER] [lowest|l]',
+  description:
+    'creates a chart of your top albums out of your last n ratings (up to 50)',
+  usage: 'c [SIZE] [USER] [NUMBER_RATINGS] [lowest|l]',
   examples: [
     'c',
     'chart 3x3',
@@ -32,15 +37,19 @@ const chart: Command = {
     if (isLeft(maybeUsername)) return maybeUsername
     const username = maybeUsername.right
 
-    const invertOrder = message.arguments_.some(
-      (argument) => argument === 'lowest' || argument === 'l'
-    )
-
     const maybeSize = getSize(message)
     if (isLeft(maybeSize)) return maybeSize
     const size = maybeSize.right
 
-    const maybeReleaseRatings = await getLatestRatings(username)
+    const maybeNumberRatings = getNumberRatings(message, size)
+    if (isLeft(maybeNumberRatings)) return maybeNumberRatings
+    const numberRatings = maybeNumberRatings.right
+
+    const invertOrder = message.arguments_.some(
+      (argument) => argument === 'lowest' || argument === 'l'
+    )
+
+    const maybeReleaseRatings = await getNLatestRatings(username, numberRatings)
     if (isLeft(maybeReleaseRatings)) return maybeReleaseRatings
     const releaseRatings = maybeReleaseRatings.right
       .sort(
@@ -62,7 +71,7 @@ const chart: Command = {
 
 const getSize = (message: CommandMessage): Either<RangeError, number> => {
   const size = pipe(
-    message.arguments_.find((number) => !Number.isNaN(Number.parseInt(number))),
+    message.arguments_.find((argument) => /^\d+x\d+$/.test(argument)),
     ifDefined(parseInt)
   )
 
@@ -78,6 +87,30 @@ const getSize = (message: CommandMessage): Either<RangeError, number> => {
     )
 
   return right(size)
+}
+
+const getNumberRatings = (
+  message: CommandMessage,
+  size: number
+): Either<RangeError, number> => {
+  const numberRatings = pipe(
+    message.arguments_.find((argument) => /^\d+$/.test(argument)),
+    ifDefined(parseInt)
+  )
+
+  if (numberRatings === undefined) return right(DEFAULT_NUMBER_RATINGS)
+
+  const minimum = Math.max(MINIMUM_NUMBER_RATINGS, size * size)
+  if (numberRatings < minimum || numberRatings > MAXIMUM_NUMBER_RATINGS)
+    return left(
+      new RangeError(
+        `number of ratings for ${size}x${size} chart`,
+        minimum,
+        MAXIMUM_NUMBER_RATINGS
+      )
+    )
+
+  return right(numberRatings)
 }
 
 export default chart

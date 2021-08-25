@@ -18,7 +18,7 @@ export const saveReleaseRating = async (
 ): Promise<[Rating, PartialRelease]> =>
   Promise.all([database.setRating(rating), database.setPartialRelease(release)])
 
-export const getRatingsFromPage = async (
+export const getRatingsFromUrl = async (
   url: string,
   username: string
 ): Promise<

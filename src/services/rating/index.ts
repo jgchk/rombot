@@ -8,7 +8,7 @@ import {
   NoReleaseFoundError,
   UsernameDoesntExistError,
 } from '../../errors'
-import { ReleaseRating, getRatingsFromPage } from './utils'
+import { ReleaseRating, getRatingsFromUrl } from './utils'
 
 export const getLatestRating = async (
   username: string
@@ -29,6 +29,15 @@ export const getLatestRating = async (
   return right(latestRating)
 }
 
+export const getLatestRatings = async (
+  username: string
+): Promise<
+  Either<
+    NoReleaseFoundError | UsernameDoesntExistError | MissingDataError,
+    ReleaseRating[]
+  >
+> => getRatingsPage(username, 1)
+
 export const getNLatestRatings = async (
   username: string,
   n: number
@@ -38,24 +47,37 @@ export const getNLatestRatings = async (
     ReleaseRating[]
   >
 > => {
-  const maybeRatings = await getLatestRatings(username)
-  if (isLeft(maybeRatings)) return maybeRatings
-
-  return right(maybeRatings.right.slice(0, n))
+  const ratings: ReleaseRating[] = []
+  let page = 1
+  while (ratings.length < n) {
+    const maybeRatings = await getRatingsPage(username, page)
+    if (isLeft(maybeRatings)) {
+      const error = maybeRatings.left
+      return error.name === 'NoReleaseFoundError'
+        ? // ran out of ratings, return what we have
+          right(ratings)
+        : // some other error. return the error
+          maybeRatings
+    }
+    ratings.push(...maybeRatings.right)
+    page += 1
+  }
+  return right(ratings.slice(0, n))
 }
 
-export const getLatestRatings = async (
-  username: string
+const getRatingsPage = async (
+  username: string,
+  page: number
 ): Promise<
   Either<
     NoReleaseFoundError | UsernameDoesntExistError | MissingDataError,
     ReleaseRating[]
   >
 > =>
-  getRatingsFromPage(
+  getRatingsFromUrl(
     `https://rateyourmusic.com/collection/${encodeURIComponent(
       username
-    )}/r0.5-5.0,ss.dd`,
+    )}/r0.5-5.0,ss.dd/${page}`,
     username
   )
 
@@ -68,7 +90,7 @@ export const getRatingForRelease = async (
     ReleaseRating
   >
 > => {
-  const maybeRatings = await getRatingsFromPage(
+  const maybeRatings = await getRatingsFromUrl(
     `https://rateyourmusic.com/collection/${encodeURIComponent(
       username
     )}/strm_l/${encodeURIComponent(`[${release.id}]`)}`,
