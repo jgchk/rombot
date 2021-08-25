@@ -35,10 +35,10 @@ const TITLE_CARD_GAP = ALBUM_SIZE / 60
 export const createChart = async (
   releaseRatings: ReleaseRating[]
 ): Promise<Canvas.Canvas> => {
-  registerFont(path.join(__dirname, './OpenSans-Regular.ttf'), {
+  registerFont(path.join(__dirname, '../../../res/OpenSans-Regular.ttf'), {
     family: 'Open Sans',
   })
-  registerFont(path.join(__dirname, './OpenSans-Bold.ttf'), {
+  registerFont(path.join(__dirname, '../../../res/OpenSans-Bold.ttf'), {
     family: 'Open Sans',
     weight: 'bold',
   })
