@@ -13,7 +13,7 @@ export const coverSchema = new Schema<Cover>({
   createdAt: {
     type: Date,
     default: Date.now,
-    index: { expires: '1h' },
+    index: { expires: '1d' },
   },
 })
 

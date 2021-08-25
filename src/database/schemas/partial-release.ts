@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose'
 import { Artist, artistSchema } from './artist'
+import { Release } from './release'
 
 export type PartialRelease = {
   issueUrl: string
@@ -23,3 +24,12 @@ export const PartialReleaseModel = model<PartialRelease>(
   'PartialRelease',
   partialReleaseSchema
 )
+
+export const releaseToPartialRelease = (release: Release): PartialRelease => ({
+  issueUrl: release.url,
+  title: release.title,
+  artists: release.artists,
+  artistDisplayName: release.artistDisplayName,
+  releaseYear: release.releaseDate?.year ?? null,
+  coverThumbnail: release.cover,
+})

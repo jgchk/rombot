@@ -3,6 +3,7 @@ import { fold } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 import album from './commands/album'
 import chart from './commands/chart'
+import cover from './commands/cover'
 import latest from './commands/latest'
 import recent from './commands/recent'
 import set from './commands/set'
@@ -16,7 +17,7 @@ const client = new Client({
 
 client.once('ready', () => console.log('Ready!'))
 
-const commands = [set, album, latest, whoknowsalbum, recent, chart]
+const commands = [set, album, latest, whoknowsalbum, recent, chart, cover]
 
 client.on('messageCreate', async (message) => {
   if (!message.content.startsWith(PREFIX)) return

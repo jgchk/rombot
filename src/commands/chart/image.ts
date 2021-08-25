@@ -3,7 +3,7 @@ import Canvas, { registerFont } from 'canvas'
 import { getAverageColor } from 'fast-average-color-node'
 import { pipe } from 'fp-ts/function'
 import { PartialRelease } from '../../database/schemas/partial-release'
-import { getCover } from '../../services/cover'
+import { getFastCover } from '../../services/cover'
 import { ReleaseRating } from '../../services/rating/utils'
 import { ifNotNull } from '../../utils/functional'
 import { stringifyArtists, stringifyRating } from '../../utils/render'
@@ -78,7 +78,7 @@ const renderCover = async (
 ): Promise<{ isDark: boolean }> => {
   const context = canvas.getContext('2d')
 
-  const coverBuffer = await getCover(release)
+  const coverBuffer = await getFastCover(release)
   if (coverBuffer === undefined) {
     // TODO: add not-found image
     context.fillStyle = '#606060'

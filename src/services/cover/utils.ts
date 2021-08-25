@@ -1,32 +1,37 @@
 import { isLeft, isRight } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 import got from 'got'
-import { getLastFmImageUrl } from '../commands/chart/lastfm'
-import { REQUEST_TIMEOUT } from '../config'
-import getDatabase from '../database'
-import { PartialRelease } from '../database/schemas/partial-release'
-import network from '../network'
-import { ifDefined } from '../utils/functional'
-import { getRight } from '../utils/types'
-import { getReleaseFromUrl } from './release'
+import { REQUEST_TIMEOUT } from '../../config'
+import { Database } from '../../database'
+import { Release } from '../../database/schemas/release'
+import network from '../../network'
+import { ifDefined } from '../../utils/functional'
+import { getRight } from '../../utils/types'
+import { getLastFmImageUrl } from '../lastfm'
+import { getReleaseFromUrl } from '../release'
+import { CoverArgument } from './types'
 
-export const getCover = async (
-  release: Pick<
-    PartialRelease,
-    'artists' | 'artistDisplayName' | 'title' | 'issueUrl'
-  >
+export const getCachedCover = async (
+  { issueUrl }: CoverArgument,
+  database: Database
 ): Promise<Buffer | undefined> => {
-  const database = await getDatabase()
-  let databaseCover = await database.getCover({ issueUrl: release.issueUrl })
-  if (databaseCover !== undefined) return databaseCover.image
+  const databaseCover = await database.getCover({ issueUrl })
+  return databaseCover?.image
+}
 
+export const getCoverFromCachedFullRelease = async (
+  release: CoverArgument,
+  database: Database
+): Promise<{ cover: Buffer | undefined; fullRelease: Release | undefined }> => {
   const databaseRelease = await database.getRelease(release.issueUrl)
+
+  let image: Buffer | undefined
   if (databaseRelease !== undefined && databaseRelease.cover !== null) {
     const databaseCover = await database.getCover({
       imageUrl: databaseRelease.cover,
     })
 
-    const image =
+    image =
       databaseCover?.image ??
       pipe(
         await network.get(databaseRelease.cover),
@@ -39,10 +44,16 @@ export const getCover = async (
         imageUrl: databaseRelease.cover,
         image,
       })
-      return image
     }
   }
 
+  return { cover: image, fullRelease: databaseRelease }
+}
+
+export const getCoverFromLastFm = async (
+  release: CoverArgument,
+  database: Database
+): Promise<Buffer | undefined> => {
   const lastFmImageUrl = await getLastFmImageUrl(release)
   if (lastFmImageUrl !== undefined) {
     const databaseCover = await database.getCover({ imageUrl: lastFmImageUrl })
@@ -57,17 +68,19 @@ export const getCover = async (
     })
     return image
   }
+}
 
-  // if we already have the album stored but it doesn't have a cover, return undefined
-  if (databaseRelease !== undefined) return
-
+export const getCoverFromFetchedFullRelease = async (
+  release: CoverArgument,
+  database: Database
+): Promise<Buffer | undefined> => {
   const maybeFullRelease = await getReleaseFromUrl(release.issueUrl)
   if (isLeft(maybeFullRelease)) return
   const fullRelease = maybeFullRelease.right
   if (fullRelease.cover === null) return
 
-  databaseCover = await database.getCover({ imageUrl: fullRelease.cover })
-  if (databaseCover !== undefined) return databaseCover.image
+  const cachedCover = await database.getCover({ imageUrl: fullRelease.cover })
+  if (cachedCover !== undefined) return cachedCover.image
 
   const maybeResponse = await network.get(fullRelease.cover)
   if (isRight(maybeResponse)) {
