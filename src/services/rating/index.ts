@@ -1,4 +1,5 @@
 import { Either, isLeft, left, right } from 'fp-ts/Either'
+import { RequestError } from 'got/dist/source'
 import getDatabase from '../../database'
 import { Rating } from '../../database/schemas/rating'
 import { Release } from '../../database/schemas/release'
@@ -17,6 +18,7 @@ export const getLatestRating = async (
     | NoRatingsError
     | NoReleaseFoundError
     | UsernameDoesntExistError
+    | RequestError
     | MissingDataError,
     ReleaseRating
   >
@@ -33,7 +35,10 @@ export const getLatestRatings = async (
   username: string
 ): Promise<
   Either<
-    NoReleaseFoundError | UsernameDoesntExistError | MissingDataError,
+    | NoReleaseFoundError
+    | UsernameDoesntExistError
+    | RequestError
+    | MissingDataError,
     ReleaseRating[]
   >
 > => getRatingsPage(username, 1)
@@ -43,7 +48,10 @@ export const getNLatestRatings = async (
   n: number
 ): Promise<
   Either<
-    NoReleaseFoundError | UsernameDoesntExistError | MissingDataError,
+    | NoReleaseFoundError
+    | UsernameDoesntExistError
+    | RequestError
+    | MissingDataError,
     ReleaseRating[]
   >
 > => {
@@ -70,7 +78,10 @@ const getRatingsPage = async (
   page: number
 ): Promise<
   Either<
-    NoReleaseFoundError | UsernameDoesntExistError | MissingDataError,
+    | NoReleaseFoundError
+    | UsernameDoesntExistError
+    | RequestError
+    | MissingDataError,
     ReleaseRating[]
   >
 > =>
@@ -86,7 +97,10 @@ export const getRatingForRelease = async (
   release: Release
 ): Promise<
   Either<
-    NoReleaseFoundError | UsernameDoesntExistError | MissingDataError,
+    | NoReleaseFoundError
+    | UsernameDoesntExistError
+    | RequestError
+    | MissingDataError,
     ReleaseRating
   >
 > => {

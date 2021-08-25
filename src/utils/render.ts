@@ -1,5 +1,6 @@
 import { MessageEmbed } from 'discord.js'
 import { pipe } from 'fp-ts/function'
+import { TimeoutError } from 'got/dist/source'
 import { PREFIX } from '../config'
 import { Artist } from '../database/schemas/artist'
 import { FullDate } from '../database/schemas/full-date'
@@ -31,8 +32,17 @@ export const makeUsageEmbed = (command: Command): MessageEmbed => {
   return embed
 }
 
-export const makeErrorEmbed = (error: AppError): MessageEmbed =>
-  new MessageEmbed().setTitle('Error').setDescription(error.message)
+export const makeErrorEmbed = (error: AppError): MessageEmbed => {
+  const embed = new MessageEmbed().setTitle('Error')
+
+  let description = error.message
+  if (error instanceof TimeoutError) {
+    description += '\n\nIs RYM down?'
+  }
+
+  embed.setDescription(description)
+  return embed
+}
 
 export const stringifyRating = (rating: number): string => {
   let output = ''

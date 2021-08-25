@@ -1,17 +1,12 @@
 import path from 'path'
 import Canvas, { registerFont } from 'canvas'
 import { getAverageColor } from 'fast-average-color-node'
-import { isLeft, isRight } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
-import got from 'got'
-import getDatabase from '../../database'
 import { PartialRelease } from '../../database/schemas/partial-release'
-import network from '../../network'
+import { getCover } from '../../services/cover'
 import { ReleaseRating } from '../../services/rating/utils'
-import { getReleaseFromUrl } from '../../services/release'
 import { ifNotNull } from '../../utils/functional'
 import { stringifyArtists, stringifyRating } from '../../utils/render'
-import { getLastFmImage } from './lastfm'
 
 const ALBUM_SIZE = 300
 
@@ -96,31 +91,6 @@ const renderCover = async (
 
   const averageColor = await getAverageColor(coverBuffer)
   return { isDark: averageColor.isDark }
-}
-
-const getCover = async (
-  release: PartialRelease
-): Promise<Buffer | undefined> => {
-  const database = await getDatabase()
-  const databaseRelease = await database.getRelease(release.issueUrl)
-  if (databaseRelease !== undefined && databaseRelease.cover !== null) {
-    const maybeResponse = await network.get(databaseRelease.cover)
-    if (isRight(maybeResponse)) return maybeResponse.right.rawBody
-  }
-
-  const lastFmImage = await getLastFmImage(release)
-  if (lastFmImage !== undefined) return got(lastFmImage).buffer()
-
-  // if we already have the album stored but it doesn't have a cover, return undefined
-  if (databaseRelease !== undefined) return
-
-  const maybeFullRelease = await getReleaseFromUrl(release.issueUrl)
-  if (isLeft(maybeFullRelease)) return
-  const fullRelease = maybeFullRelease.right
-  if (fullRelease.cover === null) return
-
-  const maybeResponse = await network.get(fullRelease.cover)
-  if (isRight(maybeResponse)) return maybeResponse.right.rawBody
 }
 
 const renderTitleCard = (

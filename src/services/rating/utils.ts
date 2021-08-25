@@ -1,5 +1,6 @@
 import cheerio from 'cheerio'
 import { Either, isLeft, left, right } from 'fp-ts/Either'
+import { HTTPError, RequestError } from 'got/dist/source'
 import getDatabase, { Database } from '../../database'
 import { PartialRelease } from '../../database/schemas/partial-release'
 import { Rating } from '../../database/schemas/rating'
@@ -22,11 +23,17 @@ export const getRatingsFromUrl = async (
   url: string,
   username: string
 ): Promise<
-  Either<UsernameDoesntExistError | MissingDataError, ReleaseRating[]>
+  Either<
+    UsernameDoesntExistError | RequestError | MissingDataError,
+    ReleaseRating[]
+  >
 > => {
   const maybeResponse = await network.get(url)
   if (isLeft(maybeResponse)) {
-    return left(new UsernameDoesntExistError(username))
+    const error = maybeResponse.left
+    return error instanceof HTTPError
+      ? left(new UsernameDoesntExistError(username))
+      : left(error)
   }
   const $ = cheerio.load(maybeResponse.right.body)
 

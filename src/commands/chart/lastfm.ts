@@ -1,18 +1,20 @@
 import got from 'got'
-import { LASTFM_KEY } from '../../config'
+import { LASTFM_KEY, REQUEST_TIMEOUT } from '../../config'
 import { PartialRelease } from '../../database/schemas/partial-release'
 import { stringifyArtists } from '../../utils/render'
 
-export const getLastFmImage = async (
-  release: PartialRelease
-): Promise<string | undefined> => {
+export const getLastFmImageUrl = async ({
+  artists,
+  artistDisplayName,
+  title,
+}: Pick<PartialRelease, 'artists' | 'artistDisplayName' | 'title'>): Promise<
+  string | undefined
+> => {
   if (LASTFM_KEY === undefined) return
 
-  const query = `${stringifyArtists(
-    release.artists,
-    release.artistDisplayName,
-    { links: false }
-  )} ${release.title}`
+  const query = `${stringifyArtists(artists, artistDisplayName, {
+    links: false,
+  })} ${title}`
 
   const response = await got('http://ws.audioscrobbler.com/2.0/', {
     searchParams: {
@@ -21,6 +23,7 @@ export const getLastFmImage = async (
       api_key: LASTFM_KEY,
       format: 'json',
     },
+    timeout: REQUEST_TIMEOUT,
   }).json<SuccessResponse | ErrorResponse>()
   if (isErrorResponse(response)) return
 

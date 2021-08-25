@@ -1,5 +1,6 @@
 import { Either, left, right } from 'fp-ts/Either'
 import got, { RequestError, Response } from 'got'
+import { REQUEST_TIMEOUT } from '../config'
 import { Emitter } from './emitter'
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -33,7 +34,7 @@ class NetworkLimiter {
       console.log(Date.now(), url)
 
       try {
-        const response = await got(url)
+        const response = await got(url, { timeout: REQUEST_TIMEOUT })
 
         const listener = this.listeners[id]
         if (listener !== undefined) listener(right(response))
