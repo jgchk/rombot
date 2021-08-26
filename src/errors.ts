@@ -14,6 +14,7 @@ export type AppError =
   | RangeError
   | NotInServerError
   | Bottleneck.BottleneckError
+  | InvalidCredentialsError
 
 export class UsageError extends Error {
   name: 'UsageError'
@@ -85,6 +86,15 @@ export class NotInServerError extends Error {
   constructor() {
     super('Not in a server')
     this.name = 'NotInServerError'
+  }
+}
+
+export class InvalidCredentialsError extends Error {
+  name: 'InvalidCredentialsError'
+
+  constructor() {
+    super('Invalid credentials')
+    this.name = 'InvalidCredentialsError'
   }
 }
 

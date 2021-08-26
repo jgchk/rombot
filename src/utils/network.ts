@@ -1,5 +1,6 @@
 import Bottleneck from 'bottleneck'
 import got from 'got'
+import { CookieJar } from 'tough-cookie'
 import { REQUEST_TIMEOUT } from '../config'
 
 export const limiter = new Bottleneck({
@@ -10,4 +11,7 @@ export const limiter = new Bottleneck({
   minTime: 1500,
 })
 
-export const gott = got.extend({ timeout: REQUEST_TIMEOUT })
+export const gott = got.extend({
+  timeout: REQUEST_TIMEOUT,
+  cookieJar: new CookieJar(),
+})

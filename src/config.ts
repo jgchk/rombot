@@ -13,3 +13,5 @@ export const LASTFM_KEY = config.LASTFM_KEY
 export const LASTFM_SECRET = config.LASTFM_SECRET
 export const REQUEST_TIMEOUT =
   pipe(config.REQUEST_TIMEOUT, ifDefined(parseInt)) || 10_000
+export const RYM_USERNAME = config.RYM_USERNAME
+export const RYM_PASSWORD = config.RYM_PASSWORD

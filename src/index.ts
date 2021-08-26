@@ -8,7 +8,8 @@ import prefix from './commands/prefix'
 import recent from './commands/recent'
 import set from './commands/set'
 import whoknowsalbum from './commands/whoknowsalbum'
-import { BOT_TOKEN } from './config'
+import { BOT_TOKEN, RYM_PASSWORD, RYM_USERNAME } from './config'
+import { login } from './services/login'
 import { getServerPrefix } from './services/server'
 import { CommandMessage } from './types'
 import { makeErrorEmbed, makeUsageEmbed } from './utils/render'
@@ -83,4 +84,12 @@ if (BOT_TOKEN !== undefined) {
   void client.login(BOT_TOKEN)
 } else {
   console.error('BOT_TOKEN not found. Make sure to enter it in config.json')
+}
+
+if (RYM_USERNAME !== undefined && RYM_PASSWORD !== undefined) {
+  void login(RYM_USERNAME, RYM_PASSWORD)
+} else {
+  console.error(
+    'RYM_USERNAME or RYM_PASSWORD not found. Make sure to enter them into config.json'
+  )
 }
