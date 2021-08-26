@@ -48,7 +48,12 @@ client.on('messageCreate', async (message) => {
     // TODO: make this better
     await message.reply('Unknown command')
   } else {
-    await message.channel.sendTyping()
+    void message.channel.sendTyping()
+    const interval = setInterval(
+      () => void message.channel.sendTyping(),
+      10 * 1000
+    )
+
     const commandMessage: CommandMessage = {
       message,
       command,
@@ -67,6 +72,8 @@ client.on('messageCreate', async (message) => {
       }
     } catch (error) {
       await handleError(error, commandMessage)
+    } finally {
+      clearInterval(interval)
     }
   }
 })
