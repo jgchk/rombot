@@ -1,4 +1,6 @@
 * help command
+* mobile embeds
+   - remove descriptors on rymab by default
 * more chart params
 * static docs site generation
 
