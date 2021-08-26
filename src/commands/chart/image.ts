@@ -189,5 +189,10 @@ const getFontForText = (
     metrics = context.measureText(text)
   }
 
-  return { font: context.font, height: fontSize, width: metrics.width, metrics }
+  return {
+    font: context.font,
+    height: fontSize,
+    width: Math.min(metrics.width, maxWidth),
+    metrics,
+  }
 }
