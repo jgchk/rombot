@@ -35,52 +35,52 @@ client.on('messageCreate', async (message) => {
   const prefix = await getServerPrefix(message.guildId)
   if (!message.content.startsWith(prefix)) return
 
-  void message.reply(
-    'rombot is currently IP banned from RYM. mocha is working on it :)'
-  )
-  return
-
-  // const arguments_ = message.content.split(' ')
-  // const name = arguments_.shift()?.slice(prefix.length)
-
-  // if (name === undefined) return
-
-  // const command = commands.find(
-  //   (cmd) => cmd.name === name || cmd.aliases?.some((alias) => alias === name)
+  // void message.reply(
+  //   'rombot is currently IP banned from RYM. mocha is working on it :)'
   // )
+  // return
 
-  // if (command === undefined) {
-  //   // TODO: make this better
-  //   await message.reply('Unknown command')
-  // } else {
-  //   void message.channel.sendTyping()
-  //   const interval = setInterval(
-  //     () => void message.channel.sendTyping(),
-  //     10 * 1000
-  //   )
+  const arguments_ = message.content.split(' ')
+  const name = arguments_.shift()?.slice(prefix.length)
 
-  //   const commandMessage: CommandMessage = {
-  //     message,
-  //     command,
-  //     name,
-  //     arguments_,
-  //   }
+  if (name === undefined) return
 
-  //   try {
-  //     const commandResult = await command.execute(commandMessage)
-  //     if (isLeft(commandResult)) {
-  //       const error = commandResult.left
-  //       await handleError(error, commandMessage)
-  //     } else {
-  //       const response = commandResult.right
-  //       await message.reply(response)
-  //     }
-  //   } catch (error) {
-  //     await handleError(error, commandMessage)
-  //   } finally {
-  //     clearInterval(interval)
-  //   }
-  // }
+  const command = commands.find(
+    (cmd) => cmd.name === name || cmd.aliases?.some((alias) => alias === name)
+  )
+
+  if (command === undefined) {
+    // TODO: make this better
+    await message.reply('Unknown command')
+  } else {
+    void message.channel.sendTyping()
+    const interval = setInterval(
+      () => void message.channel.sendTyping(),
+      10 * 1000
+    )
+
+    const commandMessage: CommandMessage = {
+      message,
+      command,
+      name,
+      arguments_,
+    }
+
+    try {
+      const commandResult = await command.execute(commandMessage)
+      if (isLeft(commandResult)) {
+        const error = commandResult.left
+        await handleError(error, commandMessage)
+      } else {
+        const response = commandResult.right
+        await message.reply(response)
+      }
+    } catch (error) {
+      await handleError(error, commandMessage)
+    } finally {
+      clearInterval(interval)
+    }
+  }
 })
 
 const handleError = async (error: Error, commandMessage: CommandMessage) =>

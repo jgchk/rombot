@@ -7,7 +7,8 @@ export const login = async (
   password: string
 ): Promise<Either<InvalidCredentialsError, true>> => {
   const response = await limiter.schedule(() =>
-    gott.post('https://rateyourmusic.com/httprequest/Login', {
+    gott('https://rateyourmusic.com/httprequest/Login', {
+      method: 'POST',
       form: {
         user: username,
         password: password,

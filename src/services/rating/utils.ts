@@ -79,7 +79,6 @@ export const getRatingsPage = async (
   const url = `https://rateyourmusic.com/collection/${encodeURIComponent(
     username
   )}/${queryString}/${page}`
-  console.log(url)
 
   return getRatingsFromUrl(url, username)
 }

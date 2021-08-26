@@ -1,17 +1,30 @@
+import { URL } from 'url'
 import Bottleneck from 'bottleneck'
-import got from 'got'
+import got, {
+  CancelableRequest,
+  OptionsOfTextResponseBody,
+  Response,
+} from 'got'
 import { CookieJar } from 'tough-cookie'
 import { REQUEST_TIMEOUT } from '../config'
 
 export const limiter = new Bottleneck({
-  reservoir: 30,
-  reservoirRefreshAmount: 30,
+  reservoir: 10,
+  reservoirRefreshAmount: 10,
   reservoirRefreshInterval: 60 * 1000,
   maxConcurrent: 1,
-  minTime: 1500,
+  minTime: 1000,
 })
 
-export const gott = got.extend({
+const customGot = got.extend({
   timeout: REQUEST_TIMEOUT,
   cookieJar: new CookieJar(),
 })
+
+export const gott = (
+  url: string | URL,
+  options?: OptionsOfTextResponseBody
+): CancelableRequest<Response<string>> => {
+  console.log(url)
+  return customGot(url, options)
+}

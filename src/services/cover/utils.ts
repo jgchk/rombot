@@ -50,7 +50,6 @@ export const getCoverFromLastFm = async (
   const lastFmImageUrl = await getLastFmImageUrl(release)
   if (lastFmImageUrl !== undefined) {
     const databaseCover = await database.getCover({ imageUrl: lastFmImageUrl })
-    console.log(lastFmImageUrl)
     const image = databaseCover?.image ?? (await gott(lastFmImageUrl).buffer())
     await database.setCover({
       issueUrl: release.issueUrl,
