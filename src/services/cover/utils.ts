@@ -1,9 +1,8 @@
 import { isLeft } from 'fp-ts/Either'
-import got from 'got'
 import { REQUEST_TIMEOUT } from '../../config'
 import { Database } from '../../database'
 import { Release } from '../../database/schemas/release'
-import limiter from '../../utils/network'
+import { gott, limiter } from '../../utils/network'
 import { getLastFmImageUrl } from '../lastfm'
 import { getReleaseFromUrl } from '../release'
 import { CoverArgument } from './types'
@@ -32,7 +31,7 @@ export const getCoverFromCachedFullRelease = async (
       image = databaseCover.image
     } else {
       const cover = databaseRelease.cover
-      image = await limiter.schedule(() => got(cover).buffer())
+      image = await limiter.schedule(() => gott(cover).buffer())
     }
 
     await database.setCover({
@@ -55,7 +54,7 @@ export const getCoverFromLastFm = async (
     console.log(lastFmImageUrl)
     const image =
       databaseCover?.image ??
-      (await got(lastFmImageUrl, { timeout: REQUEST_TIMEOUT }).buffer())
+      (await gott(lastFmImageUrl, { timeout: REQUEST_TIMEOUT }).buffer())
     await database.setCover({
       issueUrl: release.issueUrl,
       imageUrl: lastFmImageUrl,
@@ -78,7 +77,7 @@ export const getCoverFromFetchedFullRelease = async (
   if (cachedCover !== undefined) return cachedCover.image
 
   const cover = fullRelease.cover
-  const image = await limiter.schedule(() => got(cover).buffer())
+  const image = await limiter.schedule(() => gott(cover).buffer())
   await database.setCover({
     issueUrl: release.issueUrl,
     imageUrl: fullRelease.cover,

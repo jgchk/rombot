@@ -1,13 +1,12 @@
 import cheerio, { CheerioAPI } from 'cheerio'
 import * as ddg from 'duck-duck-scrape'
 import { pipe } from 'fp-ts/function'
-import got from 'got'
 import { ifDefined } from '../../utils/functional'
 import { makeRymUrl } from '../../utils/links'
-import limiter from '../../utils/network'
+import { gott, limiter } from '../../utils/network'
 
 export const loadPage = async (url: string): Promise<CheerioAPI> => {
-  const response = await limiter.schedule(() => got(url))
+  const response = await limiter.schedule(() => gott(url))
   return cheerio.load(response.body)
 }
 

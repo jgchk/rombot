@@ -1,6 +1,6 @@
-import got from 'got'
 import { LASTFM_KEY, REQUEST_TIMEOUT } from '../../config'
 import { PartialRelease } from '../../database/schemas/partial-release'
+import { gott } from '../../utils/network'
 import { stringifyArtists } from '../../utils/render'
 import { ErrorResponse, SuccessResponse } from './types'
 import { getAlbumImage, isErrorResponse } from './utils'
@@ -18,7 +18,7 @@ export const getLastFmImageUrl = async ({
     links: false,
   })} ${title}`
 
-  const response = await got('http://ws.audioscrobbler.com/2.0/', {
+  const response = await gott('http://ws.audioscrobbler.com/2.0/', {
     searchParams: {
       method: 'album.search',
       album: query,

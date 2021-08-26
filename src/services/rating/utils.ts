@@ -5,7 +5,7 @@ import getDatabase, { Database } from '../../database'
 import { PartialRelease } from '../../database/schemas/partial-release'
 import { Rating } from '../../database/schemas/rating'
 import { MissingDataError } from '../../errors'
-import limiter from '../../utils/network'
+import { gott, limiter } from '../../utils/network'
 import { parseRating } from './scraper'
 
 export type ReleaseRating = {
@@ -23,7 +23,7 @@ export const getRatingsFromUrl = async (
   url: string,
   username: string
 ): Promise<Either<RequestError | MissingDataError, ReleaseRating[]>> => {
-  const response = await limiter.schedule(() => got(url))
+  const response = await limiter.schedule(() => gott(url))
   const $ = cheerio.load(response.body)
 
   const elements = $('[id^=page_catalog_item]')
