@@ -44,3 +44,42 @@ export const getRatingsFromUrl = async (
 
   return right(ratings)
 }
+
+export type GetRatingsPageOptions = {
+  page?: number
+  sort?: Partial<{ [k in RatingsPageSortParameters]: number }>
+}
+export type RatingsPageSortParameters = 'date' | 'rating'
+const ratingPageParameterMap: Record<RatingsPageSortParameters, string> = {
+  date: 'd',
+  rating: 'r',
+}
+export const getRatingsPage = async (
+  username: string,
+  options?: GetRatingsPageOptions
+): Promise<Either<RequestError | MissingDataError, ReleaseRating[]>> => {
+  const { page = 1, sort } = options ?? {}
+
+  let queryString = 'r0.5-5.0'
+  if (sort !== undefined) {
+    const sortKeys = Object.keys(sort) as RatingsPageSortParameters[]
+    if (sortKeys.length > 0) {
+      queryString += ',ss'
+      for (const key of sortKeys) {
+        let parameterSymbol = ratingPageParameterMap[key]
+        const direction = sort[key]
+        if (direction !== undefined && direction < 0) {
+          parameterSymbol += 'd'
+        }
+        queryString += '.' + parameterSymbol
+      }
+    }
+  }
+
+  const url = `https://rateyourmusic.com/collection/${encodeURIComponent(
+    username
+  )}/${queryString}/${page}`
+  console.log(url)
+
+  return getRatingsFromUrl(url, username)
+}

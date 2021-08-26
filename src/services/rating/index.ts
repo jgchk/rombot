@@ -8,7 +8,7 @@ import {
   NoRatingsError,
   NoReleaseFoundError,
 } from '../../errors'
-import { ReleaseRating, getRatingsFromUrl } from './utils'
+import { ReleaseRating, getRatingsFromUrl, getRatingsPage } from './utils'
 
 export const getLatestRating = async (
   username: string
@@ -30,7 +30,7 @@ export const getLatestRatings = async (
   username: string
 ): Promise<
   Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating[]>
-> => getRatingsPage(username, 1)
+> => getRatingsPage(username, { sort: { date: -1 } })
 
 export const getNLatestRatings = async (
   username: string,
@@ -41,7 +41,10 @@ export const getNLatestRatings = async (
   const ratings: ReleaseRating[] = []
   let page = 1
   while (ratings.length < n) {
-    const maybeRatings = await getRatingsPage(username, page)
+    const maybeRatings = await getRatingsPage(username, {
+      sort: { date: -1 },
+      page,
+    })
     if (isLeft(maybeRatings)) {
       const error = maybeRatings.left
       return error.name === 'NoReleaseFoundError'
@@ -56,18 +59,39 @@ export const getNLatestRatings = async (
   return right(ratings.slice(0, n))
 }
 
-const getRatingsPage = async (
-  username: string,
-  page: number
+export const getTopRatings = async (
+  username: string
 ): Promise<
   Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating[]>
-> =>
-  getRatingsFromUrl(
-    `https://rateyourmusic.com/collection/${encodeURIComponent(
-      username
-    )}/r0.5-5.0,ss.dd/${page}`,
-    username
-  )
+> => getRatingsPage(username, { sort: { rating: -1, date: -1 } })
+
+export const getNTopRatings = async (
+  username: string,
+  n: number,
+  invert = false
+): Promise<
+  Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating[]>
+> => {
+  const ratings: ReleaseRating[] = []
+  let page = 1
+  while (ratings.length < n) {
+    const maybeRatings = await getRatingsPage(username, {
+      sort: { rating: invert ? 1 : -1, date: -1 },
+      page,
+    })
+    if (isLeft(maybeRatings)) {
+      const error = maybeRatings.left
+      return error.name === 'NoReleaseFoundError'
+        ? // ran out of ratings, return what we have
+          right(ratings)
+        : // some other error. return the error
+          maybeRatings
+    }
+    ratings.push(...maybeRatings.right)
+    page += 1
+  }
+  return right(ratings.slice(0, n))
+}
 
 export const getRatingForRelease = async (
   username: string,

@@ -18,8 +18,8 @@ export const compareFullDates = (a: FullDate, b: FullDate): number => {
   const yearComparison = a.year - b.year
   if (yearComparison !== 0) return yearComparison
 
-  const aMonth = months[a.month] ?? 0
-  const bMonth = months[b.month] ?? 0
+  const aMonth = months[a.month.toLowerCase()] ?? 0
+  const bMonth = months[b.month.toLowerCase()] ?? 0
   const monthComparison = aMonth - bMonth
   if (monthComparison !== 0) return monthComparison
 

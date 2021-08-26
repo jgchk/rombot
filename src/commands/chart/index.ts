@@ -3,12 +3,13 @@ import { Either, isLeft, left, right } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 import { compareFullDates } from '../../database/schemas/full-date'
 import { RangeError } from '../../errors'
-import { getNLatestRatings } from '../../services/rating'
+import { getNLatestRatings, getNTopRatings } from '../../services/rating'
 import { Command, CommandMessage } from '../../types'
 import { getUsername } from '../../utils/arguments'
 import { ifDefined } from '../../utils/functional'
 import { getChartEmbed } from './embed'
 import { createChart } from './image'
+import { Amount } from './types'
 
 const DEFAULT_SIZE = 3
 const MINIMUM_SIZE = 1
@@ -42,9 +43,9 @@ const chart: Command = {
     if (isLeft(maybeSize)) return maybeSize
     const size = maybeSize.right
 
-    const maybeNumberRatings = getNumberRatings(message, size)
-    if (isLeft(maybeNumberRatings)) return maybeNumberRatings
-    const numberRatings = maybeNumberRatings.right
+    const maybeAmount = getAmount(message, size)
+    if (isLeft(maybeAmount)) return maybeAmount
+    const amount = maybeAmount.right
 
     const invertOrder = message.arguments_
       .map((argument) => argument.trim().toLowerCase())
@@ -56,7 +57,10 @@ const chart: Command = {
           argument === 'b'
       )
 
-    const maybeReleaseRatings = await getNLatestRatings(username, numberRatings)
+    const maybeReleaseRatings =
+      amount === 'alltime'
+        ? await getNTopRatings(username, size * size, invertOrder)
+        : await getNLatestRatings(username, amount)
     if (isLeft(maybeReleaseRatings)) return maybeReleaseRatings
     const releaseRatings = maybeReleaseRatings.right
       .sort(
@@ -74,7 +78,7 @@ const chart: Command = {
     )
     const embed = getChartEmbed(
       size,
-      numberRatings,
+      amount,
       invertOrder,
       message.message.author,
       username
@@ -103,10 +107,15 @@ const getSize = (message: CommandMessage): Either<RangeError, number> => {
   return right(size)
 }
 
-const getNumberRatings = (
+const getAmount = (
   message: CommandMessage,
   size: number
-): Either<RangeError, number> => {
+): Either<RangeError, Amount> => {
+  const allTime = message.arguments_
+    .map((argument) => argument.trim().toLowerCase())
+    .some((argument) => argument === 'alltime' || argument === 'a')
+  if (allTime) return right('alltime')
+
   const numberRatings = pipe(
     message.arguments_.find((argument) => /^\d+$/.test(argument)),
     ifDefined(parseInt)
