@@ -173,7 +173,8 @@ const getFontForText = (
     sizeStep = 1,
     style = '',
     fontTemplate = (size: number) =>
-      (style ? `${style} ` : '') + `${size}px Open Sans`,
+      (style ? `${style} ` : '') +
+      `${size}px "Open Sans", "Segoe UI", Tahoma, sans-serif`,
   } = {}
 ): { font: string; height: number; width: number; metrics: TextMetrics } => {
   const context = canvas.getContext('2d')

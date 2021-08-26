@@ -1,4 +1,3 @@
-* try out using slow cover function for charts
 * backup fonts for non-latin scripts
 * help command
 * alltime chart param
