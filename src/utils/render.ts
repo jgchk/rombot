@@ -61,7 +61,7 @@ export const stringifyRating = (rating: number): string => {
   for (let index = 1; index <= 5; index++) {
     if (index - rating <= 0) output += '★'
     else if (index - rating === 0.5) output += '½'
-    else output += '☆'
+    else return output
   }
   return output
 }
