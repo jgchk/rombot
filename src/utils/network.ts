@@ -15,11 +15,12 @@ export const gott = got.extend({
   agent: {
     http: tunnel.httpOverHttp({
       proxy: {
-        host: '209.127.191.180',
-        port: 9279,
+        host: '107.152.222.48',
+        port: 9071,
         proxyAuth: 'dnfnaghh:xipbja6ob89m',
       },
     }),
   },
   timeout: REQUEST_TIMEOUT,
 })
+console.log(gott.defaults)
