@@ -35,6 +35,11 @@ client.on('messageCreate', async (message) => {
   const prefix = await getServerPrefix(message.guildId)
   if (!message.content.startsWith(prefix)) return
 
+  void message.reply(
+    'rombot is currently IP banned from RYM. mocha is working on it :)'
+  )
+  return
+
   const arguments_ = message.content.split(' ')
   const name = arguments_.shift()?.slice(prefix.length)
 
