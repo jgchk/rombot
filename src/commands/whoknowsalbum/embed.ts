@@ -58,7 +58,7 @@ const getWhoKnowsAlbumEmbed = async (
     embed.addField('Rating', stars.join('\n'), true)
     embed.addField('Date', dates.join('\n'), true)
   } else {
-    description += '\n\nNo ratings found.'
+    description += '\n\nNobody knows this release.'
   }
 
   embed.setDescription(description)
