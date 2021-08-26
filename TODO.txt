@@ -1,5 +1,5 @@
-* host on DigitalOcean and get running
-
+* help command
+* more chart params
 * static docs site generation
 
 * improve chart missing cover image

@@ -7,6 +7,7 @@ import { getNLatestRatings } from '../../services/rating'
 import { Command, CommandMessage } from '../../types'
 import { getUsername } from '../../utils/arguments'
 import { ifDefined } from '../../utils/functional'
+import { getChartEmbed } from './embed'
 import { createChart } from './image'
 
 const DEFAULT_SIZE = 3
@@ -22,7 +23,7 @@ const chart: Command = {
   aliases: ['c'],
   description:
     'creates a chart of your top albums out of your last n ratings (up to 50)',
-  usage: 'c [SIZE] [USER] [NUMBER_RATINGS] [lowest|l]',
+  usage: 'c [SIZE] [USER] [NUMBER_RATINGS] [lowest|l|bottom|b]',
   examples: [
     'c',
     'chart 3x3',
@@ -45,9 +46,15 @@ const chart: Command = {
     if (isLeft(maybeNumberRatings)) return maybeNumberRatings
     const numberRatings = maybeNumberRatings.right
 
-    const invertOrder = message.arguments_.some(
-      (argument) => argument === 'lowest' || argument === 'l'
-    )
+    const invertOrder = message.arguments_
+      .map((argument) => argument.trim().toLowerCase())
+      .some(
+        (argument) =>
+          argument === 'lowest' ||
+          argument === 'l' ||
+          argument === 'bottom' ||
+          argument === 'b'
+      )
 
     const maybeReleaseRatings = await getNLatestRatings(username, numberRatings)
     if (isLeft(maybeReleaseRatings)) return maybeReleaseRatings
@@ -65,7 +72,14 @@ const chart: Command = {
       chart.toBuffer(),
       `chart-${username}-${size}x${size}-${Date.now()}.png`
     )
-    return right({ files: [attachment] })
+    const embed = getChartEmbed(
+      size,
+      numberRatings,
+      invertOrder,
+      message.message.author,
+      username
+    )
+    return right({ files: [attachment], embeds: [embed] })
   },
 }
 
