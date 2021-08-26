@@ -1,4 +1,3 @@
-* backup fonts for non-latin scripts
 * help command
 * alltime chart param
    - sort by highest rated
