@@ -1,6 +1,5 @@
 import { Client, Intents } from 'discord.js'
-import { fold } from 'fp-ts/Either'
-import { pipe } from 'fp-ts/function'
+import { isLeft } from 'fp-ts/Either'
 import album from './commands/album'
 import chart from './commands/chart'
 import cover from './commands/cover'
@@ -46,27 +45,39 @@ client.on('messageCreate', async (message) => {
 
   if (command === undefined) {
     // TODO: make this better
-    void message.reply('Unknown command')
+    await message.reply('Unknown command')
   } else {
     await message.channel.sendTyping()
-    const commandMessage: CommandMessage = { message, name, arguments_ }
-    void pipe(
-      await command.execute(commandMessage),
-      fold(
-        async (error) => {
-          if (error.name === 'UsageError')
-            return message.reply({
-              embeds: [await makeUsageEmbed(command, commandMessage)],
-            })
-          return message.reply({
-            embeds: [await makeErrorEmbed(error, commandMessage)],
-          })
-        },
-        (response) => message.reply(response)
-      )
-    )
+    const commandMessage: CommandMessage = {
+      message,
+      command,
+      name,
+      arguments_,
+    }
+
+    try {
+      const commandResult = await command.execute(commandMessage)
+      if (isLeft(commandResult)) {
+        const error = commandResult.left
+        await handleError(error, commandMessage)
+      } else {
+        const response = commandResult.right
+        await message.reply(response)
+      }
+    } catch (error) {
+      await handleError(error, commandMessage)
+    }
   }
 })
+
+const handleError = async (error: Error, commandMessage: CommandMessage) =>
+  commandMessage.message.reply({
+    embeds: [
+      error.name === 'UsageError'
+        ? await makeUsageEmbed(commandMessage)
+        : await makeErrorEmbed(error, commandMessage),
+    ],
+  })
 
 if (BOT_TOKEN !== undefined) {
   void client.login(BOT_TOKEN)

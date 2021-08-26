@@ -1,11 +1,11 @@
 import cheerio from 'cheerio'
-import { Either, isLeft, left, right } from 'fp-ts/Either'
-import { RequestError } from 'got/dist/source'
+import { Either, isLeft, right } from 'fp-ts/Either'
+import got, { RequestError } from 'got'
 import getDatabase, { Database } from '../../database'
 import { PartialRelease } from '../../database/schemas/partial-release'
 import { Rating } from '../../database/schemas/rating'
 import { MissingDataError } from '../../errors'
-import network from '../../network'
+import limiter from '../../utils/network'
 import { parseRating } from './scraper'
 
 export type ReleaseRating = {
@@ -23,10 +23,8 @@ export const getRatingsFromUrl = async (
   url: string,
   username: string
 ): Promise<Either<RequestError | MissingDataError, ReleaseRating[]>> => {
-  const maybeResponse = await network.get(url)
-  if (isLeft(maybeResponse)) return left(maybeResponse.left)
-
-  const $ = cheerio.load(maybeResponse.right.body)
+  const response = await limiter.schedule(() => got(url))
+  const $ = cheerio.load(response.body)
 
   const elements = $('[id^=page_catalog_item]')
     .toArray()

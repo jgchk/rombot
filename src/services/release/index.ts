@@ -1,5 +1,5 @@
 import { Either, isLeft, isRight, left, right } from 'fp-ts/Either'
-import { RequestError } from 'got/dist/source'
+import { RequestError } from 'got'
 import getDatabase from '../../database'
 import { Release } from '../../database/schemas/release'
 import { MissingDataError, NoReleaseFoundError } from '../../errors'
@@ -39,9 +39,7 @@ export const getReleaseFromUrl = async (
   const cachedRelease = await database.getRelease(url)
   if (cachedRelease !== undefined) return right(cachedRelease)
 
-  const maybe$ = await loadPage(url)
-  if (isLeft(maybe$)) return maybe$
-  const $ = maybe$.right
+  const $ = await loadPage(url)
 
   const maybeRelease = scrapeRelease($, url)
   if (isLeft(maybeRelease)) return maybeRelease
@@ -58,9 +56,7 @@ export const getCombinedReleaseFromUrl = async (
   if (cachedRelease !== undefined) return right(cachedRelease)
 
   let url = issueUrl
-  let maybe$ = await loadPage(url)
-  if (isLeft(maybe$)) return maybe$
-  let $ = maybe$.right
+  let $ = await loadPage(url)
 
   const combinedUrl = getCombinedUrl($)
 
@@ -73,9 +69,7 @@ export const getCombinedReleaseFromUrl = async (
 
     // now load up the combined issue page
     url = combinedUrl
-    maybe$ = await loadPage(combinedUrl)
-    if (isLeft(maybe$)) return maybe$
-    $ = maybe$.right
+    $ = await loadPage(combinedUrl)
   }
 
   const maybeRelease = scrapeRelease($, url)

@@ -1,18 +1,14 @@
 import cheerio, { CheerioAPI } from 'cheerio'
 import * as ddg from 'duck-duck-scrape'
-import { Either, isLeft, right } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
-import { RequestError } from '../../errors'
-import network from '../../network'
+import got from 'got'
+import limiter from '../../utils/network'
 import { ifDefined } from '../../utils/functional'
 import { makeRymUrl } from '../../utils/links'
 
-export const loadPage = async (
-  url: string
-): Promise<Either<RequestError, CheerioAPI>> => {
-  const maybeResponse = await network.get(url)
-  if (isLeft(maybeResponse)) return maybeResponse
-  return right(cheerio.load(maybeResponse.right.body))
+export const loadPage = async (url: string): Promise<CheerioAPI> => {
+  const response = await limiter.schedule(() => got(url))
+  return cheerio.load(response.body)
 }
 
 export const getSearchResult = async (

@@ -15,6 +15,7 @@ export type Command = {
 
 export type CommandMessage = {
   message: Message
+  command: Command
   name: string
   arguments_: string[]
 }

@@ -1,5 +1,5 @@
 import { Either, isLeft, left, right } from 'fp-ts/Either'
-import { RequestError } from 'got/dist/source'
+import { RequestError } from 'got'
 import getDatabase from '../../database'
 import { Rating } from '../../database/schemas/rating'
 import { Release } from '../../database/schemas/release'

@@ -1,4 +1,5 @@
 import { userMention } from '@discordjs/builders'
+import Bottleneck from 'bottleneck'
 import { User } from 'discord.js'
 import { RequestError } from 'got'
 import { capitalize } from './utils/string'
@@ -12,6 +13,7 @@ export type AppError =
   | RequestError
   | RangeError
   | NotInServerError
+  | Bottleneck.BottleneckError
 
 export class UsageError extends Error {
   name: 'UsageError'
