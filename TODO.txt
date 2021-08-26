@@ -1,7 +1,11 @@
+* backup fonts for non-latin scripts
 * help command
+* alltime chart param
+   - sort by highest rated
+* weekly, monthly chart params
+* notitle norating chart params
 * mobile embeds
    - remove descriptors on rymab by default
-* more chart params
 * static docs site generation
 
 * improve chart missing cover image
