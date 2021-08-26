@@ -63,7 +63,7 @@ const getRatingsPage = async (
   Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating[]>
 > =>
   getRatingsFromUrl(
-    `http://rateyourmusic.com/collection/${encodeURIComponent(
+    `https://rateyourmusic.com/collection/${encodeURIComponent(
       username
     )}/r0.5-5.0,ss.dd/${page}`,
     username
@@ -76,7 +76,7 @@ export const getRatingForRelease = async (
   Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating>
 > => {
   const maybeRatings = await getRatingsFromUrl(
-    `http://rateyourmusic.com/collection/${encodeURIComponent(
+    `https://rateyourmusic.com/collection/${encodeURIComponent(
       username
     )}/strm_l/${encodeURIComponent(`[${release.id}]`)}`,
     username

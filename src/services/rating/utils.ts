@@ -1,6 +1,6 @@
 import cheerio from 'cheerio'
 import { Either, isLeft, right } from 'fp-ts/Either'
-import got, { RequestError } from 'got'
+import { RequestError } from 'got'
 import getDatabase, { Database } from '../../database'
 import { PartialRelease } from '../../database/schemas/partial-release'
 import { Rating } from '../../database/schemas/rating'

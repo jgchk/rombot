@@ -1,4 +1,4 @@
-import { LASTFM_KEY, REQUEST_TIMEOUT } from '../../config'
+import { LASTFM_KEY } from '../../config'
 import { PartialRelease } from '../../database/schemas/partial-release'
 import { gott } from '../../utils/network'
 import { stringifyArtists } from '../../utils/render'
@@ -25,7 +25,6 @@ export const getLastFmImageUrl = async ({
       api_key: LASTFM_KEY,
       format: 'json',
     },
-    timeout: REQUEST_TIMEOUT,
   }).json<SuccessResponse | ErrorResponse>()
   if (isErrorResponse(response)) return
 

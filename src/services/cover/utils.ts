@@ -1,5 +1,4 @@
 import { isLeft } from 'fp-ts/Either'
-import { REQUEST_TIMEOUT } from '../../config'
 import { Database } from '../../database'
 import { Release } from '../../database/schemas/release'
 import { gott, limiter } from '../../utils/network'
@@ -52,9 +51,7 @@ export const getCoverFromLastFm = async (
   if (lastFmImageUrl !== undefined) {
     const databaseCover = await database.getCover({ imageUrl: lastFmImageUrl })
     console.log(lastFmImageUrl)
-    const image =
-      databaseCover?.image ??
-      (await gott(lastFmImageUrl, { timeout: REQUEST_TIMEOUT }).buffer())
+    const image = databaseCover?.image ?? (await gott(lastFmImageUrl).buffer())
     await database.setCover({
       issueUrl: release.issueUrl,
       imageUrl: lastFmImageUrl,
