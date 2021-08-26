@@ -36,8 +36,15 @@ export const parseRating = (
 
   const releaseYear =
     pipe(
-      element.find('.or_q_albumartist .smallgray').first().text().trim() ||
-        undefined,
+      element
+        .find('.or_q_albumartist .smallgray')
+        .toArray()
+        .map((element_) => {
+          const $ = cheerio.load(element_)
+          return $(element_).text().trim() || undefined
+        })
+        .filter(isDefined)
+        .find((text) => /\(\d+\)/.test(text)),
       ifDefined((text) => Number.parseInt(text.slice(1, -1)))
     ) ?? null
 
