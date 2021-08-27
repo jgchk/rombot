@@ -10,6 +10,7 @@
 * static docs site generation
 * improve chart missing cover image
 * show status with prefix / help command
+* artist overview (top releases, artist info)
 * .fmtab https://fmbot.xyz/commands/albums/#topalbums-tab
 * .fmf https://fmbot.xyz/commands/friends/#friends-f
 * .fmfeatured https://fmbot.xyz/commands/featured/#featured
