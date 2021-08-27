@@ -1,6 +1,4 @@
 * help command
-* alltime chart param
-   - sort by highest rated
 * weekly, monthly chart params
 * notitle norating chart params
 * better rymwk
