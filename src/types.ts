@@ -8,10 +8,13 @@ export type Command = {
   aliases?: string[]
   usage: string
   examples: string[]
-  execute: (
-    message: CommandMessage
-  ) => Promise<Either<AppError, string | MessagePayload | ReplyMessageOptions>>
+  execute: (message: CommandMessage) => Promise<CommandOutput> | CommandOutput
 }
+
+export type CommandOutput = Either<
+  AppError,
+  string | MessagePayload | ReplyMessageOptions
+>
 
 export type CommandMessage = {
   message: Message

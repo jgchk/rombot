@@ -1,16 +1,10 @@
 import { Client, Intents } from 'discord.js'
 import { isLeft } from 'fp-ts/Either'
-import album from './commands/album'
-import chart from './commands/chart'
-import cover from './commands/cover'
-import latest from './commands/latest'
-import prefix from './commands/prefix'
-import recent from './commands/recent'
-import set from './commands/set'
-import whoknowsalbum from './commands/whoknowsalbum'
+import { commands } from './commands'
+import help from './commands/help'
 import { BOT_TOKEN, RYM_PASSWORD, RYM_USERNAME } from './config'
 import { login } from './services/login'
-import { getServerPrefix } from './services/server'
+import { DEFAULT_PREFIX, getServerPrefix } from './services/server'
 import { CommandMessage } from './types'
 import { makeErrorEmbed, makeUsageEmbed } from './utils/render'
 
@@ -18,18 +12,14 @@ const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
 })
 
-client.once('ready', () => console.log('Ready!'))
-
-const commands = [
-  set,
-  album,
-  latest,
-  whoknowsalbum,
-  recent,
-  chart,
-  cover,
-  prefix,
-]
+client.once('ready', (client_) => {
+  // TODO: per-guild prefix
+  client_.user.setPresence({
+    status: 'online',
+    activities: [{ type: 'LISTENING', name: `${DEFAULT_PREFIX}${help.name}` }],
+  })
+  console.log('Ready!')
+})
 
 client.on('messageCreate', async (message) => {
   const prefix = await getServerPrefix(message.guildId)
@@ -42,6 +32,10 @@ client.on('messageCreate', async (message) => {
 
   const arguments_ = message.content.split(' ')
   const name = arguments_.shift()?.slice(prefix.length)
+
+  const help = arguments_
+    .map((argument) => argument.trim().toLowerCase())
+    .includes('help')
 
   if (name === undefined) return
 
@@ -66,20 +60,25 @@ client.on('messageCreate', async (message) => {
       arguments_,
     }
 
-    try {
-      const commandResult = await command.execute(commandMessage)
-      if (isLeft(commandResult)) {
-        const error = commandResult.left
+    if (help) {
+      await commandMessage.message.reply({
+        embeds: [await makeUsageEmbed(commandMessage)],
+      })
+    } else {
+      try {
+        const commandResult = await command.execute(commandMessage)
+        if (isLeft(commandResult)) {
+          const error = commandResult.left
+          await handleError(error, commandMessage)
+        } else {
+          const response = commandResult.right
+          await message.reply(response)
+        }
+      } catch (error) {
         await handleError(error, commandMessage)
-      } else {
-        const response = commandResult.right
-        await message.reply(response)
       }
-    } catch (error) {
-      await handleError(error, commandMessage)
-    } finally {
-      clearInterval(interval)
     }
+    clearInterval(interval)
   }
 })
 

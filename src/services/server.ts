@@ -3,7 +3,7 @@ import getDatabase from '../database'
 import { Server } from '../database/schemas/server'
 import { NotInServerError, UsageError } from '../errors'
 
-const DEFAULT_PREFIX = '!rym'
+export const DEFAULT_PREFIX = '!rym'
 
 export const getServerPrefix = async (
   serverId: string | null | undefined
