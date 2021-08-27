@@ -47,12 +47,6 @@ client.on('messageCreate', async (message) => {
     // TODO: make this better
     await message.reply('Unknown command')
   } else {
-    void message.channel.sendTyping()
-    const interval = setInterval(
-      () => void message.channel.sendTyping(),
-      10 * 1000
-    )
-
     const commandMessage: CommandMessage = {
       message,
       command,
@@ -61,10 +55,17 @@ client.on('messageCreate', async (message) => {
     }
 
     if (help) {
+      void message.channel.sendTyping()
       await commandMessage.message.reply({
         embeds: [await makeUsageEmbed(commandMessage)],
       })
     } else {
+      void message.channel.sendTyping()
+      const interval = setInterval(
+        () => void message.channel.sendTyping(),
+        10 * 1000
+      )
+
       try {
         const commandResult = await command.execute(commandMessage)
         if (isLeft(commandResult)) {
@@ -76,9 +77,10 @@ client.on('messageCreate', async (message) => {
         }
       } catch (error) {
         await handleError(error, commandMessage)
+      } finally {
+        clearInterval(interval)
       }
     }
-    clearInterval(interval)
   }
 })
 
