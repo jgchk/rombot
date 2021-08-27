@@ -4,6 +4,7 @@
 * better rymwk
    - give the bot an account and follow all users who do !rymset
    - scrape ratings from bottom of album page
+   - add ability to upload your own exported ratings
 * mobile embeds
    - remove descriptors on rymab by default
 * static docs site generation
