@@ -1,4 +1,5 @@
 * add help alias 'commands'
+* whoknows average rating
 * weekly, monthly chart params
 * notitle norating chart params
 * better rymwk
