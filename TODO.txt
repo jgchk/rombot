@@ -1,6 +1,6 @@
 * add help alias 'commands'
 * whoknows average rating
-* weekly, monthly chart params
+* weekly, monthly, recent chart params
 * notitle norating chart params
 * better rymwk
    - give the bot an account and follow all users who do !rymset
