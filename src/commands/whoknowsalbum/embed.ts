@@ -1,9 +1,9 @@
 import { MessageEmbed, User } from 'discord.js'
 import { compareFullDates } from '../../database/schemas/full-date'
-import { Rating } from '../../database/schemas/rating'
 import { Release } from '../../database/schemas/release'
 import { getServerPrefix } from '../../services/server'
 import { CommandMessage } from '../../types'
+import { sum } from '../../utils/math'
 import {
   makeUserLink,
   stringifyArtists,
@@ -11,13 +11,11 @@ import {
   stringifyRating,
 } from '../../utils/render'
 import album from '../album'
-
-type Rated = Rating & { rating: number }
-const isRated = (rating: Rating): rating is Rated => rating.rating !== null
+import { Rated } from './types'
 
 const getWhoKnowsAlbumEmbed = async (
   release: Release,
-  ratings: Rating[],
+  ratings: Rated[],
   user: User,
   message: CommandMessage
 ): Promise<MessageEmbed> => {
@@ -40,7 +38,7 @@ const getWhoKnowsAlbumEmbed = async (
   }
 
   if (ratings.length > 0) {
-    const sortedRatings = ratings.filter(isRated).sort((a, b) => {
+    const sortedRatings = ratings.sort((a, b) => {
       const dateComparison = -compareFullDates(a.date, b.date)
       if (dateComparison !== 0) return dateComparison
       const usernameComparison = a.username.localeCompare(b.username)
@@ -57,6 +55,10 @@ const getWhoKnowsAlbumEmbed = async (
     embed.addField('Username', usernames.join('\n'), true)
     embed.addField('Rating', stars.join('\n'), true)
     embed.addField('Date', dates.join('\n'), true)
+
+    const averageRating =
+      sum(ratings.map((rating) => rating.rating)) / ratings.length
+    embed.addField('Average Rating', averageRating.toFixed(2))
   } else {
     description += '\n\nNobody knows this release.'
   }

@@ -9,6 +9,7 @@ import { Command } from '../../types'
 import { getUsername } from '../../utils/arguments'
 import { getRight } from '../../utils/types'
 import getWhoKnowsAlbumEmbed from './embed'
+import { isRated } from './types'
 
 const whoknowsalbum: Command = {
   name: 'whoknowsalbum',
@@ -37,7 +38,7 @@ const whoknowsalbum: Command = {
       const username = getRight(maybeUsername)
       if (username !== undefined) await getRatingForRelease(username, release)
 
-      const ratings = await getRatingsForAllIssues(release)
+      const ratings = (await getRatingsForAllIssues(release)).filter(isRated)
 
       return right({
         embeds: [
@@ -65,7 +66,7 @@ const whoknowsalbum: Command = {
     if (isLeft(maybeRelease)) return maybeRelease
     const release = maybeRelease.right
 
-    const ratings = await getRatingsForAllIssues(release)
+    const ratings = (await getRatingsForAllIssues(release)).filter(isRated)
 
     return right({
       embeds: [

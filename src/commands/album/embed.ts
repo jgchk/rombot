@@ -45,7 +45,7 @@ export const getAlbumEmbed = (
     if (release.rymRating !== null || release.numberRymRatings !== null) {
       let output = ''
       if (release.rymRating !== null) {
-        output += `**${release.rymRating}**`
+        output += `**${release.rymRating.toFixed(2)}**`
       }
       if (release.numberRymRatings !== null) {
         if (output.length > 0) output += ' from '
