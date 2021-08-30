@@ -1,4 +1,3 @@
-* add help alias 'commands'
 * whoknows average rating
 * weekly, monthly, recent chart params
 * notitle norating chart params
