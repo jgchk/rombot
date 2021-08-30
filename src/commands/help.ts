@@ -9,6 +9,7 @@ import { commands } from '.'
 
 const help: Command = {
   name: 'help',
+  aliases: ['commands'],
   description: 'shows information about getting started with the bot',
   usage: 'help',
   examples: ['help'],
