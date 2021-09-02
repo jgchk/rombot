@@ -2,7 +2,6 @@
    - remove descriptors on rymab by default
 * use RYM search if entered bracketed album id [Album437814710]
 * add genres to whoknows
-* whoknows pagination
 * sort rymwk sort by rating, username, date including reverse using buttons
 * crowns system for finding whoknows where you're the only rater
 * add curve to whoknows
