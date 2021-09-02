@@ -15,10 +15,11 @@ const set: Command = {
     if (username.startsWith('~')) username = username.slice(1)
 
     const currentUsername = await getUsernameForUser(message.message.author)
-    if (currentUsername !== undefined) await unfollow(username)
-
-    await setUsernameForUser(message.message.author, username)
-    await follow(username)
+    if (currentUsername !== username) {
+      if (currentUsername !== undefined) await unfollow(currentUsername)
+      await setUsernameForUser(message.message.author, username)
+      await follow(username)
+    }
 
     return right(`Set username to ~${username}`)
   },
