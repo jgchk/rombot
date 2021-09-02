@@ -11,10 +11,9 @@ export type Command = {
   execute: (message: CommandMessage) => Promise<CommandOutput> | CommandOutput
 }
 
-export type CommandOutput = Either<
-  AppError,
-  string | MessagePayload | ReplyMessageOptions
->
+export type CommandOutput =
+  | Either<AppError, string | MessagePayload | ReplyMessageOptions>
+  | undefined
 
 export type CommandMessage = {
   message: Message

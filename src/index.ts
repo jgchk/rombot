@@ -6,6 +6,7 @@ import { BOT_TOKEN, RYM_PASSWORD, RYM_USERNAME } from './config'
 import { login } from './services/login'
 import { DEFAULT_PREFIX, getServerPrefix } from './services/server'
 import { CommandMessage } from './types'
+import { emitButton } from './utils/buttons'
 import { makeErrorEmbed, makeUsageEmbed } from './utils/render'
 
 const client = new Client({
@@ -68,12 +69,14 @@ client.on('messageCreate', async (message) => {
 
       try {
         const commandResult = await command.execute(commandMessage)
-        if (isLeft(commandResult)) {
-          const error = commandResult.left
-          await handleError(error, commandMessage)
-        } else {
-          const response = commandResult.right
-          await message.reply(response)
+        if (commandResult !== undefined) {
+          if (isLeft(commandResult)) {
+            const error = commandResult.left
+            await handleError(error, commandMessage)
+          } else {
+            const response = commandResult.right
+            await message.reply(response)
+          }
         }
       } catch (error) {
         await handleError(error, commandMessage)
@@ -81,6 +84,12 @@ client.on('messageCreate', async (message) => {
         clearInterval(interval)
       }
     }
+  }
+})
+
+client.on('interactionCreate', (interaction) => {
+  if (interaction.isButton()) {
+    emitButton(interaction)
   }
 })
 
