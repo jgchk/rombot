@@ -1,24 +1,20 @@
-* whoknows pagination
-* startup script to follow all not-followed users
-
-* weekly, monthly, recent chart params
-* notitle norating chart params
-* better rymwk
-   - give the bot an account and follow all users who do !rymset
-   - scrape ratings from bottom of album page
-   - add ability to upload your own exported ratings
 * mobile embeds
    - remove descriptors on rymab by default
-* static docs site generation
+* add curve to whoknows
+* whoknows pagination
+* startup script to follow all not-followed users
+* weekly, monthly, recent chart params
+* notitle norating chart params
 * improve chart missing cover image
 * server top albums
+   - cache average ratings for whoknows
 * artist overview (top releases, artist info)
 * .fmtab https://fmbot.xyz/commands/albums/#topalbums-tab
 * .fmf https://fmbot.xyz/commands/friends/#friends-f
 * .fmfeatured https://fmbot.xyz/commands/featured/#featured
    - get featured album from homepage
+* static docs site generation
 * curve visualizer command
-
 * lock down rymprefix perms
 * remind command
 * unify rating & latest embeds
