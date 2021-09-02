@@ -27,12 +27,6 @@ const getWhoKnowsAlbumEmbed = (
     embed.setThumbnail(release.cover)
   }
 
-  if (ratings.length > 0) {
-    const averageRating =
-      sum(ratings.map((rating) => rating.rating)) / ratings.length
-    embed.setFooter(`Average Rating: ${averageRating.toFixed(2)}`)
-  }
-
   const sortedRatings = ratings.sort((a, b) => {
     const ratingComparison = -(a.rating - b.rating)
     const dateComparison = -compareFullDates(a.date, b.date)
@@ -53,6 +47,14 @@ const getWhoKnowsAlbumEmbed = (
 
   const pages = getPages(release, sortedRatings)
   embed.setDescription(pages[page])
+
+  if (ratings.length > 0) {
+    const averageRating =
+      sum(ratings.map((rating) => rating.rating)) / ratings.length
+    let footer = `Average Rating: ${averageRating.toFixed(2)}`
+    if (pages.length > 1) footer += ` | Page ${page + 1}/${pages.length}`
+    embed.setFooter(footer)
+  }
 
   return { embed, totalPages: pages.length }
 }
