@@ -1,13 +1,8 @@
 import { isLeft, right } from 'fp-ts/Either'
-import {
-  getLatestRating,
-  getRatingForRelease,
-  getRatingsForAllIssues,
-} from '../../services/rating'
+import { getLatestRating, getRatingsForAllIssues } from '../../services/rating'
 import { getReleaseFromUrl, searchRelease } from '../../services/release'
 import { Command } from '../../types'
 import { getUsername } from '../../utils/arguments'
-import { getRight } from '../../utils/types'
 import getWhoKnowsAlbumEmbed from './embed'
 import { isRated } from './types'
 
@@ -34,11 +29,9 @@ const whoknowsalbum: Command = {
       if (isLeft(maybeRelease)) return maybeRelease
       const release = maybeRelease.right
 
-      // if user has username set, fetch and store their rating
-      const username = getRight(maybeUsername)
-      if (username !== undefined) await getRatingForRelease(username, release)
-
-      const ratings = (await getRatingsForAllIssues(release)).filter(isRated)
+      const maybeRatings = await getRatingsForAllIssues(release)
+      if (isLeft(maybeRatings)) return maybeRatings
+      const ratings = maybeRatings.right.filter(isRated)
 
       return right({
         embeds: [
@@ -66,7 +59,9 @@ const whoknowsalbum: Command = {
     if (isLeft(maybeRelease)) return maybeRelease
     const release = maybeRelease.right
 
-    const ratings = (await getRatingsForAllIssues(release)).filter(isRated)
+    const maybeRatings = await getRatingsForAllIssues(release)
+    if (isLeft(maybeRatings)) return maybeRatings
+    const ratings = maybeRatings.right.filter(isRated)
 
     return right({
       embeds: [

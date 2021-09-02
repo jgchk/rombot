@@ -1,6 +1,9 @@
-import { Either, isLeft, left, right } from 'fp-ts/Either'
+import cheerio from 'cheerio'
+import { Either, isLeft, isRight, left, right } from 'fp-ts/Either'
+import { pipe } from 'fp-ts/function'
 import { RequestError } from 'got'
 import getDatabase from '../../database'
+import { FullDate } from '../../database/schemas/full-date'
 import { Rating } from '../../database/schemas/rating'
 import { Release } from '../../database/schemas/release'
 import {
@@ -8,7 +11,10 @@ import {
   NoRatingsError,
   NoReleaseFoundError,
 } from '../../errors'
-import { ReleaseRating, getRatingsFromUrl, getRatingsPage } from './utils'
+import { ifDefined } from '../../utils/functional'
+import { getRequestToken, gott, limiter } from '../../utils/network'
+import { getReleaseFromUrl } from '../release'
+import { getRatingsFromUrl, getRatingsPage, ReleaseRating } from './utils'
 
 export const getLatestRating = async (
   username: string
@@ -117,11 +123,114 @@ export const getRatingForRelease = async (
 
 export const getRatingsForAllIssues = async (
   release: Release
-): Promise<Rating[]> => {
-  const allUrls = [
-    ...new Set([release.url, release.combinedUrl, ...release.issueUrls]),
-  ]
+): Promise<Either<RequestError | MissingDataError, Rating[]>> => {
+  const maybeCombinedRelease = await getReleaseFromUrl(release.combinedUrl)
+  if (isLeft(maybeCombinedRelease)) return maybeCombinedRelease
+  const combinedRelease = maybeCombinedRelease.right
+
+  const allRatings: Either<MissingDataError, Rating>[] = []
+  let totalRatings = 0
+  let page = 1
+
+  do {
+    const maybeRatings = await getReleaseRatingPage(combinedRelease, page)
+    if (isLeft(maybeRatings)) return maybeRatings
+
+    allRatings.push(...maybeRatings.right.ratings)
+    totalRatings += maybeRatings.right.totalRatings
+    page += 1
+  } while (totalRatings === allRatings.length)
+
+  return right(allRatings.filter(isRight).map((rating) => rating.right))
+}
+
+const getReleaseRatingPage = async (
+  release: Release,
+  page: number
+): Promise<
+  Either<
+    MissingDataError,
+    { ratings: Either<MissingDataError, Rating>[]; totalRatings: number }
+  >
+> => {
+  const id = /(\d+)/.exec(release.id)?.[1]
+  if (id === undefined)
+    return left(new MissingDataError(`numeric id in ${release.id}`))
+
+  const maybeRequestToken = await getRequestToken()
+  if (isLeft(maybeRequestToken)) return maybeRequestToken
+  const requestToken = maybeRequestToken.right
+
+  const response = await limiter.schedule(() =>
+    gott('https://rateyourmusic.com/httprequest/LoadCatalogPage', {
+      method: 'POST',
+      form: {
+        type: 'l',
+        assoc_id: id,
+        show_all: true,
+        pane: 'ratings',
+        page_str: `/${page}`,
+        action: 'LoadCatalogPage',
+        rym_ajax_req: 1,
+        request_token: requestToken,
+      },
+    })
+  )
+  const html = response.body.slice(53, -24)
+  const $ = cheerio.load(html)
+
+  const ratingElements = $('.catalog_header')
+  const friendRatingElements = $(
+    '.catalog_header.friend, .my_rating .catalog_header'
+  )
+
+  const ratings: Either<MissingDataError, Rating>[] = friendRatingElements
+    .toArray()
+    .map((element) => {
+      const $element = $(element)
+
+      const username = $element.find('.catalog_user').text().trim() || undefined
+      if (username === undefined) return left(new MissingDataError('username'))
+
+      const date = pipe(
+        $element.parent().find('.catalog_date').text().trim() || undefined,
+        ifDefined((string_) => {
+          const [day, month, year] = string_.split(' ')
+          const fullDate: FullDate = {
+            day: Number.parseInt(day),
+            month,
+            year: Number.parseInt(year),
+          }
+          return fullDate
+        })
+      )
+      if (date === undefined) return left(new MissingDataError('date'))
+
+      const rating =
+        pipe(
+          $element.find('.catalog_rating img').attr('title') || undefined,
+          ifDefined(parseFloat)
+        ) ?? null
+
+      const ownership =
+        $element.find('.catalog_ownership').text().trim() || null
+
+      return right({
+        issueUrl: release.url,
+        username,
+        date,
+        rating,
+        ownership,
+        tags: null,
+      })
+    })
 
   const database = await getDatabase()
-  return database.getRatingsForUrls(allUrls)
+  await Promise.all(
+    ratings
+      .filter(isRight)
+      .map(({ right: rating }) => database.setRating(rating))
+  )
+
+  return right({ ratings, totalRatings: ratingElements.length })
 }

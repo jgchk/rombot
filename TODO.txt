@@ -1,3 +1,4 @@
+* lock down rymprefix perms
 * weekly, monthly, recent chart params
 * notitle norating chart params
 * better rymwk
@@ -14,3 +15,5 @@
 * .fmf https://fmbot.xyz/commands/friends/#friends-f
 * .fmfeatured https://fmbot.xyz/commands/featured/#featured
    - get featured album from homepage
+
+* remind command

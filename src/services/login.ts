@@ -1,4 +1,4 @@
-import { Either, left, right } from 'fp-ts/lib/Either'
+import { Either, left, right } from 'fp-ts/Either'
 import { InvalidCredentialsError } from '../errors'
 import { gott, limiter } from '../utils/network'
 
