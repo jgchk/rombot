@@ -1,14 +1,10 @@
-import {
-  MessageActionRow,
-  MessageButton,
-  ReplyMessageOptions,
-} from 'discord.js'
+import { MessageActionRow, MessageButton } from 'discord.js'
 import { isLeft } from 'fp-ts/Either'
 import { getRatingsForAllIssues } from '../../services/rating'
 import { Command } from '../../types'
-import { subscribeButton, unsubscribeButton } from '../../utils/buttons'
+import { subscribeButton, unsubscribeButtons } from '../../utils/buttons'
 import getWhoKnowsAlbumEmbed from './embed'
-import { isRated } from './types'
+import { Sort, isRated } from './types'
 import { getRelease } from './utils'
 
 const BUTTON_TIMEOUT = 60 * 1000
@@ -35,6 +31,34 @@ const whoknowsalbum: Command = {
     if (isLeft(maybeRatings)) return maybeRatings
     const ratings = maybeRatings.right.filter(isRated)
 
+    const ratingButton = subscribeButton(
+      new MessageButton().setLabel('Rating').setStyle('SECONDARY'),
+      async (interaction) => {
+        sort = 'rating'
+        page = 0
+        timeout.refresh()
+        await interaction.update(render())
+      }
+    )
+    const usernameButton = subscribeButton(
+      new MessageButton().setLabel('Username').setStyle('SECONDARY'),
+      async (interaction) => {
+        sort = 'username'
+        page = 0
+        timeout.refresh()
+        await interaction.update(render())
+      }
+    )
+    const dateButton = subscribeButton(
+      new MessageButton().setLabel('Date').setStyle('SECONDARY'),
+      async (interaction) => {
+        sort = 'date'
+        page = 0
+        timeout.refresh()
+        await interaction.update(render())
+      }
+    )
+
     const previousButton = subscribeButton(
       new MessageButton().setEmoji('👈').setStyle('PRIMARY'),
       async (interaction) => {
@@ -53,31 +77,42 @@ const whoknowsalbum: Command = {
     )
 
     let page = 0
+    let sort: Sort = 'rating'
     let showButtons = true
     const render = () => {
       const { embed, totalPages } = getWhoKnowsAlbumEmbed(
         release,
         ratings,
         message.message.author,
-        page
+        page,
+        sort
       )
-      const output: ReplyMessageOptions = { embeds: [embed] }
-      if (showButtons && totalPages > 1) {
-        previousButton.setDisabled(page === 0)
-        nextButton.setDisabled(page === totalPages - 1)
-        output.components = [
-          new MessageActionRow().addComponents(previousButton, nextButton),
-        ]
-      } else {
-        output.components = []
+      const buttonRows: MessageActionRow[] = []
+      if (showButtons) {
+        ratingButton.setDisabled(sort === 'rating')
+        usernameButton.setDisabled(sort === 'username')
+        dateButton.setDisabled(sort === 'date')
+        buttonRows.push(
+          new MessageActionRow().addComponents(
+            ratingButton,
+            usernameButton,
+            dateButton
+          )
+        )
+        if (totalPages > 1) {
+          previousButton.setDisabled(page === 0)
+          nextButton.setDisabled(page === totalPages - 1)
+          buttonRows.push(
+            new MessageActionRow().addComponents(previousButton, nextButton)
+          )
+        }
       }
-      return output
+      return { embeds: [embed], components: buttonRows }
     }
 
     const reply = await message.message.reply(render())
     const timeout = setTimeout(() => {
-      unsubscribeButton(previousButton)
-      unsubscribeButton(nextButton)
+      unsubscribeButtons(previousButton, nextButton)
       showButtons = false
       void reply.edit(render())
     }, BUTTON_TIMEOUT)

@@ -8,13 +8,14 @@ import {
   stringifyFullDate,
   stringifyRating,
 } from '../../utils/render'
-import { Rated } from './types'
+import { Rated, Sort } from './types'
 
 const getWhoKnowsAlbumEmbed = (
   release: Release,
   ratings: Rated[],
   user: User,
-  page: number
+  page: number,
+  sort: Sort
 ): { embed: MessageEmbed; totalPages: number } => {
   const embed = new MessageEmbed().setAuthor(
     `Who knows ${release.title} in RateOurMusic`,
@@ -34,12 +35,20 @@ const getWhoKnowsAlbumEmbed = (
 
   const sortedRatings = ratings.sort((a, b) => {
     const ratingComparison = -(a.rating - b.rating)
-    if (ratingComparison !== 0) return ratingComparison
     const dateComparison = -compareFullDates(a.date, b.date)
-    if (dateComparison !== 0) return dateComparison
     const usernameComparison = a.username.localeCompare(b.username)
-    if (usernameComparison !== 0) return usernameComparison
-    return 0
+
+    let order: number[]
+
+    if (sort === 'rating') {
+      order = [ratingComparison, dateComparison, usernameComparison]
+    } else if (sort === 'username') {
+      order = [usernameComparison, ratingComparison, dateComparison]
+    } else {
+      order = [dateComparison, ratingComparison, usernameComparison]
+    }
+
+    return order.find((element) => element !== 0) ?? 0
   })
 
   const pages = getPages(release, sortedRatings)

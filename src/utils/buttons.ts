@@ -23,10 +23,14 @@ export const subscribeButton = (
   return button
 }
 
-export const unsubscribeButton = (button: MessageButton): MessageButton => {
+export const unsubscribeButton = (button: MessageButton): void => {
   const id = button.customId
   if (id !== null) buttonEmitter.removeAllListeners(id)
-  return button
+}
+export const unsubscribeButtons = (...buttons: MessageButton[]): void => {
+  for (const button of buttons) {
+    unsubscribeButton(button)
+  }
 }
 
 export const emitButton = (interaction: ButtonInteraction): void => {
