@@ -1,7 +1,6 @@
 import mongoose from 'mongoose'
 import { Account, AccountModel } from './schemas/account'
 import { Cover, CoverModel } from './schemas/cover'
-import { PartialRelease, PartialReleaseModel } from './schemas/partial-release'
 import { Rating, RatingModel } from './schemas/rating'
 import { Release, ReleaseModel } from './schemas/release'
 import { SearchResult, SearchResultModel } from './schemas/search-result'
@@ -53,21 +52,6 @@ export class Database {
     return updatedRelease ?? release
   }
 
-  async getPartialRelease(
-    issueUrl: string
-  ): Promise<PartialRelease | undefined> {
-    const release = await PartialReleaseModel.findOne({ issueUrl }).exec()
-    return release ?? undefined
-  }
-  async setPartialRelease(release: PartialRelease): Promise<PartialRelease> {
-    const updatedRelease = await PartialReleaseModel.findOneAndUpdate(
-      { issueUrl: release.issueUrl },
-      { $set: release },
-      { upsert: true, setDefaultsOnInsert: true }
-    ).exec()
-    return updatedRelease ?? release
-  }
-
   async setRating(rating: Rating): Promise<Rating> {
     const updatedRating = await RatingModel.findOneAndUpdate(
       { issueUrl: rating.issueUrl, username: rating.username },
@@ -75,9 +59,6 @@ export class Database {
       { upsert: true, setDefaultsOnInsert: true }
     ).exec()
     return updatedRating ?? rating
-  }
-  async getRatingsForUrls(urls: string[]): Promise<Rating[]> {
-    return RatingModel.find({ issueUrl: { $in: urls } }).exec()
   }
 
   async setCover(cover: Cover): Promise<Cover> {

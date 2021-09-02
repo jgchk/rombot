@@ -1,7 +1,7 @@
 import cheerio from 'cheerio'
 import { Either, isLeft, right } from 'fp-ts/Either'
 import { RequestError } from 'got'
-import getDatabase, { Database } from '../../database'
+import getDatabase from '../../database'
 import { PartialRelease } from '../../database/schemas/partial-release'
 import { Rating } from '../../database/schemas/rating'
 import { MissingDataError } from '../../errors'
@@ -12,12 +12,6 @@ export type ReleaseRating = {
   rating: Rating
   release: PartialRelease
 }
-
-export const saveReleaseRating = async (
-  database: Database,
-  { release, rating }: ReleaseRating
-): Promise<[Rating, PartialRelease]> =>
-  Promise.all([database.setRating(rating), database.setPartialRelease(release)])
 
 export const getRatingsFromUrl = async (
   url: string,
@@ -38,9 +32,7 @@ export const getRatingsFromUrl = async (
   }
 
   const database = await getDatabase()
-  await Promise.all(
-    ratings.map((rating) => saveReleaseRating(database, rating))
-  )
+  await Promise.all(ratings.map((rating) => database.setRating(rating.rating)))
 
   return right(ratings)
 }
