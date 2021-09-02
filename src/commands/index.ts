@@ -3,7 +3,7 @@ import chart from './chart'
 import cover from './cover'
 import help from './help'
 import latest from './latest'
-import prefix from './prefix'
+// import prefix from './prefix'
 import rating from './rating'
 import recent from './recent'
 import set from './set'
@@ -17,7 +17,7 @@ export const commands = [
   recent,
   chart,
   cover,
-  prefix,
+  // prefix,
   help,
   rating,
 ]
