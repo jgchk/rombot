@@ -1,8 +1,6 @@
 import { MessageEmbed, User } from 'discord.js'
 import { compareFullDates } from '../../database/schemas/full-date'
 import { Release } from '../../database/schemas/release'
-import { getServerPrefix } from '../../services/server'
-import { CommandMessage } from '../../types'
 import { sum } from '../../utils/math'
 import {
   makeUserLink,
@@ -10,15 +8,13 @@ import {
   stringifyFullDate,
   stringifyRating,
 } from '../../utils/render'
-import ratingCommand from '../rating'
 import { Rated } from './types'
 
-const getWhoKnowsAlbumEmbed = async (
+const getWhoKnowsAlbumEmbed = (
   release: Release,
   ratings: Rated[],
-  user: User,
-  message: CommandMessage
-): Promise<MessageEmbed> => {
+  user: User
+): MessageEmbed => {
   const embed = new MessageEmbed().setAuthor(
     `Who knows ${release.title} in RateOurMusic`,
     user.displayAvatarURL(),
@@ -66,12 +62,6 @@ const getWhoKnowsAlbumEmbed = async (
   }
 
   embed.setDescription(description)
-
-  const prefix = await getServerPrefix(message.message.guildId)
-  embed.addField(
-    '\u200B',
-    `\n\n _Rating missing or out of date? Log it with \`${prefix}${ratingCommand.name}\`_`
-  )
 
   return embed
 }

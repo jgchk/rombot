@@ -35,12 +35,7 @@ const whoknowsalbum: Command = {
 
       return right({
         embeds: [
-          await getWhoKnowsAlbumEmbed(
-            release,
-            ratings,
-            message.message.author,
-            message
-          ),
+          getWhoKnowsAlbumEmbed(release, ratings, message.message.author),
         ],
       })
     }
@@ -64,14 +59,7 @@ const whoknowsalbum: Command = {
     const ratings = maybeRatings.right.filter(isRated)
 
     return right({
-      embeds: [
-        await getWhoKnowsAlbumEmbed(
-          release,
-          ratings,
-          message.message.author,
-          message
-        ),
-      ],
+      embeds: [getWhoKnowsAlbumEmbed(release, ratings, message.message.author)],
     })
   },
 }
