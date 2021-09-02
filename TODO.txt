@@ -1,5 +1,3 @@
-* mobile embeds
-   - remove descriptors on rymab by default
 * use RYM search if entered bracketed album id [Album437814710]
 * add genres to whoknows
 * crowns system for finding whoknows where you're the only rater
@@ -7,6 +5,9 @@
 * startup script to follow all not-followed users
 * weekly, monthly, recent chart params
 * notitle norating chart params
+* nosingles chart filter
+* cache ids for rym usernames
+   - separate out rym user data from discord account data in db
 * improve chart missing cover image
 * server top albums
    - scrape from https://rateyourmusic.com/friends/rombot/
