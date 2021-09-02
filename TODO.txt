@@ -1,5 +1,8 @@
+
+
 * mobile embeds
    - remove descriptors on rymab by default
+* fix album info not included on whoknows when no ratings found
 * use RYM search if entered bracketed album id [Album437814710]
 * add genres to whoknows
 * crowns system for finding whoknows where you're the only rater
