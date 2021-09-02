@@ -5,6 +5,7 @@ import { Rating, RatingModel } from './schemas/rating'
 import { Release, ReleaseModel } from './schemas/release'
 import { SearchResult, SearchResultModel } from './schemas/search-result'
 import { Server, ServerModel } from './schemas/server'
+import { WhoKnows, WhoKnowsModel } from './schemas/whoknows'
 
 export class Database {
   async getAccount(discordId: string): Promise<Account | undefined> {
@@ -59,6 +60,20 @@ export class Database {
       { upsert: true, setDefaultsOnInsert: true }
     ).exec()
     return updatedRating ?? rating
+  }
+
+  async getWhoKnowsRatings(issueUrl: string): Promise<Rating[]> {
+    const whoKnows = await WhoKnowsModel.findOne({ issueUrl }).exec()
+    if (whoKnows === null) return []
+    return RatingModel.find({ issueUrl, username: { $in: whoKnows.usernames } })
+  }
+  async setWhoKnowsRatings(whoKnows: WhoKnows): Promise<WhoKnows> {
+    const updatedWhoKnows = await WhoKnowsModel.findOneAndUpdate(
+      { issueUrl: whoKnows.issueUrl },
+      { $set: whoKnows },
+      { upsert: true, setDefaultsOnInsert: true }
+    ).exec()
+    return updatedWhoKnows ?? whoKnows
   }
 
   async setCover(cover: Cover): Promise<Cover> {

@@ -17,3 +17,4 @@
    - get featured album from homepage
 
 * remind command
+* unify rating & latest embeds

@@ -10,7 +10,7 @@ import {
   stringifyFullDate,
   stringifyRating,
 } from '../../utils/render'
-import album from '../album'
+import ratingCommand from '../rating'
 import { Rated } from './types'
 
 const getWhoKnowsAlbumEmbed = async (
@@ -68,7 +68,7 @@ const getWhoKnowsAlbumEmbed = async (
   const prefix = await getServerPrefix(message.message.guildId)
   embed.addField(
     '\u200B',
-    `\n\n _Don't see your rating? Make sure you log it with \`${prefix}${album.name}\`_`
+    `\n\n _Rating missing or out of date? Log it with \`${prefix}${ratingCommand.name}\`_`
   )
 
   return embed
