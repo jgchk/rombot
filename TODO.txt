@@ -18,3 +18,5 @@
 
 * remind command
 * unify rating & latest embeds
+* better query parsing to allow for query and user
+   - remove user text from query if user @ is present
