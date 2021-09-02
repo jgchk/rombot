@@ -1,7 +1,9 @@
 * mobile embeds
    - remove descriptors on rymab by default
+* use RYM search if entered bracketed album id [Album437814710]
 * add genres to whoknows
 * whoknows pagination
+* sort rymwk sort by rating, username, date including reverse using buttons
 * crowns system for finding whoknows where you're the only rater
 * add curve to whoknows
 * startup script to follow all not-followed users
@@ -9,7 +11,7 @@
 * notitle norating chart params
 * improve chart missing cover image
 * server top albums
-   - cache average ratings for whoknows
+   - scrape from https://rateyourmusic.com/friends/rombot/
 * artist overview (top releases, artist info)
 * .fmtab https://fmbot.xyz/commands/albums/#topalbums-tab
 * .fmf https://fmbot.xyz/commands/friends/#friends-f

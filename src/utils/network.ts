@@ -13,8 +13,8 @@ import { MissingDataError } from '../errors'
 import { ifDefined } from './functional'
 
 export const limiter = new Bottleneck({
-  reservoir: 10,
-  reservoirRefreshAmount: 8,
+  reservoir: 6,
+  reservoirRefreshAmount: 6,
   reservoirRefreshInterval: 60 * 1000,
   maxConcurrent: 1,
   minTime: 1300,
