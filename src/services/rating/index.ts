@@ -14,7 +14,7 @@ import {
 import { ifDefined } from '../../utils/functional'
 import { getRequestToken, gott, limiter } from '../../utils/network'
 import { getReleaseFromUrl } from '../release'
-import { getRatingsFromUrl, getRatingsPage, ReleaseRating } from './utils'
+import { ReleaseRating, getRatingsFromUrl, getRatingsPage } from './utils'
 
 export const getLatestRating = async (
   username: string
