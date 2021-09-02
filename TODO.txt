@@ -1,4 +1,5 @@
 * whoknows pagination
+* startup script to follow all not-followed users
 
 * weekly, monthly, recent chart params
 * notitle norating chart params
@@ -16,6 +17,7 @@
 * .fmf https://fmbot.xyz/commands/friends/#friends-f
 * .fmfeatured https://fmbot.xyz/commands/featured/#featured
    - get featured album from homepage
+* curve visualizer command
 
 * lock down rymprefix perms
 * remind command
