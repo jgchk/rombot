@@ -1,7 +1,7 @@
-import { isLeft, left, right } from 'fp-ts/Either'
+import { left, right } from 'fp-ts/Either'
 import { UsageError } from '../errors'
-import { setUsernameForUser } from '../services/account'
-import { follow } from '../services/rym-user'
+import { getUsernameForUser, setUsernameForUser } from '../services/account'
+import { follow, unfollow } from '../services/rym-user'
 import { Command } from '../types'
 
 const set: Command = {
@@ -14,9 +14,11 @@ const set: Command = {
     if (username === undefined) return left(new UsageError())
     if (username.startsWith('~')) username = username.slice(1)
 
+    const currentUsername = await getUsernameForUser(message.message.author)
+    if (currentUsername !== undefined) await unfollow(username)
+
     await setUsernameForUser(message.message.author, username)
-    const result = await follow(username)
-    if (isLeft(result)) return result
+    await follow(username)
 
     return right(`Set username to ~${username}`)
   },
