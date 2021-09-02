@@ -113,7 +113,10 @@ const getAmount = (
 ): Either<RangeError, Amount> => {
   const allTime = message.arguments_
     .map((argument) => argument.trim().toLowerCase())
-    .some((argument) => argument === 'alltime' || argument === 'a')
+    .some(
+      (argument) =>
+        argument === 'alltime' || argument === 'a' || argument === 'overall'
+    )
   if (allTime) return right('alltime')
 
   const numberRatings = pipe(
