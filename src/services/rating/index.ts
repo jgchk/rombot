@@ -4,7 +4,6 @@ import { pipe } from 'fp-ts/function'
 import { uniq } from 'fp-ts/lib/Array'
 import { fromEquals } from 'fp-ts/lib/Eq'
 import { RequestError } from 'got'
-import { RYM_USERNAME } from '../../config'
 import getDatabase from '../../database'
 import { FullDate } from '../../database/schemas/full-date'
 import { Rating } from '../../database/schemas/rating'
@@ -131,45 +130,24 @@ export const getRatingsForAllIssues = async (
   if (isLeft(maybeCombinedRelease)) return maybeCombinedRelease
   const combinedRelease = maybeCombinedRelease.right
 
-  const database = await getDatabase()
-  const maybeRatings: Either<MissingDataError, Rating>[] = (
-    await database.getWhoKnowsRatings(combinedRelease.url)
-  ).map(right)
+  const maybeRatings: Either<MissingDataError, Rating>[] = []
   let totalRatings = 0
   let page = 1
-  let hitExistingRatings = false
 
   do {
     const maybeRatingsPage = await getReleaseRatingPage(combinedRelease, page)
     if (isLeft(maybeRatingsPage)) return maybeRatingsPage
     const ratingPage = maybeRatingsPage.right
 
-    for (const rating of ratingPage.ratings) {
-      const existingRating = maybeRatings.some(
-        (r) =>
-          isRight(r) &&
-          isRight(rating) &&
-          rating.right.username !== RYM_USERNAME &&
-          r.right.username === rating.right.username
-      )
-      if (existingRating) hitExistingRatings = true
-
-      maybeRatings.push(rating)
-    }
-
-    totalRatings += maybeRatingsPage.right.totalRatings
+    maybeRatings.push(...ratingPage.ratings)
+    totalRatings += ratingPage.totalRatings
     page += 1
-  } while (totalRatings === maybeRatings.length && !hitExistingRatings)
+  } while (totalRatings === maybeRatings.length)
 
   const uniqueRatings = pipe(
     maybeRatings.filter(isRight).map((rating) => rating.right),
     uniq(fromEquals((a, b) => a.username === b.username))
   )
-
-  await database.setWhoKnowsRatings({
-    issueUrl: combinedRelease.url,
-    usernames: uniqueRatings.map((rating) => rating.username),
-  })
 
   return right(uniqueRatings)
 }
