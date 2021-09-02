@@ -50,9 +50,10 @@ const getWhoKnowsAlbumEmbed = (
     const stars = sortedRatings.map((rating) => stringifyRating(rating.rating))
     const dates = sortedRatings.map((rating) => stringifyFullDate(rating.date))
 
-    embed.addField('Username', usernames.join('\n'), true)
-    embed.addField('Rating', stars.join('\n'), true)
-    embed.addField('Date', dates.join('\n'), true)
+    // TODO: slices are quick fix before pagination
+    embed.addField('Username', usernames.join('\n').slice(0, 1024), true)
+    embed.addField('Rating', stars.join('\n').slice(0, 1024), true)
+    embed.addField('Date', dates.join('\n').slice(0, 1024), true)
 
     const averageRating =
       sum(ratings.map((rating) => rating.rating)) / ratings.length
