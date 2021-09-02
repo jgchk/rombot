@@ -1,12 +1,13 @@
 import cheerio from 'cheerio'
 import { Either, isLeft, left, right } from 'fp-ts/Either'
-import { MissingDataError } from '../errors'
+import { HTTPError } from 'got/dist/source'
+import { MissingDataError, UsernameDoesntExistError } from '../errors'
 import { makeUserUrl } from '../utils/links'
 import { getRequestToken, gott, limiter } from '../utils/network'
 
 export const follow = async (
   username: string
-): Promise<Either<MissingDataError, true>> => {
+): Promise<Either<MissingDataError | UsernameDoesntExistError, true>> => {
   const maybeUserId = await getUserId(username)
   if (isLeft(maybeUserId)) return maybeUserId
   const userId = maybeUserId.right
@@ -32,7 +33,7 @@ export const follow = async (
 
 export const unfollow = async (
   username: string
-): Promise<Either<MissingDataError, true>> => {
+): Promise<Either<MissingDataError | UsernameDoesntExistError, true>> => {
   const maybeUserId = await getUserId(username)
   if (isLeft(maybeUserId)) return maybeUserId
   const userId = maybeUserId.right
@@ -58,16 +59,24 @@ export const unfollow = async (
 
 const getUserId = async (
   username: string
-): Promise<Either<MissingDataError, string>> => {
-  const response = await limiter.schedule(() => gott(makeUserUrl(username)))
-  const $ = cheerio.load(response.body)
-  const text = $('.profile_header').text() || undefined
-  if (text === undefined)
-    return left(new MissingDataError(`user id for ${username}`))
+): Promise<Either<MissingDataError | UsernameDoesntExistError, string>> => {
+  try {
+    const response = await limiter.schedule(() => gott(makeUserUrl(username)))
+    const $ = cheerio.load(response.body)
+    const text = $('.profile_header').text() || undefined
+    if (text === undefined)
+      return left(new MissingDataError(`user id for ${username}`))
 
-  const id = /#(\d+)/.exec(text)?.[1]
-  if (id === undefined)
-    return left(new MissingDataError(`user id for ${username}`))
+    const id = /#(\d+)/.exec(text)?.[1]
+    if (id === undefined)
+      return left(new MissingDataError(`user id for ${username}`))
 
-  return right(id)
+    return right(id)
+  } catch (error) {
+    if (error instanceof HTTPError && error.response.statusCode === 404) {
+      return left(new UsernameDoesntExistError(username))
+    } else {
+      throw error
+    }
+  }
 }

@@ -15,6 +15,8 @@ export type AppError =
   | NotInServerError
   | Bottleneck.BottleneckError
   | InvalidCredentialsError
+  | UsernameDoesntExistError
+  | FollowError
 
 export class UsageError extends Error {
   name: 'UsageError'
@@ -95,6 +97,24 @@ export class InvalidCredentialsError extends Error {
   constructor() {
     super('Invalid credentials')
     this.name = 'InvalidCredentialsError'
+  }
+}
+
+export class UsernameDoesntExistError extends Error {
+  name: 'UsernameDoesntExistError'
+
+  constructor(username: string) {
+    super(`No account found with username ${username}`)
+    this.name = 'UsernameDoesntExistError'
+  }
+}
+
+export class FollowError extends Error {
+  name: 'FollowError'
+
+  constructor(type: 'followed' | 'unfollowed', username: string) {
+    super(`Already ${type} ${username}`)
+    this.name = 'FollowError'
   }
 }
 
