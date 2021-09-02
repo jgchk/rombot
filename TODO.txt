@@ -1,7 +1,9 @@
 * mobile embeds
    - remove descriptors on rymab by default
-* add curve to whoknows
+* add genres to whoknows
 * whoknows pagination
+* crowns system for finding whoknows where you're the only rater
+* add curve to whoknows
 * startup script to follow all not-followed users
 * weekly, monthly, recent chart params
 * notitle norating chart params

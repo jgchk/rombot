@@ -22,8 +22,10 @@ export const searchRelease = async (
     return getCombinedReleaseFromUrl(url)
   }
 
-  const searchResultUrl = await getSearchResult(query)
-  if (searchResultUrl === undefined) return left(new NoReleaseFoundError())
+  const maybeSearchReleaseUrl = await getSearchResult(query)
+  if (maybeSearchReleaseUrl === undefined)
+    return left(new NoReleaseFoundError())
+  const searchResultUrl = maybeSearchReleaseUrl.replace(/\/buy\/$/, '/')
 
   const maybeRelease = await getCombinedReleaseFromUrl(searchResultUrl)
   if (isLeft(maybeRelease)) return maybeRelease
