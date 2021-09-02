@@ -39,11 +39,13 @@ const getWhoKnowsAlbumEmbed = async (
 
   if (ratings.length > 0) {
     const sortedRatings = ratings.sort((a, b) => {
+      const ratingComparison = -(a.rating - b.rating)
+      if (ratingComparison !== 0) return ratingComparison
       const dateComparison = -compareFullDates(a.date, b.date)
       if (dateComparison !== 0) return dateComparison
       const usernameComparison = a.username.localeCompare(b.username)
       if (usernameComparison !== 0) return usernameComparison
-      return a.rating - b.rating
+      return 0
     })
 
     const usernames = sortedRatings.map((rating) =>
