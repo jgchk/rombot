@@ -45,8 +45,6 @@ const oomfie: Command = {
         })
       )
 
-    console.log(similarities)
-
     const mostSimilar = similarities
       .sort((a, b) => a.similarity - b.similarity)
       .pop()
