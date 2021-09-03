@@ -57,7 +57,7 @@ const oomfie: Command = {
           new MessageEmbed()
             .setTitle('Oomfie Located!! :D')
             .setDescription(
-              `Your oomfie is ~${makeUserLink(mostSimilar.username)}! ❤️`
+              `Your oomfie is ${makeUserLink(mostSimilar.username)}! ❤️`
             )
             .setThumbnail(
               'https://c.tenor.com/Z3FcD6KCEHUAAAAC/klee-genshin-impact.gif'
