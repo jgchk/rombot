@@ -1,6 +1,5 @@
 import { MessageActionRow, MessageButton } from 'discord.js'
-import { option } from 'fp-ts'
-import { isLeft, right } from 'fp-ts/Either'
+import { either, option } from 'fp-ts'
 import { getRatingsForAllIssues } from '../../services/rating'
 import { Command } from '../../types'
 import { subscribeButton, unsubscribeButtons } from '../../utils/buttons'
@@ -25,11 +24,11 @@ const whoknowsalbum: Command = {
   ],
   execute: (message) => async () => {
     const maybeRelease = await getRelease(message)
-    if (isLeft(maybeRelease)) return maybeRelease
+    if (either.isLeft(maybeRelease)) return maybeRelease
     const release = maybeRelease.right
 
     const maybeRatings = await getRatingsForAllIssues(release)
-    if (isLeft(maybeRatings)) return maybeRatings
+    if (either.isLeft(maybeRatings)) return maybeRatings
     const ratings = maybeRatings.right.filter(isRated)
 
     const ratingButton = subscribeButton(
@@ -118,7 +117,7 @@ const whoknowsalbum: Command = {
       void reply.edit(render())
     }, BUTTON_TIMEOUT)
 
-    return right(option.none)
+    return either.right(option.none)
   },
 }
 

@@ -1,5 +1,4 @@
-import { option } from 'fp-ts'
-import { isLeft, right } from 'fp-ts/Either'
+import { either, option } from 'fp-ts'
 import { getLatestRating } from '../../services/rating'
 import { Command } from '../../types'
 import { getUsername } from '../../utils/arguments'
@@ -12,15 +11,15 @@ const latest: Command = {
   usage: 'latest [USER]',
   examples: ['', 'latest', 'latest @user', 'latest ~sharifi'],
   execute: (message) => async () => {
-    const { maybeUsername } = await getUsername(message)
-    if (isLeft(maybeUsername)) return maybeUsername
+    const { maybeUsername } = await getUsername(message)()
+    if (either.isLeft(maybeUsername)) return maybeUsername
     const username = maybeUsername.right
 
-    const maybeRating = await getLatestRating(username)
-    if (isLeft(maybeRating)) return maybeRating
+    const maybeRating = await getLatestRating(username)()
+    if (either.isLeft(maybeRating)) return maybeRating
     const { rating, release } = maybeRating.right
 
-    return right(
+    return either.right(
       option.some({
         embeds: [
           getLatestEmbed(rating, release, message.message.author, username),

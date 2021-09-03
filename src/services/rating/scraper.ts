@@ -1,5 +1,5 @@
 import cheerio, { Cheerio, Element } from 'cheerio'
-import { Either, left, right } from 'fp-ts/Either'
+import { either } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { FullDate } from '../../database/schemas/full-date'
 import { PartialRelease } from '../../database/schemas/partial-release'
@@ -14,19 +14,22 @@ import { isDefined } from '../../utils/types'
 export const parseRating = (
   element: Cheerio<Element>,
   username: string
-): Either<MissingDataError, { rating: Rating; release: PartialRelease }> => {
+): either.Either<
+  MissingDataError,
+  { rating: Rating; release: PartialRelease }
+> => {
   const { artists, artistDisplayName } = getArtists(element)
-  if (artists.length === 0) return left(new MissingDataError('artist'))
+  if (artists.length === 0) return either.left(new MissingDataError('artist'))
 
   const $title = element.find('.or_q_albumartist_td a.album')
   const title = $title.text().trim() || undefined
-  if (title === undefined) return left(new MissingDataError('title'))
+  if (title === undefined) return either.left(new MissingDataError('title'))
 
   const issueUrl = pipe($title.attr('href') || undefined, ifDefined(makeRymUrl))
-  if (issueUrl === undefined) return left(new MissingDataError('url'))
+  if (issueUrl === undefined) return either.left(new MissingDataError('url'))
 
   const date = getDate(element.find('.or_q_rating_date_d'))
-  if (date === undefined) return left(new MissingDataError('date'))
+  if (date === undefined) return either.left(new MissingDataError('date'))
 
   const rating =
     pipe(
@@ -76,7 +79,7 @@ export const parseRating = (
       ifDefined(makeRymUrl)
     ) ?? null
 
-  return right({
+  return either.right({
     rating: {
       username,
       issueUrl,

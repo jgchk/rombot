@@ -1,6 +1,5 @@
 import { Message, MessagePayload, ReplyMessageOptions } from 'discord.js'
 import { option, taskEither } from 'fp-ts'
-import { Either } from 'fp-ts/Either'
 import { AppError } from './errors'
 
 export type Command = {
@@ -16,10 +15,6 @@ export type Command = {
     option.Option<string | MessagePayload | ReplyMessageOptions>
   >
 }
-
-export type CommandOutput =
-  | Either<AppError, string | MessagePayload | ReplyMessageOptions>
-  | undefined
 
 export type CommandMessage = {
   message: Message

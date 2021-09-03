@@ -1,6 +1,5 @@
 import { MessageEmbed } from 'discord.js'
-import { option } from 'fp-ts'
-import { left, right } from 'fp-ts/Either'
+import { either, option } from 'fp-ts'
 import { compareTwoStrings } from 'string-similarity'
 import getDatabase from '../database'
 import { UsernameNotFoundError } from '../errors'
@@ -18,7 +17,7 @@ const oomfie: Command = {
   execute: (message) => async () => {
     const requesterUsername = await getUsernameForUser(message.message.author)
     if (requesterUsername === undefined)
-      return left(new UsernameNotFoundError(message.message.author))
+      return either.left(new UsernameNotFoundError(message.message.author))
 
     const database = await getDatabase()
     const requesterRatings = await database.getUserRatings(requesterUsername)
@@ -50,9 +49,11 @@ const oomfie: Command = {
       .sort((a, b) => a.similarity - b.similarity)
       .pop()
     if (mostSimilar === undefined)
-      return right(option.some("Sorry friend, you don't have an oomfie rn :("))
+      return either.right(
+        option.some("Sorry friend, you don't have an oomfie rn :(")
+      )
 
-    return right(
+    return either.right(
       option.some({
         embeds: [
           new MessageEmbed()

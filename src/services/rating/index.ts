@@ -1,7 +1,5 @@
 import cheerio from 'cheerio'
-import { uniq } from 'fp-ts/Array'
-import { Either, isLeft, isRight, left, right } from 'fp-ts/Either'
-import { fromEquals } from 'fp-ts/Eq'
+import { either, taskEither } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { RequestError } from 'got'
 import getDatabase from '../../database'
@@ -18,33 +16,40 @@ import { getRequestToken, gott, limiter } from '../../utils/network'
 import { getReleaseFromUrl } from '../release'
 import { ReleaseRating, getRatingsFromUrl, getRatingsPage } from './utils'
 
-export const getLatestRating = async (
-  username: string
-): Promise<
-  Either<
+export const getLatestRating =
+  (
+    username: string
+  ): taskEither.TaskEither<
     NoRatingsError | NoReleaseFoundError | RequestError | MissingDataError,
     ReleaseRating
-  >
-> => {
-  const maybeRatings = await getLatestRatings(username)
-  if (isLeft(maybeRatings)) return maybeRatings
+  > =>
+  async () => {
+    const maybeRatings = await getLatestRatings(username)
+    if (either.isLeft(maybeRatings)) return maybeRatings
 
-  const latestRating = maybeRatings.right[0] || undefined
-  if (latestRating === undefined) return left(new NoRatingsError(username))
-  return right(latestRating)
-}
+    const latestRating = maybeRatings.right[0] || undefined
+    if (latestRating === undefined)
+      return either.left(new NoRatingsError(username))
+    return either.right(latestRating)
+  }
 
 export const getLatestRatings = async (
   username: string
 ): Promise<
-  Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating[]>
+  either.Either<
+    NoReleaseFoundError | RequestError | MissingDataError,
+    ReleaseRating[]
+  >
 > => getRatingsPage(username, { sort: { date: -1 } })
 
 export const getNLatestRatings = async (
   username: string,
   n: number
 ): Promise<
-  Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating[]>
+  either.Either<
+    NoReleaseFoundError | RequestError | MissingDataError,
+    ReleaseRating[]
+  >
 > => {
   const ratings: ReleaseRating[] = []
   let page = 1
@@ -53,24 +58,27 @@ export const getNLatestRatings = async (
       sort: { date: -1 },
       page,
     })
-    if (isLeft(maybeRatings)) {
+    if (either.isLeft(maybeRatings)) {
       const error = maybeRatings.left
       return error.name === 'NoReleaseFoundError'
         ? // ran out of ratings, return what we have
-          right(ratings)
+          either.right(ratings)
         : // some other error. return the error
           maybeRatings
     }
     ratings.push(...maybeRatings.right)
     page += 1
   }
-  return right(ratings.slice(0, n))
+  return either.right(ratings.slice(0, n))
 }
 
 export const getTopRatings = async (
   username: string
 ): Promise<
-  Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating[]>
+  either.Either<
+    NoReleaseFoundError | RequestError | MissingDataError,
+    ReleaseRating[]
+  >
 > => getRatingsPage(username, { sort: { rating: -1, date: -1 } })
 
 export const getNTopRatings = async (
@@ -78,7 +86,10 @@ export const getNTopRatings = async (
   n: number,
   invert = false
 ): Promise<
-  Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating[]>
+  either.Either<
+    NoReleaseFoundError | RequestError | MissingDataError,
+    ReleaseRating[]
+  >
 > => {
   const ratings: ReleaseRating[] = []
   let page = 1
@@ -87,56 +98,60 @@ export const getNTopRatings = async (
       sort: { rating: invert ? 1 : -1, date: -1 },
       page,
     })
-    if (isLeft(maybeRatings)) {
+    if (either.isLeft(maybeRatings)) {
       const error = maybeRatings.left
       return error.name === 'NoReleaseFoundError'
         ? // ran out of ratings, return what we have
-          right(ratings)
+          either.right(ratings)
         : // some other error. return the error
           maybeRatings
     }
     ratings.push(...maybeRatings.right)
     page += 1
   }
-  return right(ratings.slice(0, n))
+  return either.right(ratings.slice(0, n))
 }
 
-export const getRatingForRelease = async (
-  username: string,
-  release: Release
-): Promise<
-  Either<NoReleaseFoundError | RequestError | MissingDataError, ReleaseRating>
-> => {
-  const maybeRatings = await getRatingsFromUrl(
-    `https://rateyourmusic.com/collection/${encodeURIComponent(
+export const getRatingForRelease =
+  (
+    username: string,
+    release: Release
+  ): taskEither.TaskEither<
+    NoReleaseFoundError | RequestError | MissingDataError,
+    ReleaseRating
+  > =>
+  async () => {
+    const maybeRatings = await getRatingsFromUrl(
+      `https://rateyourmusic.com/collection/${encodeURIComponent(
+        username
+      )}/strm_l/${encodeURIComponent(`[${release.id}]`)}`,
       username
-    )}/strm_l/${encodeURIComponent(`[${release.id}]`)}`,
-    username
-  )
-  if (isLeft(maybeRatings)) return maybeRatings
+    )
+    if (either.isLeft(maybeRatings)) return maybeRatings
 
-  const releaseRating = maybeRatings.right.find(
-    (rating) => rating.release.issueUrl === release.url
-  )
-  if (releaseRating === undefined) return left(new NoReleaseFoundError())
+    const releaseRating = maybeRatings.right.find(
+      (rating) => rating.release.issueUrl === release.url
+    )
+    if (releaseRating === undefined)
+      return either.left(new NoReleaseFoundError())
 
-  return right(releaseRating)
-}
+    return either.right(releaseRating)
+  }
 
 export const getRatingsForAllIssues = async (
   release: Release
-): Promise<Either<RequestError | MissingDataError, Rating[]>> => {
-  const maybeCombinedRelease = await getReleaseFromUrl(release.combinedUrl)
-  if (isLeft(maybeCombinedRelease)) return maybeCombinedRelease
+): Promise<either.Either<RequestError | MissingDataError, Rating[]>> => {
+  const maybeCombinedRelease = await getReleaseFromUrl(release.combinedUrl)()
+  if (either.isLeft(maybeCombinedRelease)) return maybeCombinedRelease
   const combinedRelease = maybeCombinedRelease.right
 
-  const maybeRatings: Either<MissingDataError, Rating>[] = []
+  const maybeRatings: either.Either<MissingDataError, Rating>[] = []
   let totalRatings = 0
   let page = 1
 
   do {
     const maybeRatingsPage = await getReleaseRatingPage(combinedRelease, page)
-    if (isLeft(maybeRatingsPage)) return maybeRatingsPage
+    if (either.isLeft(maybeRatingsPage)) return maybeRatingsPage
     const ratingPage = maybeRatingsPage.right
 
     maybeRatings.push(...ratingPage.ratings)
@@ -144,29 +159,28 @@ export const getRatingsForAllIssues = async (
     page += 1
   } while (totalRatings === maybeRatings.length)
 
-  const uniqueRatings = pipe(
-    maybeRatings.filter(isRight).map((rating) => rating.right),
-    uniq(fromEquals((a, b) => a.username === b.username))
+  const existingRatings = pipe(
+    maybeRatings.filter(either.isRight).map((rating) => rating.right)
   )
 
-  return right(uniqueRatings)
+  return either.right(existingRatings)
 }
 
 const getReleaseRatingPage = async (
   release: Release,
   page: number
 ): Promise<
-  Either<
+  either.Either<
     MissingDataError,
-    { ratings: Either<MissingDataError, Rating>[]; totalRatings: number }
+    { ratings: either.Either<MissingDataError, Rating>[]; totalRatings: number }
   >
 > => {
   const id = /(\d+)/.exec(release.id)?.[1]
   if (id === undefined)
-    return left(new MissingDataError(`numeric id in ${release.id}`))
+    return either.left(new MissingDataError(`numeric id in ${release.id}`))
 
   const maybeRequestToken = await getRequestToken()
-  if (isLeft(maybeRequestToken)) return maybeRequestToken
+  if (either.isLeft(maybeRequestToken)) return maybeRequestToken
   const requestToken = maybeRequestToken.right
 
   const response = await limiter.schedule(() =>
@@ -192,13 +206,13 @@ const getReleaseRatingPage = async (
     '.catalog_header.friend, .my_rating .catalog_header'
   )
 
-  const ratings: Either<MissingDataError, Rating>[] = friendRatingElements
-    .toArray()
-    .map((element) => {
+  const ratings: either.Either<MissingDataError, Rating>[] =
+    friendRatingElements.toArray().map((element) => {
       const $element = $(element)
 
       const username = $element.find('.catalog_user').text().trim() || undefined
-      if (username === undefined) return left(new MissingDataError('username'))
+      if (username === undefined)
+        return either.left(new MissingDataError('username'))
 
       const date = pipe(
         $element.parent().find('.catalog_date').text().trim() || undefined,
@@ -212,7 +226,7 @@ const getReleaseRatingPage = async (
           return fullDate
         })
       )
-      if (date === undefined) return left(new MissingDataError('date'))
+      if (date === undefined) return either.left(new MissingDataError('date'))
 
       const rating =
         pipe(
@@ -223,7 +237,7 @@ const getReleaseRatingPage = async (
       const ownership =
         $element.find('.catalog_ownership').text().trim() || null
 
-      return right({
+      return either.right({
         issueUrl: release.url,
         username,
         date,
@@ -236,9 +250,9 @@ const getReleaseRatingPage = async (
   const database = await getDatabase()
   await Promise.all(
     ratings
-      .filter(isRight)
+      .filter(either.isRight)
       .map(({ right: rating }) => database.setRating(rating))
   )
 
-  return right({ ratings, totalRatings: ratingElements.length })
+  return either.right({ ratings, totalRatings: ratingElements.length })
 }

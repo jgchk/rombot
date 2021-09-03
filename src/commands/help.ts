@@ -1,6 +1,5 @@
 import { MessageEmbed } from 'discord.js'
-import { option } from 'fp-ts'
-import { right } from 'fp-ts/Either'
+import { either, option } from 'fp-ts'
 import { getServerPrefix } from '../services/server'
 import { Command } from '../types'
 import album from './album'
@@ -38,7 +37,7 @@ const help: Command = {
 
     embed.setDescription(description)
 
-    return right(option.some({ embeds: [embed] }))
+    return either.right(option.some({ embeds: [embed] }))
   },
 }
 

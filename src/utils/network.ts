@@ -1,6 +1,6 @@
 import { URL } from 'url'
 import Bottleneck from 'bottleneck'
-import { Either, left, right } from 'fp-ts/Either'
+import { either } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import got, {
   CancelableRequest,
@@ -36,13 +36,14 @@ export const gott = (
 }
 
 export const getRequestToken = async (): Promise<
-  Either<MissingDataError, string>
+  either.Either<MissingDataError, string>
 > => {
   const cookies = await cookieJar.getCookies('https://rateyourmusic.com')
   const ulv = pipe(
     cookies.find((cookie) => cookie.key === 'ulv'),
     ifDefined((cookie) => decodeURIComponent(cookie.value))
   )
-  if (ulv === undefined) return left(new MissingDataError('request token'))
-  return right(ulv)
+  if (ulv === undefined)
+    return either.left(new MissingDataError('request token'))
+  return either.right(ulv)
 }

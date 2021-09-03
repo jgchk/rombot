@@ -1,5 +1,4 @@
-import { option } from 'fp-ts'
-import { left, right } from 'fp-ts/Either'
+import { either, option } from 'fp-ts'
 import { UsageError } from '../errors'
 import { getUsernameForUser, setUsernameForUser } from '../services/account'
 import { follow, unfollow } from '../services/rym-user'
@@ -12,7 +11,7 @@ const set: Command = {
   examples: ['set ~sharifi'],
   execute: (message) => async () => {
     let username: string | undefined = message.arguments_[0]
-    if (username === undefined) return left(new UsageError())
+    if (username === undefined) return either.left(new UsageError())
     if (username.startsWith('~')) username = username.slice(1)
 
     const currentUsername = await getUsernameForUser(message.message.author)
@@ -22,7 +21,7 @@ const set: Command = {
       await follow(username)
     }
 
-    return right(option.some(`Set username to ~${username}`))
+    return either.right(option.some(`Set username to ~${username}`))
   },
 }
 

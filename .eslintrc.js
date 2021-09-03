@@ -14,6 +14,7 @@ module.exports = {
     'plugin:import/warnings',
     'plugin:import/typescript',
     'plugin:unicorn/recommended',
+    'plugin:fp-ts/all',
     'prettier',
   ],
   rules: {

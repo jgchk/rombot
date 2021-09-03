@@ -1,5 +1,4 @@
-import { option } from 'fp-ts'
-import { left, right } from 'fp-ts/Either'
+import { either, option } from 'fp-ts'
 import { UsageError } from '../errors'
 import { setServerPrefix } from '../services/server'
 import { Command } from '../types'
@@ -11,10 +10,10 @@ const prefix: Command = {
   examples: ['set !rym'],
   execute: (message) => async () => {
     const prefix: string | undefined = message.arguments_[0]
-    if (prefix === undefined) return left(new UsageError())
+    if (prefix === undefined) return either.left(new UsageError())
 
     await setServerPrefix(message.message.guildId, prefix)
-    return right(option.some(`Set prefix to ${prefix}`))
+    return either.right(option.some(`Set prefix to ${prefix}`))
   },
 }
 

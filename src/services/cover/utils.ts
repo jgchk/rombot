@@ -1,4 +1,4 @@
-import { isLeft } from 'fp-ts/Either'
+import { either } from 'fp-ts'
 import { Database } from '../../database'
 import { Release } from '../../database/schemas/release'
 import { gott, limiter } from '../../utils/network'
@@ -64,8 +64,8 @@ export const getCoverFromFetchedFullRelease = async (
   release: CoverArgument,
   database: Database
 ): Promise<Buffer | undefined> => {
-  const maybeFullRelease = await getReleaseFromUrl(release.issueUrl)
-  if (isLeft(maybeFullRelease)) return
+  const maybeFullRelease = await getReleaseFromUrl(release.issueUrl)()
+  if (either.isLeft(maybeFullRelease)) return
   const fullRelease = maybeFullRelease.right
   if (fullRelease.cover === null) return
 

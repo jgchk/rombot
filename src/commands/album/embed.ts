@@ -1,4 +1,5 @@
 import { MessageEmbed } from 'discord.js'
+import { option } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { PartialDate } from '../../database/schemas/partial-date'
 import { Rating } from '../../database/schemas/rating'
@@ -13,7 +14,7 @@ import { isDefined } from '../../utils/types'
 
 export const getAlbumEmbed = (
   release: Release,
-  rating: Rating | undefined
+  rating: option.Option<Rating>
 ): MessageEmbed => {
   const embed = new MessageEmbed()
     .setTitle(release.title)
@@ -76,10 +77,10 @@ export const getAlbumEmbed = (
       }
       lines.push(['Ranked', parts.join(', ')])
     }
-    if (rating !== undefined && rating.rating !== null) {
+    if (option.isSome(rating) && rating.value.rating !== null) {
       lines.push([
-        `${makeUserLink(rating.username)}'s Rating`,
-        stringifyRating(rating.rating),
+        `${makeUserLink(rating.value.username)}'s Rating`,
+        stringifyRating(rating.value.rating),
       ])
     }
 

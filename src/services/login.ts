@@ -1,11 +1,11 @@
-import { Either, left, right } from 'fp-ts/Either'
+import { either } from 'fp-ts'
 import { InvalidCredentialsError } from '../errors'
 import { gott, limiter } from '../utils/network'
 
 export const login = async (
   username: string,
   password: string
-): Promise<Either<InvalidCredentialsError, true>> => {
+): Promise<either.Either<InvalidCredentialsError, true>> => {
   const response = await limiter.schedule(() =>
     gott('https://rateyourmusic.com/httprequest/Login', {
       method: 'POST',
@@ -22,6 +22,6 @@ export const login = async (
   )
 
   return response.body.toLowerCase().includes('success')
-    ? right(true)
-    : left(new InvalidCredentialsError())
+    ? either.right(true)
+    : either.left(new InvalidCredentialsError())
 }

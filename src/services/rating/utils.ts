@@ -1,5 +1,5 @@
 import cheerio from 'cheerio'
-import { Either, isLeft, right } from 'fp-ts/Either'
+import { either } from 'fp-ts'
 import { RequestError } from 'got'
 import getDatabase from '../../database'
 import { PartialRelease } from '../../database/schemas/partial-release'
@@ -16,7 +16,7 @@ export type ReleaseRating = {
 export const getRatingsFromUrl = async (
   url: string,
   username: string
-): Promise<Either<RequestError | MissingDataError, ReleaseRating[]>> => {
+): Promise<either.Either<RequestError | MissingDataError, ReleaseRating[]>> => {
   const response = await limiter.schedule(() => gott(url))
   const $ = cheerio.load(response.body)
 
@@ -27,14 +27,14 @@ export const getRatingsFromUrl = async (
   const ratings: ReleaseRating[] = []
   for (const element of elements) {
     const maybeRating = parseRating($(element), username)
-    if (isLeft(maybeRating)) return maybeRating
+    if (either.isLeft(maybeRating)) return maybeRating
     ratings.push(maybeRating.right)
   }
 
   const database = await getDatabase()
   await Promise.all(ratings.map((rating) => database.setRating(rating.rating)))
 
-  return right(ratings)
+  return either.right(ratings)
 }
 
 export type GetRatingsPageOptions = {
@@ -49,7 +49,7 @@ const ratingPageParameterMap: Record<RatingsPageSortParameters, string> = {
 export const getRatingsPage = async (
   username: string,
   options?: GetRatingsPageOptions
-): Promise<Either<RequestError | MissingDataError, ReleaseRating[]>> => {
+): Promise<either.Either<RequestError | MissingDataError, ReleaseRating[]>> => {
   const { page = 1, sort } = options ?? {}
 
   let queryString = 'r0.5-5.0'

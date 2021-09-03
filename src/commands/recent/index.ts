@@ -1,5 +1,4 @@
-import { option } from 'fp-ts'
-import { Either, isLeft, left, right } from 'fp-ts/Either'
+import { either, option } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { RangeError } from '../../errors'
 import { getNLatestRatings } from '../../services/rating'
@@ -27,19 +26,19 @@ const recent: Command = {
     'recent 5 @user',
   ],
   execute: (message) => async () => {
-    const { maybeUsername } = await getUsername(message)
-    if (isLeft(maybeUsername)) return maybeUsername
+    const { maybeUsername } = await getUsername(message)()
+    if (either.isLeft(maybeUsername)) return maybeUsername
     const username = maybeUsername.right
 
     const maybeAmount = getAmount(message)
-    if (isLeft(maybeAmount)) return maybeAmount
+    if (either.isLeft(maybeAmount)) return maybeAmount
     const amount = maybeAmount.right
 
     const maybeReleaseRatings = await getNLatestRatings(username, amount)
-    if (isLeft(maybeReleaseRatings)) return maybeReleaseRatings
+    if (either.isLeft(maybeReleaseRatings)) return maybeReleaseRatings
     const releaseRatings = maybeReleaseRatings.right
 
-    return right(
+    return either.right(
       option.some({
         embeds: [
           getRecentEmbed(releaseRatings, message.message.author, username),
@@ -49,18 +48,20 @@ const recent: Command = {
   },
 }
 
-const getAmount = (message: CommandMessage): Either<RangeError, number> => {
+const getAmount = (
+  message: CommandMessage
+): either.Either<RangeError, number> => {
   const amount = pipe(
     message.arguments_.find((number) => !Number.isNaN(Number.parseInt(number))),
     ifDefined(parseInt)
   )
 
-  if (amount === undefined) return right(DEFAULT_AMOUNT)
+  if (amount === undefined) return either.right(DEFAULT_AMOUNT)
 
   if (amount < MINIMUM_AMOUNT || amount > MAXIMUM_AMOUNT)
-    return left(new RangeError('amount', MINIMUM_AMOUNT, MAXIMUM_AMOUNT))
+    return either.left(new RangeError('amount', MINIMUM_AMOUNT, MAXIMUM_AMOUNT))
 
-  return right(amount)
+  return either.right(amount)
 }
 
 export default recent

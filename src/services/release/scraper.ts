@@ -1,5 +1,5 @@
 import { CheerioAPI } from 'cheerio'
-import { Either, left, right } from 'fp-ts/Either'
+import { either } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { Genre } from '../../database/schemas/genre'
 import { PartialDate } from '../../database/schemas/partial-date'
@@ -14,18 +14,18 @@ import { isDefined } from '../../utils/types'
 const scrapeRelease = (
   $: CheerioAPI,
   url: string
-): Either<MissingDataError, Release> => {
+): either.Either<MissingDataError, Release> => {
   const combinedUrl = getCombinedUrl($) ?? url
   const issueUrls = getIssueUrls($)
 
   const id = getId($)
-  if (id === null) return left(new MissingDataError('id'))
+  if (id === null) return either.left(new MissingDataError('id'))
 
   const title = getTitle($)
-  if (title === null) return left(new MissingDataError('title'))
+  if (title === null) return either.left(new MissingDataError('title'))
 
   const { artists, artistDisplayName } = getArtists($('[itemprop=byArtist]'))
-  if (artists.length === 0) return left(new MissingDataError('artist'))
+  if (artists.length === 0) return either.left(new MissingDataError('artist'))
 
   const type = getType($)
   const releaseDate = getReleaseDate($)
@@ -36,7 +36,7 @@ const scrapeRelease = (
   const descriptors = getDescriptors($)
   const tracks = getTracks($)
 
-  return right({
+  return either.right({
     url,
     combinedUrl,
     issueUrls,

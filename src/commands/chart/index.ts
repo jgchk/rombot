@@ -1,6 +1,5 @@
 import { MessageAttachment } from 'discord.js'
-import { option } from 'fp-ts'
-import { Either, isLeft, left, right } from 'fp-ts/Either'
+import { either, option } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { compareFullDates } from '../../database/schemas/full-date'
 import { RangeError } from '../../errors'
@@ -36,16 +35,16 @@ const chart: Command = {
     'chart lowest',
   ],
   execute: (message) => async () => {
-    const { maybeUsername } = await getUsername(message)
-    if (isLeft(maybeUsername)) return maybeUsername
+    const { maybeUsername } = await getUsername(message)()
+    if (either.isLeft(maybeUsername)) return maybeUsername
     const username = maybeUsername.right
 
     const maybeSize = getSize(message)
-    if (isLeft(maybeSize)) return maybeSize
+    if (either.isLeft(maybeSize)) return maybeSize
     const size = maybeSize.right
 
     const maybeAmount = getAmount(message, size)
-    if (isLeft(maybeAmount)) return maybeAmount
+    if (either.isLeft(maybeAmount)) return maybeAmount
     const amount = maybeAmount.right
 
     const invertOrder = message.arguments_
@@ -62,7 +61,7 @@ const chart: Command = {
       amount === 'alltime'
         ? await getNTopRatings(username, size * size, invertOrder)
         : await getNLatestRatings(username, amount)
-    if (isLeft(maybeReleaseRatings)) return maybeReleaseRatings
+    if (either.isLeft(maybeReleaseRatings)) return maybeReleaseRatings
     const releaseRatings = maybeReleaseRatings.right
       .sort(
         (a, b) =>
@@ -84,20 +83,22 @@ const chart: Command = {
       message.message.author,
       username
     )
-    return right(option.some({ files: [attachment], embeds: [embed] }))
+    return either.right(option.some({ files: [attachment], embeds: [embed] }))
   },
 }
 
-const getSize = (message: CommandMessage): Either<RangeError, number> => {
+const getSize = (
+  message: CommandMessage
+): either.Either<RangeError, number> => {
   const size = pipe(
     message.arguments_.find((argument) => /^\d+x\d+$/.test(argument)),
     ifDefined(parseInt)
   )
 
-  if (size === undefined) return right(DEFAULT_SIZE)
+  if (size === undefined) return either.right(DEFAULT_SIZE)
 
   if (size < MINIMUM_SIZE || size > MAXIMUM_SIZE)
-    return left(
+    return either.left(
       new RangeError(
         'size',
         `${MINIMUM_SIZE}x${MINIMUM_SIZE}`,
@@ -105,31 +106,31 @@ const getSize = (message: CommandMessage): Either<RangeError, number> => {
       )
     )
 
-  return right(size)
+  return either.right(size)
 }
 
 const getAmount = (
   message: CommandMessage,
   size: number
-): Either<RangeError, Amount> => {
+): either.Either<RangeError, Amount> => {
   const allTime = message.arguments_
     .map((argument) => argument.trim().toLowerCase())
     .some(
       (argument) =>
         argument === 'alltime' || argument === 'a' || argument === 'overall'
     )
-  if (allTime) return right('alltime')
+  if (allTime) return either.right('alltime')
 
   const numberRatings = pipe(
     message.arguments_.find((argument) => /^\d+$/.test(argument)),
     ifDefined(parseInt)
   )
 
-  if (numberRatings === undefined) return right(DEFAULT_NUMBER_RATINGS)
+  if (numberRatings === undefined) return either.right(DEFAULT_NUMBER_RATINGS)
 
   const minimum = Math.max(MINIMUM_NUMBER_RATINGS, size * size)
   if (numberRatings < minimum || numberRatings > MAXIMUM_NUMBER_RATINGS)
-    return left(
+    return either.left(
       new RangeError(
         `number of ratings for ${size}x${size} chart`,
         minimum,
@@ -137,7 +138,7 @@ const getAmount = (
       )
     )
 
-  return right(numberRatings)
+  return either.right(numberRatings)
 }
 
 export default chart
