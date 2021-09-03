@@ -1,5 +1,6 @@
 import { MessageActionRow, MessageButton } from 'discord.js'
-import { isLeft } from 'fp-ts/Either'
+import { option } from 'fp-ts'
+import { isLeft, right } from 'fp-ts/Either'
 import { getRatingsForAllIssues } from '../../services/rating'
 import { Command } from '../../types'
 import { subscribeButton, unsubscribeButtons } from '../../utils/buttons'
@@ -22,7 +23,7 @@ const whoknowsalbum: Command = {
     'whoknowsalbum @user',
     'whoknowsalbum ~sharifi',
   ],
-  execute: async (message) => {
+  execute: (message) => async () => {
     const maybeRelease = await getRelease(message)
     if (isLeft(maybeRelease)) return maybeRelease
     const release = maybeRelease.right
@@ -116,6 +117,8 @@ const whoknowsalbum: Command = {
       showButtons = false
       void reply.edit(render())
     }, BUTTON_TIMEOUT)
+
+    return right(option.none)
   },
 }
 

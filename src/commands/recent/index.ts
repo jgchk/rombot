@@ -1,3 +1,4 @@
+import { option } from 'fp-ts'
 import { Either, isLeft, left, right } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 import { RangeError } from '../../errors'
@@ -25,7 +26,7 @@ const recent: Command = {
     'recent 5 sharifi',
     'recent 5 @user',
   ],
-  execute: async (message) => {
+  execute: (message) => async () => {
     const { maybeUsername } = await getUsername(message)
     if (isLeft(maybeUsername)) return maybeUsername
     const username = maybeUsername.right
@@ -38,11 +39,13 @@ const recent: Command = {
     if (isLeft(maybeReleaseRatings)) return maybeReleaseRatings
     const releaseRatings = maybeReleaseRatings.right
 
-    return right({
-      embeds: [
-        getRecentEmbed(releaseRatings, message.message.author, username),
-      ],
-    })
+    return right(
+      option.some({
+        embeds: [
+          getRecentEmbed(releaseRatings, message.message.author, username),
+        ],
+      })
+    )
   },
 }
 

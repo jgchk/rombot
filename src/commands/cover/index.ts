@@ -1,3 +1,4 @@
+import { option } from 'fp-ts'
 import { isLeft, left, right } from 'fp-ts/Either'
 import { releaseToPartialRelease } from '../../database/schemas/partial-release'
 import { MissingDataError } from '../../errors'
@@ -21,7 +22,7 @@ const cover: Command = {
     'album @user',
     'album ~sharifi',
   ],
-  execute: async (message) => {
+  execute: (message) => async () => {
     const { maybeUsername, source } = await getUsername(message)
     const query = message.arguments_.join(' ').trim() || undefined
 
@@ -36,7 +37,9 @@ const cover: Command = {
       const cover = await getSlowCover(partialRelease)
       if (cover === undefined) return left(new MissingDataError('cover'))
 
-      return right({ files: [cover], embeds: [getCoverEmbed(partialRelease)] })
+      return right(
+        option.some({ files: [cover], embeds: [getCoverEmbed(partialRelease)] })
+      )
     }
 
     // get album info for latest rating by user
@@ -50,7 +53,9 @@ const cover: Command = {
     const cover = await getSlowCover(release)
     if (cover === undefined) return left(new MissingDataError('cover'))
 
-    return right({ files: [cover], embeds: [getCoverEmbed(release)] })
+    return right(
+      option.some({ files: [cover], embeds: [getCoverEmbed(release)] })
+    )
   },
 }
 

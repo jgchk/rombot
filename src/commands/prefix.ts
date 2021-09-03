@@ -1,3 +1,4 @@
+import { option } from 'fp-ts'
 import { left, right } from 'fp-ts/Either'
 import { UsageError } from '../errors'
 import { setServerPrefix } from '../services/server'
@@ -8,12 +9,12 @@ const prefix: Command = {
   description: 'set the bot prefix',
   usage: 'set PREFIX',
   examples: ['set !rym'],
-  execute: async (message) => {
+  execute: (message) => async () => {
     const prefix: string | undefined = message.arguments_[0]
     if (prefix === undefined) return left(new UsageError())
 
     await setServerPrefix(message.message.guildId, prefix)
-    return right(`Set prefix to ${prefix}`)
+    return right(option.some(`Set prefix to ${prefix}`))
   },
 }
 

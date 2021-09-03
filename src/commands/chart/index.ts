@@ -1,4 +1,5 @@
 import { MessageAttachment } from 'discord.js'
+import { option } from 'fp-ts'
 import { Either, isLeft, left, right } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 import { compareFullDates } from '../../database/schemas/full-date'
@@ -34,7 +35,7 @@ const chart: Command = {
     'chart 5x5 @user',
     'chart lowest',
   ],
-  execute: async (message) => {
+  execute: (message) => async () => {
     const { maybeUsername } = await getUsername(message)
     if (isLeft(maybeUsername)) return maybeUsername
     const username = maybeUsername.right
@@ -83,7 +84,7 @@ const chart: Command = {
       message.message.author,
       username
     )
-    return right({ files: [attachment], embeds: [embed] })
+    return right(option.some({ files: [attachment], embeds: [embed] }))
   },
 }
 

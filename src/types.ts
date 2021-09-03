@@ -1,4 +1,5 @@
 import { Message, MessagePayload, ReplyMessageOptions } from 'discord.js'
+import { option, taskEither } from 'fp-ts'
 import { Either } from 'fp-ts/Either'
 import { AppError } from './errors'
 
@@ -8,7 +9,12 @@ export type Command = {
   aliases?: string[]
   usage: string
   examples: string[]
-  execute: (message: CommandMessage) => Promise<CommandOutput> | CommandOutput
+  execute: (
+    message: CommandMessage
+  ) => taskEither.TaskEither<
+    AppError,
+    option.Option<string | MessagePayload | ReplyMessageOptions>
+  >
 }
 
 export type CommandOutput =

@@ -1,5 +1,6 @@
-import { Client, Intents } from 'discord.js'
-import { isLeft } from 'fp-ts/Either'
+import { Client, Intents, Message } from 'discord.js'
+import { option, task, taskEither } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
 import { commands } from './commands'
 import help from './commands/help'
 import { BOT_TOKEN, RYM_PASSWORD, RYM_USERNAME } from './config'
@@ -7,6 +8,7 @@ import { login } from './services/login'
 import { DEFAULT_PREFIX, getServerPrefix } from './services/server'
 import { CommandMessage } from './types'
 import { emitButton } from './utils/buttons'
+import { undefinedTask } from './utils/functional'
 import { makeErrorEmbed, makeUsageEmbed } from './utils/render'
 
 const client = new Client({
@@ -68,18 +70,18 @@ client.on('messageCreate', async (message) => {
       )
 
       try {
-        const commandResult = await command.execute(commandMessage)
-        if (commandResult !== undefined) {
-          if (isLeft(commandResult)) {
-            const error = commandResult.left
-            await handleError(error, commandMessage)
-          } else {
-            const response = commandResult.right
-            await message.reply(response)
-          }
-        }
+        await pipe(
+          command.execute(commandMessage),
+          taskEither.fold(
+            (error) => handleError(error, commandMessage),
+            option.foldW(
+              () => undefinedTask,
+              (payload) => () => message.reply(payload)
+            )
+          )
+        )()
       } catch (error) {
-        await handleError(error, commandMessage)
+        await handleError(error, commandMessage)()
       } finally {
         clearInterval(interval)
       }
@@ -93,14 +95,16 @@ client.on('interactionCreate', (interaction) => {
   }
 })
 
-const handleError = async (error: Error, commandMessage: CommandMessage) =>
-  commandMessage.message.reply({
-    embeds: [
-      error.name === 'UsageError'
-        ? await makeUsageEmbed(commandMessage)
-        : await makeErrorEmbed(error, commandMessage),
-    ],
-  })
+const handleError =
+  (error: Error, commandMessage: CommandMessage): task.Task<Message> =>
+  async () =>
+    commandMessage.message.reply({
+      embeds: [
+        error.name === 'UsageError'
+          ? await makeUsageEmbed(commandMessage)
+          : await makeErrorEmbed(error, commandMessage),
+      ],
+    })
 
 if (BOT_TOKEN !== undefined) {
   void client.login(BOT_TOKEN)

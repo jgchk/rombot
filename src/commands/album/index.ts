@@ -1,3 +1,4 @@
+import { option } from 'fp-ts'
 import { isLeft, isRight, right } from 'fp-ts/Either'
 import { getLatestRating, getRatingForRelease } from '../../services/rating'
 import { getReleaseFromUrl, searchRelease } from '../../services/release'
@@ -19,7 +20,7 @@ const album: Command = {
     'album @user',
     'album ~sharifi',
   ],
-  execute: async (message) => {
+  execute: (message) => async () => {
     const { maybeUsername, source } = await getUsername(message)
     const query = message.arguments_.join(' ').trim() || undefined
 
@@ -38,7 +39,7 @@ const album: Command = {
         maybeReleaseRating !== undefined && isRight(maybeReleaseRating)
           ? maybeReleaseRating.right.rating
           : undefined
-      return right({ embeds: [getAlbumEmbed(release, rating)] })
+      return right(option.some({ embeds: [getAlbumEmbed(release, rating)] }))
     }
 
     // get album info for latest rating by user
@@ -55,9 +56,11 @@ const album: Command = {
     const maybeRelease = await getReleaseFromUrl(issueUrl)
     if (isLeft(maybeRelease)) return maybeRelease
 
-    return right({
-      embeds: [getAlbumEmbed(maybeRelease.right, rating)],
-    })
+    return right(
+      option.some({
+        embeds: [getAlbumEmbed(maybeRelease.right, rating)],
+      })
+    )
   },
 }
 

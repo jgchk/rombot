@@ -1,3 +1,4 @@
+import { option } from 'fp-ts'
 import { isLeft, isRight, right } from 'fp-ts/Either'
 import { getLatestRating, getRatingForRelease } from '../../services/rating'
 import { getReleaseFromUrl, searchRelease } from '../../services/release'
@@ -12,7 +13,7 @@ const rating: Command = {
     "shows your rating for your last-rating album or the album you're searching for",
   usage: 'rating [QUERY]',
   examples: ['rating', 'rating 808s & heartbreak'],
-  execute: async (message) => {
+  execute: (message) => async () => {
     const { maybeUsername, source } = await getUsername(message)
     const query = message.arguments_.join(' ').trim() || undefined
 
@@ -33,11 +34,13 @@ const rating: Command = {
         maybeReleaseRating !== undefined && isRight(maybeReleaseRating)
           ? maybeReleaseRating.right.rating
           : undefined
-      return right({
-        embeds: [
-          getRatingEmbed(rating, release, message.message.author, username),
-        ],
-      })
+      return right(
+        option.some({
+          embeds: [
+            getRatingEmbed(rating, release, message.message.author, username),
+          ],
+        })
+      )
     }
 
     // get album info for latest rating by user
@@ -55,11 +58,13 @@ const rating: Command = {
     if (isLeft(maybeRelease)) return maybeRelease
     const release = maybeRelease.right
 
-    return right({
-      embeds: [
-        getRatingEmbed(rating, release, message.message.author, username),
-      ],
-    })
+    return right(
+      option.some({
+        embeds: [
+          getRatingEmbed(rating, release, message.message.author, username),
+        ],
+      })
+    )
   },
 }
 

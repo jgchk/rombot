@@ -1,3 +1,4 @@
+import { option } from 'fp-ts'
 import { left, right } from 'fp-ts/Either'
 import { UsageError } from '../errors'
 import { getUsernameForUser, setUsernameForUser } from '../services/account'
@@ -9,7 +10,7 @@ const set: Command = {
   description: 'set your rym username',
   usage: 'set USERNAME',
   examples: ['set ~sharifi'],
-  execute: async (message) => {
+  execute: (message) => async () => {
     let username: string | undefined = message.arguments_[0]
     if (username === undefined) return left(new UsageError())
     if (username.startsWith('~')) username = username.slice(1)
@@ -21,7 +22,7 @@ const set: Command = {
       await follow(username)
     }
 
-    return right(`Set username to ~${username}`)
+    return right(option.some(`Set username to ~${username}`))
   },
 }
 

@@ -1,4 +1,5 @@
 import { MessageEmbed } from 'discord.js'
+import { option } from 'fp-ts'
 import { right } from 'fp-ts/Either'
 import { getServerPrefix } from '../services/server'
 import { Command } from '../types'
@@ -13,7 +14,7 @@ const help: Command = {
   description: 'shows information about getting started with the bot',
   usage: 'help',
   examples: ['help'],
-  execute: async (message) => {
+  execute: (message) => async () => {
     const prefix = await getServerPrefix(message.message.guildId)
     const embed = new MessageEmbed()
 
@@ -37,7 +38,7 @@ const help: Command = {
 
     embed.setDescription(description)
 
-    return right({ embeds: [embed] })
+    return right(option.some({ embeds: [embed] }))
   },
 }
 
