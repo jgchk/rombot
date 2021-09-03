@@ -14,9 +14,10 @@ const set: Command = {
     if (username === undefined) return either.left(new UsageError())
     if (username.startsWith('~')) username = username.slice(1)
 
-    const currentUsername = await getUsernameForUser(message.message.author)
-    if (currentUsername !== username) {
-      if (currentUsername !== undefined) await unfollow(currentUsername)
+    // TODO: clean up
+    const currentUsername = await getUsernameForUser(message.message.author)()
+    if (either.isLeft(currentUsername) || currentUsername.right !== username) {
+      if (either.isRight(currentUsername)) await unfollow(currentUsername.right)
       await setUsernameForUser(message.message.author, username)
       await follow(username)
     }

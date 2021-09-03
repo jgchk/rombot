@@ -7,6 +7,7 @@ import { BOT_TOKEN, RYM_PASSWORD, RYM_USERNAME } from './config'
 import { login } from './services/login'
 import { DEFAULT_PREFIX, getServerPrefix } from './services/server'
 import { CommandMessage } from './types'
+import { parseArguments } from './utils/arguments'
 import { emitButton } from './utils/buttons'
 import { undefinedTask } from './utils/functional'
 import { makeErrorEmbed, makeUsageEmbed } from './utils/render'
@@ -56,6 +57,7 @@ client.on('messageCreate', async (message) => {
       name,
       arguments_,
     }
+    console.log(parseArguments(commandMessage))
 
     if (help) {
       void message.channel.sendTyping()

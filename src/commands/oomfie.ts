@@ -2,7 +2,6 @@ import { MessageEmbed } from 'discord.js'
 import { either, option } from 'fp-ts'
 import { compareTwoStrings } from 'string-similarity'
 import getDatabase from '../database'
-import { UsernameNotFoundError } from '../errors'
 import { getUsernameForUser } from '../services/account'
 import { Command } from '../types'
 import { makeUserLink } from '../utils/render'
@@ -15,9 +14,11 @@ const oomfie: Command = {
   usage: 'oomfie',
   examples: ['oomfie'],
   execute: (message) => async () => {
-    const requesterUsername = await getUsernameForUser(message.message.author)
-    if (requesterUsername === undefined)
-      return either.left(new UsernameNotFoundError(message.message.author))
+    const maybeRequesterUsername = await getUsernameForUser(
+      message.message.author
+    )()
+    if (either.isLeft(maybeRequesterUsername)) return maybeRequesterUsername
+    const requesterUsername = maybeRequesterUsername.right
 
     const database = await getDatabase()
     const requesterRatings = await database.getUserRatings(requesterUsername)
