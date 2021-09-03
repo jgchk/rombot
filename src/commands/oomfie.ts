@@ -12,6 +12,7 @@ import { isNotNull } from '../utils/types'
 const oomfie: Command = {
   name: 'oomfie',
   description: 'find your oomfie',
+  aliases: ['oomf'],
   usage: 'oomfie',
   examples: ['oomfie'],
   execute: (message) => async () => {
