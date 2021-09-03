@@ -19,6 +19,9 @@ export class Database {
     ).exec()
     return updatedAccount ?? account
   }
+  async getAllAccounts(): Promise<Account[]> {
+    return AccountModel.find().exec()
+  }
 
   async getSearchResult(query: string): Promise<SearchResult | undefined> {
     const result = await SearchResultModel.findOne({ query }).exec()
@@ -59,6 +62,9 @@ export class Database {
       { upsert: true, setDefaultsOnInsert: true }
     ).exec()
     return updatedRating ?? rating
+  }
+  async getUserRatings(username: string): Promise<Rating[]> {
+    return RatingModel.find({ username }).exec()
   }
 
   async setCover(cover: Cover): Promise<Cover> {
