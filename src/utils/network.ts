@@ -13,11 +13,11 @@ import { MissingDataError } from '../errors'
 import { ifDefined } from './functional'
 
 export const limiter = new Bottleneck({
-  reservoir: 4,
-  reservoirRefreshAmount: 4,
-  reservoirRefreshInterval: 60 * 1000,
+  reservoir: 16,
+  reservoirRefreshAmount: 16,
+  reservoirRefreshInterval: 2 * 60 * 1000,
   maxConcurrent: 1,
-  minTime: 1300,
+  minTime: 1250,
 })
 
 export const cookieJar = new CookieJar()
