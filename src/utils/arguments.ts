@@ -75,33 +75,34 @@ export const getUsernameOrQuery = (
   )
 }
 
+export type UsernameAndQuery = {
+  maybeQuery: option.Option<string>
+  maybeUsername: either.Either<UsernameNotFoundError, string>
+}
 export const getUsernameAndQuery = (
   parsedArguments: ParsedArguments
-): task.Task<{
-  query: option.Option<string>
-  username: either.Either<UsernameNotFoundError, string>
-}> => {
-  const query = array.isNonEmpty(parsedArguments.otherArguments)
+): task.Task<UsernameAndQuery> => {
+  const maybeQuery = array.isNonEmpty(parsedArguments.otherArguments)
     ? option.some(parsedArguments.otherArguments.join(' '))
     : option.none
 
   const firstUsername = array.head(parsedArguments.usernames)
   if (option.isSome(firstUsername))
     return task.of({
-      query,
-      username: either.right(firstUsername.value),
+      maybeQuery,
+      maybeUsername: either.right(firstUsername.value),
     })
 
   const firstMention = array.head(parsedArguments.mentions)
   if (option.isSome(firstMention))
     return pipe(
       getUsernameForUser(firstMention.value),
-      task.map((maybeUsername) => ({ query, username: maybeUsername }))
+      task.map((maybeUsername) => ({ maybeQuery, maybeUsername }))
     )
 
   return pipe(
     getUsernameForUser(parsedArguments.author),
-    task.map((maybeUsername) => ({ query, username: maybeUsername }))
+    task.map((maybeUsername) => ({ maybeQuery, maybeUsername }))
   )
 }
 

@@ -27,36 +27,12 @@ const album: Command = {
     pipe(
       parseArguments(message),
       getUsernameAndQuery,
-      task.chain(({ query: maybeQuery, username: maybeUsername }) =>
+      task.chain(({ maybeQuery, maybeUsername }) =>
         pipe(
           maybeQuery,
           option.fold(
-            () =>
-              pipe(
-                maybeUsername,
-                either.traverse(taskEither.ApplicativePar)((username) =>
-                  getLatestRating(username)
-                ),
-                taskEither.chainW(taskEither.fromEither),
-                taskEither.chainW(({ rating, release: { issueUrl } }) =>
-                  pipe(
-                    getReleaseFromUrl(issueUrl),
-                    taskEither.map((release) => ({
-                      release,
-                      rating: option.some(rating),
-                    }))
-                  )
-                )
-              ),
-            (query) =>
-              pipe(
-                searchRelease(query),
-                taskEither.chain((release) =>
-                  taskEither.fromTask(
-                    getReleaseAndOptionalRating(release, maybeUsername)
-                  )
-                )
-              )
+            () => getReleaseAndRatingFromLatest(maybeUsername),
+            (query) => getReleaseAndRatingFromQuery(query, maybeUsername)
           )
         )
       ),
@@ -68,15 +44,41 @@ const album: Command = {
     ),
 }
 
-const getReleaseAndOptionalRating = (
-  release: Release,
+const getReleaseAndRatingFromLatest = (
   maybeUsername: either.Either<UsernameNotFoundError, string>
-): task.Task<{ release: Release; rating: option.Option<Rating> }> =>
+) =>
   pipe(
-    option.getRight(maybeUsername),
-    taskOption.fromOption,
-    taskOption.chain((username) => getOptionalRating(username, release)),
-    task.map((rating) => ({ release, rating }))
+    maybeUsername,
+    either.traverse(taskEither.ApplicativePar)((username) =>
+      getLatestRating(username)
+    ),
+    taskEither.chainW(taskEither.fromEither),
+    taskEither.chainW(({ rating, release: { issueUrl } }) =>
+      pipe(
+        getReleaseFromUrl(issueUrl),
+        taskEither.map((release) => ({
+          release,
+          rating: option.some(rating),
+        }))
+      )
+    )
+  )
+
+const getReleaseAndRatingFromQuery = (
+  query: string,
+  maybeUsername: either.Either<UsernameNotFoundError, string>
+) =>
+  pipe(
+    searchRelease(query),
+    taskEither.chain((release) =>
+      taskEither.fromTask(
+        pipe(
+          taskOption.fromEither(maybeUsername),
+          taskOption.chain((username) => getOptionalRating(username, release)),
+          task.map((rating) => ({ release, rating }))
+        )
+      )
+    )
   )
 
 const getOptionalRating = (
