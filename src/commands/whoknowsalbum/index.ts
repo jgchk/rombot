@@ -11,7 +11,7 @@ const BUTTON_TIMEOUT = 60 * 1000
 
 const whoknowsalbum: Command = {
   name: 'whoknowsalbum',
-  aliases: ['whoknows', 'wkab', 'wka', 'wa', 'wk', 'w'],
+  aliases: ['whoknows', 'wkalbum', 'wkab', 'wka', 'wa', 'wk', 'w'],
   description:
     "shows who in your server rated your last-rated album or the album you're searching for",
   usage: 'whoknowsalbum [QUERY|USER]',
