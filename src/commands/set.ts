@@ -17,8 +17,10 @@ const set: Command = {
     if (username.startsWith('~')) username = username.slice(1)
 
     const user = message.message.author
-    await unfollowCurrentUsername(user)()
-    await followAndSetUsername(username, user)()
+    await apply.sequenceT(task.ApplySeq)(
+      unfollowCurrentUsername(user),
+      followAndSetUsername(username, user)
+    )()
 
     return either.right(option.some(`Set username to ~${username}`))
   },
