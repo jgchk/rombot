@@ -9,7 +9,7 @@ export const getServerPrefix = async (
   serverId: string | null | undefined
 ): Promise<string> => {
   if (!serverId) return DEFAULT_PREFIX
-  const database = await getDatabase()
+  const database = await getDatabase()()
   const server = await database.getServer(serverId)
   return server?.prefix ?? DEFAULT_PREFIX
 }
@@ -21,7 +21,7 @@ export const setServerPrefix = async (
   if (!serverId) return either.left(new NotInServerError())
   if (prefix.length === 0) return either.left(new UsageError())
 
-  const database = await getDatabase()
+  const database = await getDatabase()()
   const server = await database.setServer({ id: serverId, prefix })
   return either.right(server)
 }

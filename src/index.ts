@@ -57,7 +57,6 @@ client.on('messageCreate', async (message) => {
       name,
       arguments_,
     }
-    console.log(parseArguments(commandMessage))
 
     if (help) {
       void message.channel.sendTyping()

@@ -8,7 +8,7 @@ import { UsernameNotFoundError } from '../errors'
 const getAccount =
   (user: User): taskOption.TaskOption<Account> =>
   async () => {
-    const database = await getDatabase()
+    const database = await getDatabase()()
     return option.fromNullable(await database.getAccount(user.id))
   }
 
@@ -25,6 +25,6 @@ export const setUsernameForUser = async (
   user: User,
   username: string
 ): Promise<Account> => {
-  const database = await getDatabase()
+  const database = await getDatabase()()
   return database.setAccount({ discordId: user.id, username })
 }

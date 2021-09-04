@@ -1,3 +1,4 @@
+import { task } from 'fp-ts'
 import mongoose from 'mongoose'
 import { Account, AccountModel } from './schemas/account'
 import { Cover, CoverModel } from './schemas/cover'
@@ -19,8 +20,8 @@ export class Database {
     ).exec()
     return updatedAccount ?? account
   }
-  async getAllAccounts(): Promise<Account[]> {
-    return AccountModel.find().exec()
+  getAllAccounts(): task.Task<Account[]> {
+    return () => AccountModel.find().exec()
   }
 
   async getSearchResult(query: string): Promise<SearchResult | undefined> {
@@ -63,8 +64,8 @@ export class Database {
     ).exec()
     return updatedRating ?? rating
   }
-  async getUserRatings(username: string): Promise<Rating[]> {
-    return RatingModel.find({ username }).exec()
+  getUserRatings(username: string): task.Task<Rating[]> {
+    return () => RatingModel.find({ username }).exec()
   }
 
   async setCover(cover: Cover): Promise<Cover> {
@@ -108,7 +109,8 @@ const makeDatabase = (): Promise<Database> =>
   })
 
 let database: Database | undefined
-const getDatabase = async (): Promise<Database> => {
+// eslint-disable-next-line unicorn/consistent-function-scoping
+const getDatabase = (): task.Task<Database> => async () => {
   if (database === undefined) database = await makeDatabase()
   return database
 }

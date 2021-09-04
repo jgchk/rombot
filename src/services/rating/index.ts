@@ -247,7 +247,7 @@ const getReleaseRatingPage = async (
       })
     })
 
-  const database = await getDatabase()
+  const database = await getDatabase()()
   await Promise.all(
     ratings
       .filter(either.isRight)

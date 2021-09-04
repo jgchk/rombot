@@ -89,16 +89,18 @@ const whoknowsalbum: Command = {
       )
       const buttonRows: MessageActionRow[] = []
       if (showButtons) {
-        ratingButton.setDisabled(sort === 'rating')
-        usernameButton.setDisabled(sort === 'username')
-        dateButton.setDisabled(sort === 'date')
-        buttonRows.push(
-          new MessageActionRow().addComponents(
-            ratingButton,
-            usernameButton,
-            dateButton
+        if (ratings.length > 1) {
+          ratingButton.setDisabled(sort === 'rating')
+          usernameButton.setDisabled(sort === 'username')
+          dateButton.setDisabled(sort === 'date')
+          buttonRows.push(
+            new MessageActionRow().addComponents(
+              ratingButton,
+              usernameButton,
+              dateButton
+            )
           )
-        )
+        }
         if (totalPages > 1) {
           previousButton.setDisabled(page === 0)
           nextButton.setDisabled(page === totalPages - 1)

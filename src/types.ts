@@ -8,13 +8,12 @@ export type Command = {
   aliases?: string[]
   usage: string
   examples: string[]
-  execute: (
-    message: CommandMessage
-  ) => taskEither.TaskEither<
-    AppError,
-    option.Option<string | MessagePayload | ReplyMessageOptions>
-  >
+  execute: (message: CommandMessage) => CommandOutput
 }
+
+export type CommandOutput = taskEither.TaskEither<AppError, MaybeMessageOutput>
+export type MaybeMessageOutput = option.Option<MessageOutput>
+export type MessageOutput = string | MessagePayload | ReplyMessageOptions
 
 export type CommandMessage = {
   message: Message

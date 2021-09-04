@@ -14,7 +14,7 @@ export const searchRelease =
     Release
   > =>
   async () => {
-    const database = await getDatabase()
+    const database = await getDatabase()()
     const cachedSearchResult = await database.getSearchResult(query)
 
     if (cachedSearchResult !== undefined) {
@@ -45,7 +45,7 @@ export const getReleaseFromUrl =
     url: string
   ): taskEither.TaskEither<RequestError | MissingDataError, Release> =>
   async () => {
-    const database = await getDatabase()
+    const database = await getDatabase()()
     const cachedRelease = await database.getRelease(url)
     if (cachedRelease !== undefined) return either.right(cachedRelease)
 
@@ -61,7 +61,7 @@ export const getReleaseFromUrl =
 export const getCombinedReleaseFromUrl = async (
   issueUrl: string
 ): Promise<either.Either<MissingDataError | RequestError, Release>> => {
-  const database = await getDatabase()
+  const database = await getDatabase()()
   const cachedRelease = await database.getCombinedRelease(issueUrl)
   if (cachedRelease !== undefined) return either.right(cachedRelease)
 

@@ -11,7 +11,7 @@ import {
 export const getFastCover = async (
   release: CoverArgument
 ): Promise<Buffer | undefined> => {
-  const database = await getDatabase()
+  const database = await getDatabase()()
 
   const cachedCover = await getCachedCover(release, database)
   if (cachedCover !== undefined) return cachedCover
@@ -35,7 +35,7 @@ export const getFastCover = async (
 export const getSlowCover = async (
   release: CoverArgument
 ): Promise<Buffer | undefined> => {
-  const database = await getDatabase()
+  const database = await getDatabase()()
 
   const cachedCover = await getCachedCover(release, database)
   if (cachedCover !== undefined) return cachedCover

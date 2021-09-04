@@ -31,7 +31,7 @@ export const getRatingsFromUrl = async (
     ratings.push(maybeRating.right)
   }
 
-  const database = await getDatabase()
+  const database = await getDatabase()()
   await Promise.all(ratings.map((rating) => database.setRating(rating.rating)))
 
   return either.right(ratings)
