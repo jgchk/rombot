@@ -1,5 +1,5 @@
 import { User } from 'discord.js'
-import { option, taskEither, taskOption } from 'fp-ts'
+import { option, task, taskEither, taskOption } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import getDatabase from '../database'
 import { Account } from '../database/schemas/account'
@@ -21,10 +21,9 @@ export const getUsernameForUser = (
     taskEither.fromTaskOption(() => new UsernameNotFoundError(user))
   )
 
-export const setUsernameForUser = async (
-  user: User,
-  username: string
-): Promise<Account> => {
-  const database = await getDatabase()()
-  return database.setAccount({ discordId: user.id, username })
-}
+export const setUsernameForUser =
+  (user: User, username: string): task.Task<Account> =>
+  async () => {
+    const database = await getDatabase()()
+    return database.setAccount({ discordId: user.id, username })
+  }

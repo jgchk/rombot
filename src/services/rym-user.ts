@@ -1,65 +1,65 @@
 import cheerio from 'cheerio'
-import { either } from 'fp-ts'
+import { either, taskEither } from 'fp-ts'
 import { HTTPError } from 'got/dist/source'
 import { MissingDataError, UsernameDoesntExistError } from '../errors'
 import { makeUserUrl } from '../utils/links'
 import { getRequestToken, gott, limiter } from '../utils/network'
 
-export const follow = async (
-  username: string
-): Promise<
-  either.Either<MissingDataError | UsernameDoesntExistError, true>
-> => {
-  const maybeUserId = await getUserId(username)
-  if (either.isLeft(maybeUserId)) return maybeUserId
-  const userId = maybeUserId.right
+export const follow =
+  (
+    username: string
+  ): taskEither.TaskEither<MissingDataError | UsernameDoesntExistError, true> =>
+  async () => {
+    const maybeUserId = await getUserId(username)
+    if (either.isLeft(maybeUserId)) return maybeUserId
+    const userId = maybeUserId.right
 
-  const maybeRequestToken = await getRequestToken()
-  if (either.isLeft(maybeRequestToken)) return maybeRequestToken
-  const requestToken = maybeRequestToken.right
+    const maybeRequestToken = await getRequestToken()
+    if (either.isLeft(maybeRequestToken)) return maybeRequestToken
+    const requestToken = maybeRequestToken.right
 
-  await limiter.schedule(() =>
-    gott('https://rateyourmusic.com/httprequest/FollowFollowUser', {
-      method: 'POST',
-      form: {
-        user_id: userId,
-        action: 'FollowFollowUser',
-        rym_ajax_req: 1,
-        request_token: requestToken,
-      },
-    })
-  )
+    await limiter.schedule(() =>
+      gott('https://rateyourmusic.com/httprequest/FollowFollowUser', {
+        method: 'POST',
+        form: {
+          user_id: userId,
+          action: 'FollowFollowUser',
+          rym_ajax_req: 1,
+          request_token: requestToken,
+        },
+      })
+    )
 
-  return either.right(true)
-}
+    return either.right(true)
+  }
 
-export const unfollow = async (
-  username: string
-): Promise<
-  either.Either<MissingDataError | UsernameDoesntExistError, true>
-> => {
-  const maybeUserId = await getUserId(username)
-  if (either.isLeft(maybeUserId)) return maybeUserId
-  const userId = maybeUserId.right
+export const unfollow =
+  (
+    username: string
+  ): taskEither.TaskEither<MissingDataError | UsernameDoesntExistError, true> =>
+  async () => {
+    const maybeUserId = await getUserId(username)
+    if (either.isLeft(maybeUserId)) return maybeUserId
+    const userId = maybeUserId.right
 
-  const maybeRequestToken = await getRequestToken()
-  if (either.isLeft(maybeRequestToken)) return maybeRequestToken
-  const requestToken = maybeRequestToken.right
+    const maybeRequestToken = await getRequestToken()
+    if (either.isLeft(maybeRequestToken)) return maybeRequestToken
+    const requestToken = maybeRequestToken.right
 
-  await limiter.schedule(() =>
-    gott('https://rateyourmusic.com/httprequest/FollowUnfollowUser', {
-      method: 'POST',
-      form: {
-        user_id: userId,
-        action: 'FollowUnfollowUser',
-        rym_ajax_req: 1,
-        request_token: requestToken,
-      },
-    })
-  )
+    await limiter.schedule(() =>
+      gott('https://rateyourmusic.com/httprequest/FollowUnfollowUser', {
+        method: 'POST',
+        form: {
+          user_id: userId,
+          action: 'FollowUnfollowUser',
+          rym_ajax_req: 1,
+          request_token: requestToken,
+        },
+      })
+    )
 
-  return either.right(true)
-}
+    return either.right(true)
+  }
 
 const getUserId = async (
   username: string
