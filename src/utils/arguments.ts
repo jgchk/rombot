@@ -3,7 +3,7 @@ import { array, either, option, string, task, taskEither } from 'fp-ts'
 import { dropLeft } from 'fp-ts-std/String'
 import { pipe } from 'fp-ts/function'
 import { UsernameNotFoundError } from '../errors'
-import { getUsernameForUser } from '../services/account'
+import { getUsernameForUser } from '../services/discord-user'
 import { CommandMessage } from '../types'
 import { ifDefined } from './functional'
 

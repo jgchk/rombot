@@ -6,7 +6,13 @@
     "lint": "eslint ./src",
     "lint:watch": "nodemon --watch ./src --ext ts --exec \"yarn lint\"",
     "build": "tsc",
-    "start": "node ./dist/index.js"
+    "start": "node ./dist/index.js",
+    "migrate:create": "sh -c 'ts-node node_modules/.bin/migrate-mongo create $0 -f migrate-mongo-config.ts' ",
+    "migrate:status": "ts-node node_modules/.bin/migrate-mongo status -f migrate-mongo-config.ts",
+    "migrate:undo-last": "ts-node node_modules/.bin/migrate-mongo down -f migrate-mongo-config.ts && npm run migrate:status",
+    "migrate": "yarn migrate:up",
+    "migrate:up": "ts-node node_modules/.bin/migrate-mongo up -f migrate-mongo-config.ts",
+    "migrate:down": "ts-node node_modules/.bin/migrate-mongo down -f migrate-mongo-config.ts"
   },
   "dependencies": {
     "@discordjs/builders": "^0.5.0",
@@ -25,6 +31,7 @@
     "fp-ts": "^2.11.1",
     "fp-ts-std": "^0.11.0",
     "got": "^11.8.2",
+    "migrate-mongo": "^8.2.3",
     "mongoose": "^5.13.7",
     "nanoid": "^3.1.25",
     "strict-event-emitter-types": "^2.0.0",

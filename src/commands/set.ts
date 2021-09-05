@@ -2,8 +2,11 @@ import { User } from 'discord.js'
 import { apply, either, option, task, taskEither } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { UsageError } from '../errors'
-import { getUsernameForUser, setUsernameForUser } from '../services/account'
-import { follow, unfollow } from '../services/rym-user'
+import {
+  getUsernameForUser,
+  setUsernameForUser,
+} from '../services/discord-user'
+import { follow, unfollow } from '../services/rym-account'
 import { Command } from '../types'
 
 const set: Command = {

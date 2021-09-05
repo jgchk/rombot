@@ -12,7 +12,7 @@ import {
 import { pipe } from 'fp-ts/function'
 import { compareTwoStrings } from 'string-similarity'
 import getDatabase from '../database'
-import { getUsernameForUser } from '../services/account'
+import { getUsernameForUser } from '../services/discord-user'
 import { Command, MessageOutput } from '../types'
 import { makeUserLink } from '../utils/render'
 import { isNotNull } from '../utils/types'
@@ -82,7 +82,7 @@ const getRatingComparisons = (
     task.chain((requesterRatingsString) =>
       pipe(
         getDatabase(),
-        task.chain((database) => database.getAllAccounts()),
+        task.chain((database) => database.getAllDiscordUsers()),
         task.map((accounts) =>
           pipe(
             accounts,

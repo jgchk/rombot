@@ -1,27 +1,27 @@
 import { task } from 'fp-ts'
 import mongoose from 'mongoose'
-import { Account, AccountModel } from './schemas/account'
 import { Cover, CoverModel } from './schemas/cover'
+import { DiscordUser, DiscordUserModel } from './schemas/discord-user'
 import { Rating, RatingModel } from './schemas/rating'
 import { Release, ReleaseModel } from './schemas/release'
 import { SearchResult, SearchResultModel } from './schemas/search-result'
 import { Server, ServerModel } from './schemas/server'
 
 export class Database {
-  async getAccount(discordId: string): Promise<Account | undefined> {
-    const account = await AccountModel.findOne({ discordId }).exec()
+  async getDiscordUser(discordId: string): Promise<DiscordUser | undefined> {
+    const account = await DiscordUserModel.findOne({ discordId }).exec()
     return account ?? undefined
   }
-  async setAccount(account: Account): Promise<Account> {
-    const updatedAccount = await AccountModel.findOneAndUpdate(
+  async setDiscordUser(account: DiscordUser): Promise<DiscordUser> {
+    const updatedAccount = await DiscordUserModel.findOneAndUpdate(
       { discordId: account.discordId },
       { $set: account },
       { upsert: true, setDefaultsOnInsert: true }
     ).exec()
     return updatedAccount ?? account
   }
-  getAllAccounts(): task.Task<Account[]> {
-    return () => AccountModel.find().exec()
+  getAllDiscordUsers(): task.Task<DiscordUser[]> {
+    return () => DiscordUserModel.find().exec()
   }
 
   async getSearchResult(query: string): Promise<SearchResult | undefined> {

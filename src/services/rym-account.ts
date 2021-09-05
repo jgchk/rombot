@@ -10,7 +10,7 @@ export const follow =
     username: string
   ): taskEither.TaskEither<MissingDataError | UsernameDoesntExistError, true> =>
   async () => {
-    const maybeUserId = await getUserId(username)
+    const maybeUserId = await getRymAccountId(username)()
     if (either.isLeft(maybeUserId)) return maybeUserId
     const userId = maybeUserId.right
 
@@ -38,7 +38,7 @@ export const unfollow =
     username: string
   ): taskEither.TaskEither<MissingDataError | UsernameDoesntExistError, true> =>
   async () => {
-    const maybeUserId = await getUserId(username)
+    const maybeUserId = await getRymAccountId(username)()
     if (either.isLeft(maybeUserId)) return maybeUserId
     const userId = maybeUserId.right
 
@@ -61,28 +61,35 @@ export const unfollow =
     return either.right(true)
   }
 
-const getUserId = async (
-  username: string
-): Promise<
-  either.Either<MissingDataError | UsernameDoesntExistError, string>
-> => {
-  try {
-    const response = await limiter.schedule(() => gott(makeUserUrl(username)))
-    const $ = cheerio.load(response.body)
-    const text = $('.profile_header').text() || undefined
-    if (text === undefined)
-      return either.left(new MissingDataError(`user id for ${username}`))
+export const getRymAccountId =
+  (
+    username: string
+  ): taskEither.TaskEither<
+    MissingDataError | UsernameDoesntExistError,
+    string
+  > =>
+  async () => {
+    try {
+      const response = await limiter.schedule(() => gott(makeUserUrl(username)))
+      const $ = cheerio.load(response.body)
+      const text = $('.profile_header').text() || undefined
+      if (text === undefined)
+        return either.left(
+          new MissingDataError(`rym account id for ${username}`)
+        )
 
-    const id = /#(\d+)/.exec(text)?.[1]
-    if (id === undefined)
-      return either.left(new MissingDataError(`user id for ${username}`))
+      const id = /#(\d+)/.exec(text)?.[1]
+      if (id === undefined)
+        return either.left(
+          new MissingDataError(`rym account id for ${username}`)
+        )
 
-    return either.right(id)
-  } catch (error) {
-    if (error instanceof HTTPError && error.response.statusCode === 404) {
-      return either.left(new UsernameDoesntExistError(username))
-    } else {
-      throw error
+      return either.right(id)
+    } catch (error) {
+      if (error instanceof HTTPError && error.response.statusCode === 404) {
+        return either.left(new UsernameDoesntExistError(username))
+      } else {
+        throw error
+      }
     }
   }
-}
