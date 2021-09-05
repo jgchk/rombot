@@ -3,7 +3,6 @@
 * add genres to whoknows
 * crowns system for finding whoknows where you're the only rater
 * add curve to whoknows
-* follow redirects for rymset cap sensitivity
 * startup script to follow all not-followed users
 * weekly, monthly, recent chart params
 * notitle norating chart params
