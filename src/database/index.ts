@@ -1,9 +1,10 @@
-import { task } from 'fp-ts'
+import { option, task, taskOption } from 'fp-ts'
 import mongoose from 'mongoose'
 import { Cover, CoverModel } from './schemas/cover'
 import { DiscordUser, DiscordUserModel } from './schemas/discord-user'
 import { Rating, RatingModel } from './schemas/rating'
 import { Release, ReleaseModel } from './schemas/release'
+import { RymAccount, RymAccountModel } from './schemas/rym-account'
 import { SearchResult, SearchResultModel } from './schemas/search-result'
 import { Server, ServerModel } from './schemas/server'
 
@@ -12,16 +13,34 @@ export class Database {
     const account = await DiscordUserModel.findOne({ discordId }).exec()
     return account ?? undefined
   }
-  async setDiscordUser(account: DiscordUser): Promise<DiscordUser> {
-    const updatedAccount = await DiscordUserModel.findOneAndUpdate(
-      { discordId: account.discordId },
-      { $set: account },
-      { upsert: true, setDefaultsOnInsert: true }
-    ).exec()
-    return updatedAccount ?? account
+  setDiscordUser(discordUser: DiscordUser): task.Task<DiscordUser> {
+    return async () => {
+      const updatedAccount = await DiscordUserModel.findOneAndUpdate(
+        { discordId: discordUser.discordId },
+        { $set: discordUser as unknown as DiscordUser },
+        { upsert: true, setDefaultsOnInsert: true }
+      ).exec()
+      return updatedAccount ?? discordUser
+    }
   }
   getAllDiscordUsers(): task.Task<DiscordUser[]> {
     return () => DiscordUserModel.find().exec()
+  }
+
+  getRymAccount(username: string): taskOption.TaskOption<RymAccount> {
+    return async () => {
+      const rymAccount = await RymAccountModel.findOne({ username }).exec()
+      return option.fromNullable(rymAccount)
+    }
+  }
+  setRymAccount(rymAccount: RymAccount): task.Task<RymAccount> {
+    return async () =>
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      (await RymAccountModel.findOneAndUpdate(
+        { username: rymAccount.username },
+        { $set: rymAccount },
+        { upsert: true, setDefaultsOnInsert: true }
+      ).exec())!
   }
 
   async getSearchResult(query: string): Promise<SearchResult | undefined> {

@@ -83,10 +83,10 @@ const getRatingComparisons = (
       pipe(
         getDatabase(),
         task.chain((database) => database.getAllDiscordUsers()),
-        task.map((accounts) =>
+        task.map((discordUsers) =>
           pipe(
-            accounts,
-            array.map((account) => account.username),
+            discordUsers,
+            array.map((discordUser) => discordUser.rymUsername),
             array.filter(isNotNull),
             array.filter((accountUsername) => accountUsername !== username)
           )

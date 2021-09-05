@@ -1,14 +1,13 @@
-import { PopulatedDoc, Schema, model } from 'mongoose'
-import { RymAccount } from './rym-account'
+import { Schema, model } from 'mongoose'
 
 export type DiscordUser = {
   discordId: string
-  rymAccount: PopulatedDoc<RymAccount & Document> | null
+  rymUsername: string | null
 }
 
 export const discordUserSchema = new Schema<DiscordUser>({
   discordId: { type: String, required: true, index: true },
-  rymAccount: { type: 'ObjectId', ref: 'RymAccount' },
+  rymUsername: String,
 })
 
 export const DiscordUserModel = model<DiscordUser>(

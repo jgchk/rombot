@@ -10,9 +10,9 @@ export const follow =
     username: string
   ): taskEither.TaskEither<MissingDataError | UsernameDoesntExistError, true> =>
   async () => {
-    const maybeUserId = await getRymAccountId(username)()
+    const maybeUserId = await getRymAccountInfo(username)()
     if (either.isLeft(maybeUserId)) return maybeUserId
-    const userId = maybeUserId.right
+    const userId = maybeUserId.right.accountId
 
     const maybeRequestToken = await getRequestToken()
     if (either.isLeft(maybeRequestToken)) return maybeRequestToken
@@ -38,9 +38,9 @@ export const unfollow =
     username: string
   ): taskEither.TaskEither<MissingDataError | UsernameDoesntExistError, true> =>
   async () => {
-    const maybeUserId = await getRymAccountId(username)()
+    const maybeUserId = await getRymAccountInfo(username)()
     if (either.isLeft(maybeUserId)) return maybeUserId
-    const userId = maybeUserId.right
+    const userId = maybeUserId.right.accountId
 
     const maybeRequestToken = await getRequestToken()
     if (either.isLeft(maybeRequestToken)) return maybeRequestToken
@@ -61,12 +61,12 @@ export const unfollow =
     return either.right(true)
   }
 
-export const getRymAccountId =
+export const getRymAccountInfo =
   (
     username: string
   ): taskEither.TaskEither<
     MissingDataError | UsernameDoesntExistError,
-    string
+    { username: string; accountId: string }
   > =>
   async () => {
     try {
@@ -78,13 +78,19 @@ export const getRymAccountId =
           new MissingDataError(`rym account id for ${username}`)
         )
 
-      const id = /#(\d+)/.exec(text)?.[1]
-      if (id === undefined)
+      const accountId = /#(\d+)/.exec(text)?.[1]
+      if (accountId === undefined)
         return either.left(
           new MissingDataError(`rym account id for ${username}`)
         )
 
-      return either.right(id)
+      const realUsername = $('#profilename').text() || undefined
+      if (realUsername === undefined)
+        return either.left(
+          new MissingDataError(`rym account username for ${username}`)
+        )
+
+      return either.right({ accountId, username: realUsername })
     } catch (error) {
       if (error instanceof HTTPError && error.response.statusCode === 404) {
         return either.left(new UsernameDoesntExistError(username))
