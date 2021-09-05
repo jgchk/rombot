@@ -5,6 +5,7 @@ import { commands } from './commands'
 import help from './commands/help'
 import { BOT_TOKEN, RYM_PASSWORD, RYM_USERNAME } from './config'
 import { login } from './services/login'
+import { correctFollows } from './services/rym-account'
 import { DEFAULT_PREFIX, getServerPrefix } from './services/server'
 import { CommandMessage } from './types'
 import { emitButton } from './utils/buttons'
@@ -113,7 +114,10 @@ if (BOT_TOKEN !== undefined) {
 }
 
 if (RYM_USERNAME !== undefined && RYM_PASSWORD !== undefined) {
-  void login(RYM_USERNAME, RYM_PASSWORD)
+  void (async () => {
+    await login(RYM_USERNAME, RYM_PASSWORD)
+    await correctFollows(RYM_USERNAME)()
+  })()
 } else {
   console.error(
     'RYM_USERNAME or RYM_PASSWORD not found. Make sure to enter them into config.json'

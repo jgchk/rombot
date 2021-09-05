@@ -10,17 +10,17 @@ import { Server, ServerModel } from './schemas/server'
 
 export class Database {
   async getDiscordUser(discordId: string): Promise<DiscordUser | undefined> {
-    const account = await DiscordUserModel.findOne({ discordId }).exec()
-    return account ?? undefined
+    const discordUser = await DiscordUserModel.findOne({ discordId }).exec()
+    return discordUser ?? undefined
   }
   setDiscordUser(discordUser: DiscordUser): task.Task<DiscordUser> {
     return async () => {
-      const updatedAccount = await DiscordUserModel.findOneAndUpdate(
+      const updatedDiscordUser = await DiscordUserModel.findOneAndUpdate(
         { discordId: discordUser.discordId },
         { $set: discordUser as unknown as DiscordUser },
         { upsert: true, setDefaultsOnInsert: true }
       ).exec()
-      return updatedAccount ?? discordUser
+      return updatedDiscordUser ?? discordUser
     }
   }
   getAllDiscordUsers(): task.Task<DiscordUser[]> {
@@ -34,13 +34,14 @@ export class Database {
     }
   }
   setRymAccount(rymAccount: RymAccount): task.Task<RymAccount> {
-    return async () =>
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      (await RymAccountModel.findOneAndUpdate(
+    return async () => {
+      const updatedRymAccount = await RymAccountModel.findOneAndUpdate(
         { username: rymAccount.username },
         { $set: rymAccount },
         { upsert: true, setDefaultsOnInsert: true }
-      ).exec())!
+      ).exec()
+      return updatedRymAccount ?? rymAccount
+    }
   }
 
   async getSearchResult(query: string): Promise<SearchResult | undefined> {

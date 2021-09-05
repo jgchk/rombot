@@ -1,5 +1,5 @@
 import cheerio from 'cheerio'
-import { either, option, task, taskEither } from 'fp-ts'
+import { apply, array, either, option, task, taskEither } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { HTTPError } from 'got'
 import getDatabase from '../database'
@@ -7,8 +7,17 @@ import { RymAccount } from '../database/schemas/rym-account'
 import { MissingDataError, UsernameDoesntExistError } from '../errors'
 import { makeUserUrl } from '../utils/links'
 import { getRequestToken, gott, limiter } from '../utils/network'
+import { isDefined } from '../utils/types'
 
-export const follow =
+export const followByUsername = (
+  username: string
+): taskEither.TaskEither<MissingDataError | UsernameDoesntExistError, true> =>
+  pipe(
+    getRymAccount(username),
+    taskEither.chain((rymAccount) => followByAccountId(rymAccount.accountId))
+  )
+
+export const followByAccountId =
   (
     accountId: string
   ): taskEither.TaskEither<MissingDataError | UsernameDoesntExistError, true> =>
@@ -32,7 +41,15 @@ export const follow =
     return either.right(true)
   }
 
-export const unfollow =
+export const unfollowByUsername = (
+  username: string
+): taskEither.TaskEither<MissingDataError | UsernameDoesntExistError, true> =>
+  pipe(
+    getRymAccount(username),
+    taskEither.chain((rymAccount) => unfollowByAccountId(rymAccount.accountId))
+  )
+
+export const unfollowByAccountId =
   (
     accountId: string
   ): taskEither.TaskEither<MissingDataError | UsernameDoesntExistError, true> =>
@@ -130,3 +147,82 @@ const fetchRymAccount =
       }
     }
   }
+
+export const correctFollows = (
+  username: string
+): taskEither.TaskEither<
+  MissingDataError | UsernameDoesntExistError,
+  [readonly true[], readonly true[]]
+> =>
+  pipe(
+    getFollowModificiations(username),
+    task.chain(({ shouldBeFollowing, shouldNotBeFollowing }) =>
+      apply.sequenceT(taskEither.ApplySeq)(
+        pipe(
+          shouldBeFollowing,
+          array.map((username) => followByUsername(username)),
+          taskEither.sequenceArray
+        ),
+        pipe(
+          shouldNotBeFollowing,
+          array.map((username) => unfollowByUsername(username)),
+          taskEither.sequenceArray
+        )
+      )
+    )
+  )
+
+// should be following list = all DiscordUser rymUsernames not in follow list
+// should not be following list = all follow list usernames not in DiscordUser rymUsernames
+const getFollowModificiations = (
+  username: string
+): task.Task<{
+  shouldBeFollowing: string[]
+  shouldNotBeFollowing: string[]
+}> =>
+  pipe(
+    getFollows(username),
+    task.chain((followList) =>
+      pipe(
+        getAllDiscordUserRymUsernames(),
+        task.map((rymUsernames) => {
+          const shouldBeFollowing = rymUsernames.filter(
+            (username) => !followList.includes(username)
+          )
+          const shouldNotBeFollowing = followList.filter(
+            (username) => !rymUsernames.includes(username)
+          )
+          return { shouldBeFollowing, shouldNotBeFollowing }
+        })
+      )
+    )
+  )
+
+const getFollows =
+  (username: string): task.Task<string[]> =>
+  async () => {
+    const response = await limiter.schedule(() =>
+      gott(`https://rateyourmusic.com/friends/${username}/`)
+    )
+    const $ = cheerio.load(response.body)
+
+    const usernames = $('.card_link a')
+      .toArray()
+      .map((element) => $(element).text() || undefined)
+      .filter(isDefined)
+    return usernames
+  }
+
+const getAllDiscordUserRymUsernames = (): task.Task<string[]> =>
+  pipe(
+    getDatabase(),
+    task.chain((database) => database.getAllDiscordUsers()),
+    task.map((discordUsers) =>
+      pipe(
+        discordUsers,
+        array.filterMap((discordUser) =>
+          option.fromNullable(discordUser.rymUsername)
+        )
+      )
+    )
+  )

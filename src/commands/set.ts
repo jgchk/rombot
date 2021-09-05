@@ -11,7 +11,7 @@ import {
   getUsernameForUser,
   setUsernameForUser,
 } from '../services/discord-user'
-import { follow, getRymAccount, unfollow } from '../services/rym-account'
+import { followByAccountId, unfollowByUsername } from '../services/rym-account'
 import { Command, CommandMessage } from '../types'
 
 const set: Command = {
@@ -29,7 +29,7 @@ const set: Command = {
       ),
       taskEither.chainW(({ rymAccount }) =>
         pipe(
-          follow(rymAccount.accountId),
+          followByAccountId(rymAccount.accountId),
           taskEither.map(() =>
             option.some(`Set username to ~${rymAccount.username}`)
           )
@@ -47,8 +47,7 @@ const unfollowCurrentUsername = (
 > =>
   pipe(
     getUsernameForUser(user),
-    taskEither.chainW((currentUsername) => getRymAccount(currentUsername)),
-    taskEither.chainW((rymAccount) => unfollow(rymAccount.accountId))
+    taskEither.chainW((currentUsername) => unfollowByUsername(currentUsername))
   )
 
 const getInputUsername = (
