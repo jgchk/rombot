@@ -1,19 +1,18 @@
 import cheerio from 'cheerio'
-import { either, taskEither } from 'fp-ts'
-import { HTTPError } from 'got/dist/source'
+import { either, option, task, taskEither } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
+import { HTTPError } from 'got'
+import getDatabase from '../database'
+import { RymAccount } from '../database/schemas/rym-account'
 import { MissingDataError, UsernameDoesntExistError } from '../errors'
 import { makeUserUrl } from '../utils/links'
 import { getRequestToken, gott, limiter } from '../utils/network'
 
 export const follow =
   (
-    username: string
+    accountId: string
   ): taskEither.TaskEither<MissingDataError | UsernameDoesntExistError, true> =>
   async () => {
-    const maybeUserId = await getRymAccountInfo(username)()
-    if (either.isLeft(maybeUserId)) return maybeUserId
-    const userId = maybeUserId.right.accountId
-
     const maybeRequestToken = await getRequestToken()
     if (either.isLeft(maybeRequestToken)) return maybeRequestToken
     const requestToken = maybeRequestToken.right
@@ -22,7 +21,7 @@ export const follow =
       gott('https://rateyourmusic.com/httprequest/FollowFollowUser', {
         method: 'POST',
         form: {
-          user_id: userId,
+          user_id: accountId,
           action: 'FollowFollowUser',
           rym_ajax_req: 1,
           request_token: requestToken,
@@ -35,13 +34,9 @@ export const follow =
 
 export const unfollow =
   (
-    username: string
+    accountId: string
   ): taskEither.TaskEither<MissingDataError | UsernameDoesntExistError, true> =>
   async () => {
-    const maybeUserId = await getRymAccountInfo(username)()
-    if (either.isLeft(maybeUserId)) return maybeUserId
-    const userId = maybeUserId.right.accountId
-
     const maybeRequestToken = await getRequestToken()
     if (either.isLeft(maybeRequestToken)) return maybeRequestToken
     const requestToken = maybeRequestToken.right
@@ -50,7 +45,7 @@ export const unfollow =
       gott('https://rateyourmusic.com/httprequest/FollowUnfollowUser', {
         method: 'POST',
         form: {
-          user_id: userId,
+          user_id: accountId,
           action: 'FollowUnfollowUser',
           rym_ajax_req: 1,
           request_token: requestToken,
@@ -61,12 +56,48 @@ export const unfollow =
     return either.right(true)
   }
 
-export const getRymAccountInfo =
+// gets rym account from database, or fetches if it doesn't exist
+export const getRymAccount = (
+  username: string
+): taskEither.TaskEither<
+  MissingDataError | UsernameDoesntExistError,
+  RymAccount
+> =>
+  pipe(
+    getDatabase(),
+    task.chain((database) => database.getRymAccount(username)),
+    task.chain(
+      option.fold(
+        () => fetchRymAccountAndStoreInDatabase(username),
+        (rymAccount) => task.of(either.right(rymAccount))
+      )
+    )
+  )
+
+const fetchRymAccountAndStoreInDatabase = (
+  username: string
+): taskEither.TaskEither<
+  MissingDataError | UsernameDoesntExistError,
+  RymAccount
+> =>
+  pipe(
+    fetchRymAccount(username),
+    taskEither.chain((rymAccount) =>
+      taskEither.fromTask(
+        pipe(
+          getDatabase(),
+          task.chain((database) => database.setRymAccount(rymAccount))
+        )
+      )
+    )
+  )
+
+const fetchRymAccount =
   (
     username: string
   ): taskEither.TaskEither<
     MissingDataError | UsernameDoesntExistError,
-    { username: string; accountId: string }
+    RymAccount
   > =>
   async () => {
     try {

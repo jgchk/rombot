@@ -1,5 +1,5 @@
 import { User } from 'discord.js'
-import { either, option, task, taskEither, taskOption } from 'fp-ts'
+import { option, task, taskEither, taskOption } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import getDatabase from '../database'
 import { DiscordUser } from '../database/schemas/discord-user'
@@ -9,7 +9,7 @@ import {
   UsernameDoesntExistError,
   UsernameNotFoundError,
 } from '../errors'
-import { getRymAccountInfo } from './rym-account'
+import { getRymAccount } from './rym-account'
 
 const getDiscordUser =
   (user: User): taskOption.TaskOption<DiscordUser> =>
@@ -34,10 +34,10 @@ export const setUsernameForUser = (
   username: string
 ): taskEither.TaskEither<
   MissingDataError | UsernameDoesntExistError,
-  DiscordUser
+  { discordUser: DiscordUser; rymAccount: RymAccount }
 > =>
   pipe(
-    getRymAccountFromUsername(username),
+    getRymAccount(username),
     taskEither.chain((rymAccount) =>
       taskEither.fromTask(
         pipe(
@@ -47,42 +47,8 @@ export const setUsernameForUser = (
               discordId: user.id,
               rymUsername: rymAccount.username,
             })
-          )
-        )
-      )
-    )
-  )
-
-const getRymAccountFromUsername = (
-  username: string
-): taskEither.TaskEither<
-  MissingDataError | UsernameDoesntExistError,
-  RymAccount
-> =>
-  pipe(
-    getDatabase(),
-    task.chain((database) => database.getRymAccount(username)),
-    task.chain(
-      option.fold(
-        () => fetchRymAccountFromUsername(username),
-        (rymAccount) => task.of(either.right(rymAccount))
-      )
-    )
-  )
-
-const fetchRymAccountFromUsername = (
-  username: string
-): taskEither.TaskEither<
-  MissingDataError | UsernameDoesntExistError,
-  RymAccount
-> =>
-  pipe(
-    getRymAccountInfo(username),
-    taskEither.chain((rymAccount) =>
-      taskEither.fromTask(
-        pipe(
-          getDatabase(),
-          task.chain((database) => database.setRymAccount(rymAccount))
+          ),
+          task.map((discordUser) => ({ discordUser, rymAccount }))
         )
       )
     )

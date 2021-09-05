@@ -1,13 +1,18 @@
 import { User } from 'discord.js'
-import { apply, either, option, task, taskEither } from 'fp-ts'
+import { array, either, option, taskEither } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
-import { UsageError } from '../errors'
+import {
+  MissingDataError,
+  UsageError,
+  UsernameDoesntExistError,
+  UsernameNotFoundError,
+} from '../errors'
 import {
   getUsernameForUser,
   setUsernameForUser,
 } from '../services/discord-user'
-import { follow, unfollow } from '../services/rym-account'
-import { Command } from '../types'
+import { follow, getRymAccount, unfollow } from '../services/rym-account'
+import { Command, CommandMessage } from '../types'
 
 const set: Command = {
   name: 'set',
@@ -15,30 +20,44 @@ const set: Command = {
   usage: 'set USERNAME',
   examples: ['set ~sharifi'],
   execute: (message) => async () => {
-    let username: string | undefined = message.arguments_[0]
-    if (username === undefined) return either.left(new UsageError())
-    if (username.startsWith('~')) username = username.slice(1)
+    await unfollowCurrentUsername(message.message.author)()
 
-    const user = message.message.author
-    await apply.sequenceT(task.ApplySeq)(
-      unfollowCurrentUsername(user),
-      followAndSetUsername(username, user)
+    return pipe(
+      taskEither.fromEither(getInputUsername(message)),
+      taskEither.chainW((inputUsername) =>
+        setUsernameForUser(message.message.author, inputUsername)
+      ),
+      taskEither.chainW(({ rymAccount }) =>
+        pipe(
+          follow(rymAccount.accountId),
+          taskEither.map(() =>
+            option.some(`Set username to ~${rymAccount.username}`)
+          )
+        )
+      )
     )()
-
-    return either.right(option.some(`Set username to ~${username}`))
   },
 }
 
-const unfollowCurrentUsername = (user: User) =>
+const unfollowCurrentUsername = (
+  user: User
+): taskEither.TaskEither<
+  UsernameNotFoundError | MissingDataError | UsernameDoesntExistError,
+  true
+> =>
   pipe(
     getUsernameForUser(user),
-    taskEither.chainW((currentUsername) => unfollow(currentUsername))
+    taskEither.chainW((currentUsername) => getRymAccount(currentUsername)),
+    taskEither.chainW((rymAccount) => unfollow(rymAccount.accountId))
   )
 
-const followAndSetUsername = (username: string, user: User) =>
-  apply.sequenceT(task.ApplySeq)(
-    setUsernameForUser(user, username),
-    follow(username)
+const getInputUsername = (
+  message: CommandMessage
+): either.Either<UsageError, string> =>
+  pipe(
+    message.arguments_,
+    array.head,
+    either.fromOption(() => new UsageError())
   )
 
 export default set
