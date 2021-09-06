@@ -1,5 +1,5 @@
 import { User } from 'discord.js'
-import { array, either, option, taskEither } from 'fp-ts'
+import { array, either, option, string, taskEither } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import {
   MissingDataError,
@@ -56,6 +56,8 @@ const getInputUsername = (
   pipe(
     message.arguments_,
     array.head,
+    // remove leading ~ if present
+    option.map(string.replace(/^~/, '')),
     either.fromOption(() => new UsageError())
   )
 
