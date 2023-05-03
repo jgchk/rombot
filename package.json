@@ -1,0 +1,33 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "dotenv -e .env -e .env.local -- turbo run build",
+    "start": "dotenv -e .env -e .env.local -- pnpm --filter server start",
+    "docker": "pnpm docker:build && pnpm docker:run",
+    "docker:build": "docker build . -t jgchk/mu",
+    "docker:run": "dotenv -e .env -e .env.local -- pnpm docker:run:cmd",
+    "docker:run:cmd": "docker run --rm -it -p 3001:3001 -v ./docker-data:/data jgchk/mu",
+    "dev": "NODE_ENV=development dotenv -e .env -e .env.local -- turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write . **/*.svelte && turbo run format",
+    "test": "turbo run test",
+    "ci": "pnpm turbo run build --filter client && turbo run ci",
+    "db:drop": "rm apps/server/db.sqlite || true && rm -r apps/server/downloads || true && rm -r apps/server/images || true",
+    "db:migrate": "cd packages/db && pnpm db:migrate"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
+    "eslint": "^8.39.0",
+    "eslint-config-custom": "workspace:*",
+    "prettier": "^2.8.8",
+    "prettier-plugin-svelte": "^2.10.0",
+    "prettier-plugin-tailwindcss": "^0.2.7",
+    "turbo": "^1.9.3",
+    "typescript": "^5.0.4"
+  },
+  "packageManager": "pnpm@8.0.0",
+  "dependencies": {
+    "dotenv-cli": "^7.2.1"
+  }
+}
