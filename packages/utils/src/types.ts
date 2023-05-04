@@ -77,3 +77,8 @@ export type AreAllPropsTrue<
 export type Constructor<TResult = any, TParams extends any[] = any[]> = new (
   ...params: TParams
 ) => TResult
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ReplaceReturnType<T extends (...a: any) => any, TNewReturn> = (
+  ...a: Parameters<T>
+) => TNewReturn

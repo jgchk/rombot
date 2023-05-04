@@ -1,8 +1,12 @@
+import type { ReplaceReturnType } from '../types'
+
 export type Fetch = typeof fetch
+export type Fetcher = ReplaceReturnType<Fetch, Promise<FetcherResponse>>
+export type FetcherResponse = Response & { json: <T>() => Promise<T> }
 
 export const fetcher =
-  (fetch: Fetch) =>
-  async (...args: Parameters<Fetch>): Promise<Response & { json: <T>() => Promise<T> }> => {
+  (fetch: Fetch): Fetcher =>
+  async (...args: Parameters<Fetch>) => {
     const res = await fetch(...args)
     if (!res.ok) {
       const body = await res.text()

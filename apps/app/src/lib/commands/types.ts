@@ -7,7 +7,7 @@ import type {
   ApplicationCommandType,
   RESTPostAPIApplicationCommandsJSONBody,
 } from 'discord-api-types/v10'
-import type { Fetch } from 'utils/browser'
+import type { Fetcher } from 'utils/browser'
 
 export type Command<D extends RESTPostAPIApplicationCommandsJSONBody> = {
   data: D
@@ -23,7 +23,7 @@ export type CommandHandler<C extends APIApplicationCommandInteraction> = (
 ) => APIInteractionResponse | Promise<APIInteractionResponse>
 
 export type CommandContext = {
-  fetch: Fetch
+  fetch: Fetcher
 }
 
 export type CommandMessage<T extends ApplicationCommandType | undefined> =
