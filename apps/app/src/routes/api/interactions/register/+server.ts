@@ -32,6 +32,7 @@ export const GET: RequestHandler = async ({ fetch, url }) => {
         method: 'POST',
         headers: {
           Authorization: `Bot ${env.BOT_TOKEN}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
       }
