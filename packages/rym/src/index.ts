@@ -1,7 +1,7 @@
-import type { Fetch } from 'utils/browser'
+import type { Fetcher } from 'utils/browser'
 
 export const login =
-  (fetch: Fetch) =>
+  (fetch: Fetcher) =>
   async ({ username, password }: { username: string; password: string }) => {
     const res = await fetch('https://rateyourmusic.com/httprequest/Login', {
       method: 'POST',
