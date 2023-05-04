@@ -12,6 +12,11 @@ env:
   APP_ID: github-actions
   PUBLIC_KEY: github-actions
   BOT_TOKEN: github-actions
+  DATABASE_URL: github-actions
+  REDIS_URL: github-actions
+  REDIS_TOKEN: github-actions
+  RYM_BOT_USERNAME: github-actions
+  RYM_BOT_PASSWORD: github-actions
 
 jobs:
   build:
