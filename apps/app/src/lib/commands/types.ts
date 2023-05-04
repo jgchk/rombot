@@ -9,7 +9,9 @@ import type {
 } from 'discord-api-types/v10'
 import type { Fetcher } from 'utils/browser'
 
-export type Command<D extends RESTPostAPIApplicationCommandsJSONBody> = {
+export type Command<
+  D extends RESTPostAPIApplicationCommandsJSONBody = RESTPostAPIApplicationCommandsJSONBody
+> = {
   data: D
   handler: CommandMessageHandler<D>
 }
