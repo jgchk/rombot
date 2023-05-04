@@ -16,10 +16,8 @@ export const GET: RequestHandler = async ({ fetch: fetch_, url }) => {
     throw error(401, 'Unauthorized')
   }
 
-  await Promise.all(commands.map((command) => createGlobalCommand(command.data)))
-
   const fetch = fetcher(fetch_)
-  async function createGlobalCommand(data: RESTPostAPIApplicationCommandsJSONBody) {
+  const createGlobalCommand = async (data: RESTPostAPIApplicationCommandsJSONBody) => {
     try {
       const res = await fetch(`https://discord.com/api/v10/applications/${env.APP_ID}/commands`, {
         method: 'POST',
@@ -34,6 +32,8 @@ export const GET: RequestHandler = async ({ fetch: fetch_, url }) => {
       console.error(`Failed to register command: ${data.name}`, e)
     }
   }
+
+  await Promise.all(commands.map((command) => createGlobalCommand(command.data)))
 
   return json({ status: 'ok' })
 }
