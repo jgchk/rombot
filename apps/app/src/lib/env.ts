@@ -11,7 +11,7 @@ console.log({ env: process.env })
 const envRes = envSchema.safeParse(process.env)
 
 if (!envRes.success) {
-  console.error('❌ Invalid environment variables', envRes)
+  console.error('❌ Invalid environment variables', envRes.error)
   throw new Error('Invalid environment variables')
 }
 
