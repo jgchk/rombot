@@ -6,7 +6,7 @@ import { env } from '$lib/env'
 
 import type { RequestHandler } from './$types'
 
-export const POST: RequestHandler = async ({ fetch, url }) => {
+export const GET: RequestHandler = async ({ fetch, url }) => {
   const botToken = url.searchParams.get('bot-token')
   if (botToken !== env.BOT_TOKEN) {
     throw error(401, 'Unauthorized')
