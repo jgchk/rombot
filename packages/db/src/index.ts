@@ -2,13 +2,24 @@ import type { PoolConfig } from '@neondatabase/serverless'
 import { Pool } from '@neondatabase/serverless'
 import { eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/neon-serverless'
+import { DEV } from 'esm-env'
 
 import type { InsertAccount } from './schema'
 import { accounts } from './schema'
 import type { UpdateData } from './utils'
 import { getFirstOrThrow, hasUpdate, makeUpdate } from './utils'
 
-export const getDatabase = (config: PoolConfig) => wrapDatabase(drizzle(new Pool(config)))
+let getDatabase_
+if (DEV) {
+  const pg = await import('pg')
+  const dr = await import('drizzle-orm/node-postgres')
+  console.log()
+  getDatabase_ = (config: PoolConfig) => wrapDatabase(dr.drizzle(new pg.Pool(config)))
+} else {
+  getDatabase_ = (config: PoolConfig) => wrapDatabase(drizzle(new Pool(config)))
+}
+
+export const getDatabase = getDatabase_
 
 const wrapDatabase = (db: ReturnType<typeof drizzle>) => {
   const accounts_ = {

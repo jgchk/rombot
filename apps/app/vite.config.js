@@ -1,14 +1,24 @@
 import { sveltekit } from '@sveltejs/kit/vite'
 
-/** @type {import('vite').UserConfig} */
-const config = {
+/** @type {import('vite').UserConfigFn} */
+const defineConfig = ({ mode }) => ({
   plugins: [sveltekit()],
   server: {
     port: process.env.DEV_PORT,
   },
-  ssr: {
-    external: ['@neondatabase/serverless'],
-  },
-}
+  ssr:
+    mode === 'development'
+      ? {
+          external: [
+            '@neondatabase/serverless',
+            'drizzle-orm',
+            'drizzle-orm/neon-serverless',
+            'drizzle-orm/node-postgres',
+            'drizzle-orm/pg-core',
+            'pg',
+          ],
+        }
+      : undefined,
+})
 
-export default config
+export default defineConfig
