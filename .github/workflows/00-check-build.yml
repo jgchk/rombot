@@ -8,6 +8,11 @@ on:
     branches:
       - '**'
 
+env:
+  APP_ID: github-actions
+  PUBLIC_KEY: github-actions
+  BOT_TOKEN: github-actions
+
 jobs:
   build:
     runs-on: ubuntu-latest
