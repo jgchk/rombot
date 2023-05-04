@@ -6,17 +6,27 @@ import { drizzle } from 'drizzle-orm/neon-serverless'
 import type { InsertAccount } from './schema'
 import { accounts } from './schema'
 import type { UpdateData } from './utils'
-import { hasUpdate, makeUpdate } from './utils'
+import { getFirstOrThrow, hasUpdate, makeUpdate } from './utils'
 
 export const getDatabase = (config: PoolConfig) => wrapDatabase(drizzle(new Pool(config)))
 
 const wrapDatabase = (db: ReturnType<typeof drizzle>) => {
   const accounts_ = {
-    insert: (data: InsertAccount) => db.insert(accounts).values(data).returning(),
-    update: (discordId: string, data: UpdateData<InsertAccount>) => {
+    insert: (data: InsertAccount) =>
+      db
+        .insert(accounts)
+        .values(data)
+        .returning()
+        .then((res) => getFirstOrThrow(res, 'Could not insert account')),
+    update: async (discordId: string, data: UpdateData<InsertAccount>) => {
       const update = makeUpdate(data)
       if (!hasUpdate(update)) return accounts_.get(discordId)
-      return db.update(accounts).set(update).where(eq(accounts.discordId, discordId)).returning()
+      const res = await db
+        .update(accounts)
+        .set(update)
+        .where(eq(accounts.discordId, discordId))
+        .returning()
+      return getFirstOrThrow(res, `No account found for discordId ${discordId}`)
     },
     setRymUsername: (discordId: string, rymUsername: string) =>
       db
@@ -24,8 +34,19 @@ const wrapDatabase = (db: ReturnType<typeof drizzle>) => {
         .values({ discordId, rymUsername })
         .onConflictDoUpdate({ target: accounts.discordId, set: { rymUsername } })
         .returning()
-        .then((res) => res[0]),
-    get: (discordId: string) => db.select().from(accounts).where(eq(accounts.discordId, discordId)),
+        .then((res) => getFirstOrThrow(res, `No account found for discordId ${discordId}`)),
+    get: (discordId: string) =>
+      db
+        .select()
+        .from(accounts)
+        .where(eq(accounts.discordId, discordId))
+        .then((res) => getFirstOrThrow(res, `No account found for discordId ${discordId}`)),
+    find: (discordId: string) =>
+      db
+        .select()
+        .from(accounts)
+        .where(eq(accounts.discordId, discordId))
+        .then((res) => res.at(0)),
   }
 
   return { accounts: accounts_ }

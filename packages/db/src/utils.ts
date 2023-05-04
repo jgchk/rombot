@@ -12,3 +12,8 @@ export const makeUpdate = <T extends UpdateData<T>>(data: T): T =>
 
 export const hasUpdate = <T extends UpdateData<T>>(data: T): boolean =>
   Object.values(data).some((value) => value !== undefined)
+
+export const getFirstOrThrow = <T>(arr: T[], message?: string): T => {
+  if (arr.length === 0) throw new Error(message ?? 'Array is empty')
+  return arr[0]
+}
