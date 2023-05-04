@@ -2,6 +2,9 @@ name: Post-deploy
 
 on: deployment_status
 
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
 jobs:
   register_commands:
     if: ${{ github.event.deployment_status.state == 'success' }}
