@@ -1,5 +1,5 @@
 {
-  "name": "db",
+  "name": "redis",
   "version": "0.0.0",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -10,13 +10,9 @@
     "db:migrate": "dotenv -e ../../.env -e ../../.env.local -- drizzle-kit generate:pg"
   },
   "devDependencies": {
-    "dotenv-cli": "^7.2.1",
-    "drizzle-kit": "^0.17.6",
     "eslint-config-custom": "workspace:*"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.4.3",
-    "drizzle-orm": "^0.25.2",
-    "utils": "workspace:*"
+    "@upstash/redis": "^1.20.6"
   }
 }

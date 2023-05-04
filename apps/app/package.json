@@ -16,9 +16,11 @@
   },
   "dependencies": {
     "@sveltejs/adapter-vercel": "^2.4.3",
+    "db": "workspace:*",
     "discord-api-types": "^0.37.41",
     "discord-interactions": "^3.3.0",
     "utils": "workspace:*",
+    "redis": "workspace:*",
     "rym": "workspace:*",
     "zod": "^3.21.4"
   },

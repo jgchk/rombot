@@ -1,15 +1,9 @@
 import type { InferModel } from 'drizzle-orm'
-import { pgTable, serial, text, uniqueIndex } from 'drizzle-orm/pg-core'
+import { pgTable, text } from 'drizzle-orm/pg-core'
 
-export type DiscordAccount = InferModel<typeof discordAccounts>
-export type InsertDiscordAccount = InferModel<typeof discordAccounts, 'insert'>
-export const discordAccounts = pgTable(
-  'discord-accounts',
-  {
-    id: serial('id').primaryKey(),
-    discordId: text('discord_id').notNull(),
-  },
-  (discordAccounts) => ({
-    discordIdIndex: uniqueIndex('discord_id_idx').on(discordAccounts.discordId),
-  })
-)
+export type Account = InferModel<typeof accounts>
+export type InsertAccount = InferModel<typeof accounts, 'insert'>
+export const accounts = pgTable('accounts', {
+  discordId: text('discord_id').primaryKey(),
+  rymUsername: text('rym_username').notNull(),
+})

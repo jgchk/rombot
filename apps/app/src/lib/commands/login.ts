@@ -1,5 +1,8 @@
 import { ApplicationCommandOptionType, InteractionResponseType } from 'discord-api-types/v10'
+import { getRedis } from 'redis'
 import { login as login_ } from 'rym'
+
+import { env } from '$lib/env'
 
 import { cmd } from './types'
 import { getOption } from './utils'
@@ -40,11 +43,15 @@ export const login = cmd(
       }
     }
 
-    const isLoggedIn = await login_(fetch)({ username, password })
+    const result = await login_(fetch)({ username, password })
+    if (result.isLoggedIn && result.cookies) {
+      const redis = getRedis({ url: env.REDIS_URL, token: env.REDIS_TOKEN })
+      await redis.setCookies(username, result.cookies)
+    }
 
     return {
       type: InteractionResponseType.ChannelMessageWithSource,
-      data: { content: isLoggedIn ? 'Logged in!' : 'Failed to log in' },
+      data: { content: result.isLoggedIn ? 'Logged in!' : 'Failed to log in' },
     }
   }
 )

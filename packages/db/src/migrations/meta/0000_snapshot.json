@@ -1,35 +1,27 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "7549d9ad-ac6b-47d8-b96d-a0e6d2457ad0",
+  "id": "392b8ca0-4c8d-458a-bc9c-fa612382c171",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "discord-accounts": {
-      "name": "discord-accounts",
+    "accounts": {
+      "name": "accounts",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
+        "discord_id": {
+          "name": "discord_id",
+          "type": "text",
           "primaryKey": true,
           "notNull": true
         },
-        "discord_id": {
-          "name": "discord_id",
+        "rym_username": {
+          "name": "rym_username",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         }
       },
-      "indexes": {
-        "discord_id_idx": {
-          "name": "discord_id_idx",
-          "columns": [
-            "discord_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {}
     }

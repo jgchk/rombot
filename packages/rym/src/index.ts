@@ -17,6 +17,10 @@ export const login =
         rym_ajax_req: '1',
         request_token: '',
       }),
-    }).then((res) => res.text())
-    return res.toLowerCase().includes('success')
+    })
+    const text = await res.text()
+    const isSuccess = text.toLowerCase().includes('success')
+    return isSuccess
+      ? { isLoggedIn: true, cookies: res.headers.get('set-cookie') }
+      : { isLoggedIn: false }
   }
