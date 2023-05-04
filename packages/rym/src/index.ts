@@ -18,6 +18,5 @@ export const login =
         request_token: '',
       }),
     }).then((res) => res.text())
-    console.log({ res })
     return res.toLowerCase().includes('success')
   }
