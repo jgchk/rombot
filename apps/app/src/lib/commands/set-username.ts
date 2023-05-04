@@ -16,7 +16,6 @@ export const setUsername = cmd(
         name: 'username',
         description: 'Set your RYM username',
         type: ApplicationCommandOptionType.Subcommand,
-        required: true,
         options: [
           {
             name: 'username',
