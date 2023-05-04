@@ -1,0 +1,13 @@
+name: Register commands
+
+on: deployment_status
+
+jobs:
+  test:
+    if: ${{ github.event.deployment_status.state == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST /api/interactions/register
+        run: |
+          curl --request GET \
+          --url 'https://rombot.vercel.app/api/interactions/register?bot-token=${{ secrets.BOT_TOKEN }}'
