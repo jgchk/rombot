@@ -16,7 +16,7 @@ export const GET: RequestHandler = async ({ fetch: fetch_, url }) => {
     throw error(401, 'Unauthorized')
   }
 
-  await Promise.all(commands.map(({ name, data }) => createGlobalCommand({ name, ...data })))
+  await Promise.all(commands.map((command) => createGlobalCommand(command.data)))
 
   const fetch = fetcher(fetch_)
   async function createGlobalCommand(data: RESTPostAPIApplicationCommandsJSONBody) {

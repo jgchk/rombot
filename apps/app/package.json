@@ -19,6 +19,7 @@
     "discord-api-types": "^0.37.41",
     "discord-interactions": "^3.3.0",
     "utils": "workspace:*",
+    "rym": "workspace:*",
     "zod": "^3.21.4"
   },
   "devDependencies": {
