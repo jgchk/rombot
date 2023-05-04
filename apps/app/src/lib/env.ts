@@ -11,7 +11,7 @@ const envRes = envSchema.safeParse(process.env)
 
 if (!envRes.success) {
   console.error('❌ Invalid environment variables', envRes)
-  process.exit(1)
+  throw new Error('Invalid environment variables')
 }
 
 export const env = envRes.data
