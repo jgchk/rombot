@@ -1,10 +1,10 @@
 import { error, json } from '@sveltejs/kit'
-import { ApplicationCommandType } from 'discord-api-types/v10'
 import type {
   RESTPostAPIApplicationCommandsJSONBody,
   RESTPostAPIApplicationCommandsResult,
 } from 'discord-api-types/v10'
 
+import { commands } from '$lib/commands'
 import { env } from '$lib/env'
 import { fetcher } from '$lib/fetch'
 
@@ -16,12 +16,7 @@ export const GET: RequestHandler = async ({ fetch, url }) => {
     throw error(401, 'Unauthorized')
   }
 
-  await createGlobalCommand({
-    name: 'ping',
-    type: ApplicationCommandType.ChatInput,
-    description: 'Replies with Pong!',
-    options: [],
-  })
+  await Promise.all(commands.map(({ name, data }) => createGlobalCommand({ name, ...data })))
 
   return json({ status: 'ok' })
 
