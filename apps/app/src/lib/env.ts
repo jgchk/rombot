@@ -1,14 +1,16 @@
 import { z } from 'zod'
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production']).default('production'),
   APP_ID: z.string(),
   PUBLIC_KEY: z.string(),
   BOT_TOKEN: z.string(),
 })
 
-console.log({ env: process.env })
-const envRes = envSchema.safeParse(process.env)
+const envRes = envSchema.safeParse({
+  APP_ID: process.env.APP_ID,
+  PUBLIC_KEY: process.env.PUBLIC_KEY,
+  BOT_TOKEN: process.env.BOT_TOKEN,
+})
 
 if (!envRes.success) {
   console.error('❌ Invalid environment variables', envRes.error)
