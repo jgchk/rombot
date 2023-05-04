@@ -4,6 +4,7 @@ import { InteractionResponseType, InteractionType } from 'discord-api-types/v10'
 import type { APIInteraction } from 'discord-api-types/v10'
 import { verifyKey } from 'discord-interactions'
 
+import { handlePing } from '$lib/command'
 import { env } from '$lib/env'
 
 import type { RequestHandler } from './$types'
@@ -20,8 +21,12 @@ export const POST: RequestHandler = async ({ request }) => {
       return json({ type: InteractionResponseType.Pong })
     }
     case InteractionType.ApplicationCommand: {
-      // TODO
-      throw error(501, 'Not implemented')
+      switch (message.data.name) {
+        case 'ping': {
+          const result = await handlePing(message)
+          return json(result)
+        }
+      }
     }
     default: {
       throw error(400, 'Bad request type')
