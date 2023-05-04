@@ -9,6 +9,8 @@ import { env } from '$lib/env'
 import type { RequestHandler } from './$types'
 
 export const POST: RequestHandler = async ({ request }) => {
+  console.log('process.env', process.env)
+
   const isVerified = await verify(request)
   if (!isVerified) throw error(401, 'Bad request signature')
 
