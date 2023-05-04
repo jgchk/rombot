@@ -7,6 +7,9 @@ export type CommandHandler = <C extends APIInteraction>(
 
 export const handlePing: CommandHandler = () => {
   return {
-    type: InteractionResponseType.Pong,
+    type: InteractionResponseType.ChannelMessageWithSource,
+    data: {
+      content: 'Pong!',
+    },
   }
 }
