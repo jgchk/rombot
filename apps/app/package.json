@@ -18,7 +18,6 @@
     "@sveltejs/adapter-vercel": "^2.4.3",
     "discord-api-types": "^0.37.41",
     "discord-interactions": "^3.3.0",
-    "log": "workspace:*",
     "utils": "workspace:*",
     "zod": "^3.21.4"
   },

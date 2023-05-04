@@ -1,4 +1,3 @@
-import { log } from 'log'
 import { z } from 'zod'
 
 const envSchema = z.object({
@@ -11,7 +10,7 @@ const envSchema = z.object({
 const envRes = envSchema.safeParse(process.env)
 
 if (!envRes.success) {
-  log.error(envRes, '❌ Invalid environment variables')
+  console.error('❌ Invalid environment variables', envRes)
   process.exit(1)
 }
 
