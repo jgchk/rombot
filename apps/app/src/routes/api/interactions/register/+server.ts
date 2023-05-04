@@ -3,14 +3,14 @@ import type {
   RESTPostAPIApplicationCommandsJSONBody,
   RESTPostAPIApplicationCommandsResult,
 } from 'discord-api-types/v10'
+import { fetcher } from 'utils'
 
 import { commands } from '$lib/commands'
 import { env } from '$lib/env'
-import { fetcher } from '$lib/fetch'
 
 import type { RequestHandler } from './$types'
 
-export const GET: RequestHandler = async ({ fetch, url }) => {
+export const GET: RequestHandler = async ({ fetch: fetch_, url }) => {
   const botToken = url.searchParams.get('bot-token')
   if (botToken !== env.BOT_TOKEN) {
     throw error(401, 'Unauthorized')
@@ -18,20 +18,22 @@ export const GET: RequestHandler = async ({ fetch, url }) => {
 
   await Promise.all(commands.map(({ name, data }) => createGlobalCommand({ name, ...data })))
 
-  return json({ status: 'ok' })
-
+  const fetch = fetcher(fetch_)
   async function createGlobalCommand(data: RESTPostAPIApplicationCommandsJSONBody) {
-    const res = await fetcher(fetch)(
-      `https://discord.com/api/v10/applications/${env.APP_ID}/commands`,
-      {
+    try {
+      const res = await fetch(`https://discord.com/api/v10/applications/${env.APP_ID}/commands`, {
         method: 'POST',
         headers: {
           Authorization: `Bot ${env.BOT_TOKEN}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-      }
-    ).then((res) => res.json<RESTPostAPIApplicationCommandsResult>())
-    console.log(`Registered command: ${res.name}`, res)
+      }).then((res) => res.json<RESTPostAPIApplicationCommandsResult>())
+      console.log(`Registered command: ${res.name}`, res)
+    } catch (e) {
+      console.error(`Failed to register command: ${data.name}`, e)
+    }
   }
+
+  return json({ status: 'ok' })
 }
