@@ -16,6 +16,6 @@ package-lock.json
 yarn.lock
 
 /apps/app/.vercel
-/packages/db/src/migrations
+/packages/db/migrations
 
 tsup.config.*.bundled_*

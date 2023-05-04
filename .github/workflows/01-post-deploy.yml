@@ -1,0 +1,27 @@
+name: Post-deploy
+
+on: deployment_status
+
+jobs:
+  register_commands:
+    if: ${{ github.event.deployment_status.state == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Register commands
+        run: |
+          curl --request GET \
+          --url 'https://rombot.vercel.app/api/interactions/register?bot-token=${{ secrets.BOT_TOKEN }}'
+  run_migrations:
+    if: ${{ github.event.deployment_status.state == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run db:push
