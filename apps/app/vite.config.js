@@ -6,6 +6,9 @@ const config = {
   server: {
     port: process.env.DEV_PORT,
   },
+  ssr: {
+    external: ['@neondatabase/serverless'],
+  },
 }
 
 export default config
