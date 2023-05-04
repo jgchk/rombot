@@ -9,10 +9,11 @@ import { env } from '$lib/env'
 import type { RequestHandler } from './$types'
 
 export const POST: RequestHandler = async ({ request }) => {
-  const isVerified = await verify(request)
+  const rawBody = await request.arrayBuffer()
+  const isVerified = verify(request, rawBody)
   if (!isVerified) throw error(401, 'Bad request signature')
 
-  const message = (await request.json()) as APIInteraction
+  const message = JSON.parse(new TextDecoder().decode(rawBody)) as APIInteraction
 
   switch (message.type) {
     case InteractionType.Ping: {
@@ -28,12 +29,11 @@ export const POST: RequestHandler = async ({ request }) => {
   }
 }
 
-const verify = async (request: Request) => {
+const verify = (request: Request, rawBody: ArrayBuffer) => {
   if (dev) return true
 
   const signature = request.headers.get('x-signature-ed25519')
   const timestamp = request.headers.get('x-signature-timestamp')
-  const rawBody = await request.arrayBuffer()
 
   if (signature === null || timestamp === null) {
     return false
