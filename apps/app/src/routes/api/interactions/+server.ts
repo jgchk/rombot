@@ -15,6 +15,7 @@ export const POST: RequestHandler = async ({ request }) => {
   if (!isVerified) throw error(401, 'Bad request signature')
 
   const message = JSON.parse(new TextDecoder().decode(rawBody)) as APIInteraction
+  console.log('Received interaction', message)
 
   switch (message.type) {
     case InteractionType.Ping: {
@@ -24,7 +25,11 @@ export const POST: RequestHandler = async ({ request }) => {
       switch (message.data.name) {
         case 'ping': {
           const result = await handlePing(message)
+          console.log('Responding with', result)
           return json(result)
+        }
+        default: {
+          throw error(400, 'Bad request command')
         }
       }
     }
