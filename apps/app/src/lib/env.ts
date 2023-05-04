@@ -7,6 +7,7 @@ const envSchema = z.object({
   BOT_TOKEN: z.string(),
 })
 
+console.log({ env: process.env })
 const envRes = envSchema.safeParse(process.env)
 
 if (!envRes.success) {
