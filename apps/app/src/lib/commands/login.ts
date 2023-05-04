@@ -15,6 +15,12 @@ export const login = cmd(
         type: ApplicationCommandOptionType.String,
         required: true,
       },
+      {
+        name: 'password',
+        description: 'Your RYM password',
+        type: ApplicationCommandOptionType.String,
+        required: true,
+      },
     ],
   },
   async ({ data: { options = [] } }, { fetch }) => {
