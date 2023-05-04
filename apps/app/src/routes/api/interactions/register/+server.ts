@@ -37,7 +37,6 @@ export const GET: RequestHandler = async ({ fetch, url }) => {
         body: JSON.stringify(data),
       }
     ).then((res) => res.json<RESTPostAPIApplicationCommandsResult>())
-    console.log({ res })
-    return res
+    console.log(`Registered command: ${res.name}`, res)
   }
 }
