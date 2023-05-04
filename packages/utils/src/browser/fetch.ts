@@ -1,7 +1,9 @@
+export type Fetch = typeof fetch
+
 export const fetcher =
-  (fetch_: typeof fetch) =>
-  async (...args: Parameters<typeof fetch>): Promise<Response & { json: <T>() => Promise<T> }> => {
-    const res = await fetch_(...args)
+  (fetch: Fetch) =>
+  async (...args: Parameters<Fetch>): Promise<Response & { json: <T>() => Promise<T> }> => {
+    const res = await fetch(...args)
     if (!res.ok) {
       const body = await res.text()
       console.error('Fetch failed', body)

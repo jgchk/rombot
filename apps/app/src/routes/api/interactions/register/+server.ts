@@ -3,7 +3,7 @@ import type {
   RESTPostAPIApplicationCommandsJSONBody,
   RESTPostAPIApplicationCommandsResult,
 } from 'discord-api-types/v10'
-import { fetcher } from 'utils'
+import { fetcher } from 'utils/browser'
 
 import { commands } from '$lib/commands'
 import { env } from '$lib/env'
