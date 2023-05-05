@@ -12,7 +12,8 @@
     "lint": "pnpm run lint:format && pnpm run check && pnpm run lint:eslint",
     "lint:format": "prettier --check --ignore-path=../../.prettierignore . **/*.svelte",
     "lint:eslint": "eslint \"src\"",
-    "format": "prettier --write --ignore-path=../../.prettierignore . **/*.svelte"
+    "format": "prettier --write --ignore-path=../../.prettierignore . **/*.svelte",
+    "vercel:install": "yum install gcc-c++ cairo-devel pango-devel libjpeg-turbo-devel giflib-devel"
   },
   "dependencies": {
     "canvas": "^2.11.2",

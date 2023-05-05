@@ -13,8 +13,7 @@
     "db:migrate": "dotenv -e .env -e .env.local -- pnpm db:migrate:inner",
     "db:migrate:inner": "cd packages/db && pnpm db:migrate",
     "db:push": "dotenv -e .env -e .env.local -e .env.development.local -- pnpm db:push:inner",
-    "db:push:inner": "cd packages/db && pnpm db:push",
-    "vercel:install": "yum install gcc-c++ cairo-devel pango-devel libjpeg-turbo-devel giflib-devel"
+    "db:push:inner": "cd packages/db && pnpm db:push"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
