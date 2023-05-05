@@ -70,5 +70,5 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
 }
 
 export const config = {
-  runtime: 'nodejs18.x',
+  runtime: 'nodejs16.x',
 }
