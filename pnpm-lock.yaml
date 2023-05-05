@@ -36,8 +36,8 @@ importers:
   apps/app:
     dependencies:
       canvas:
-        specifier: ^2.11.2
-        version: 2.11.2
+        specifier: 2.8.0
+        version: 2.8.0
       db:
         specifier: workspace:*
         version: link:../../packages/db
@@ -156,8 +156,8 @@ importers:
   packages/rym:
     dependencies:
       canvas:
-        specifier: ^2.11.2
-        version: 2.11.2
+        specifier: 2.8.0
+        version: 2.8.0
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
@@ -1438,8 +1438,8 @@ packages:
     engines: {node: '>=14.16'}
     dev: true
 
-  /canvas@2.11.2:
-    resolution: {integrity: sha512-ItanGBMrmRV7Py2Z+Xhs7cT+FNt5K0vPL4p9EZ/UX/Mu7hFbkxSjKF2KVtPwX7UYWp7dRKnrTvReflgrItJbdw==}
+  /canvas@2.8.0:
+    resolution: {integrity: sha512-gLTi17X8WY9Cf5GZ2Yns8T5lfBOcGgFehDFb+JQwDqdOoBOcECS9ZWMEAqMSVcMYwXD659J8NyzjRY/2aE+C2Q==}
     engines: {node: '>=6'}
     requiresBuild: true
     dependencies:

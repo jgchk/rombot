@@ -1,10 +1,12 @@
-import { createCanvas, loadImage } from 'canvas'
+import * as canvas from 'canvas'
 import type { Canvas } from 'canvas'
 import { FastAverageColor } from 'fast-average-color'
 import { ifDefined, ifNotNull, isDark } from 'utils'
 import type { Fetcher } from 'utils/browser'
 
 import type { Artist, Rating, Release } from './types'
+
+const { createCanvas, loadImage } = canvas
 
 const ALBUM_SIZE = 300
 
@@ -141,9 +143,10 @@ const renderTitleCard = (
   const titleCardY = y + ALBUM_SIZE - TITLE_CARD_MARGIN.bottom - titleCardHeight
 
   context.fillStyle = backgroundColor
-  context.beginPath()
-  context.roundRect(titleCardX, titleCardY, titleCardWidth, titleCardHeight, TITLE_CARD_ROUNDING)
-  context.fill()
+  // context.beginPath()
+  // context.roundRect(titleCardX, titleCardY, titleCardWidth, titleCardHeight, TITLE_CARD_ROUNDING)
+  // context.fill()
+  context.fillRect(titleCardX, titleCardY, titleCardWidth, titleCardHeight)
 
   const artistX = titleCardX + (titleCardWidth - artistText.width) / 2
   const artistY = titleCardY + TITLE_CARD_PADDING.top + artistText.height
