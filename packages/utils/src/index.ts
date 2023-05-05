@@ -1,4 +1,5 @@
 export * from './array'
+export * from './color'
 export * from './date'
 export * from './error'
 export * from './fp'

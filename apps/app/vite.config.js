@@ -11,14 +11,19 @@ const defineConfig = ({ mode }) => ({
       ? {
           external: [
             '@neondatabase/serverless',
+            'boolbase',
+            'canvas',
             'drizzle-orm',
             'drizzle-orm/neon-serverless',
             'drizzle-orm/node-postgres',
             'drizzle-orm/pg-core',
             'pg',
+            'sharp',
           ],
         }
-      : undefined,
+      : {
+          external: ['canvas'],
+        },
 })
 
 export default defineConfig

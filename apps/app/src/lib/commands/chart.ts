@@ -1,10 +1,7 @@
-import { getDatabase } from 'db'
 import { ApplicationCommandOptionType, InteractionResponseType } from 'discord-api-types/v10'
 
-import { env } from '$lib/env'
-
 import { cmd } from './types'
-import { getErrorEmbed, getOption } from './utils'
+import { getErrorEmbed } from './utils'
 
 export const chart = cmd(
   {
@@ -18,40 +15,44 @@ export const chart = cmd(
       },
     ],
   },
-  async (command) => {
-    const {
-      data: { options = [] },
-    } = command
+  async (command, { fetch, request }) => {
+    try {
+      const chart = await fetch('/api/interactions/commands/charts', {
+        method: 'POST',
+        headers: request.headers,
+        body: JSON.stringify(command),
+      }).then((res) => res.arrayBuffer())
 
-    const discordUser = command.user ?? command.member?.user
-    if (!discordUser) {
+      const url = await uploadImage(chart)
+
+      return {
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: { content: url },
+      }
+    } catch (e) {
+      console.error('Error creating chart', e)
       return {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          embeds: [getErrorEmbed('Could not extract user from command')],
+          embeds: [getErrorEmbed('Error creating chart')],
         },
       }
     }
-
-    let username = getOption('username', ApplicationCommandOptionType.String)(options)?.value
-    if (!username) {
-      const account = await getDatabase({ connectionString: env.DATABASE_URL }).accounts.find(
-        discordUser.id
-      )
-      if (account === undefined) {
-        return {
-          type: InteractionResponseType.ChannelMessageWithSource,
-          data: {
-            embeds: [getErrorEmbed('Set your RYM username with `/set username` then retry')],
-          },
-        }
-      }
-      username = account.rymUsername
-    }
-
-    return {
-      type: InteractionResponseType.ChannelMessageWithSource,
-      data: { content: `RYM username: ${username}` },
-    }
   }
 )
+
+const uploadImage = async (data: ArrayBuffer) => {
+  const url = 'https://litterbox.catbox.moe/resources/internals/api.php'
+  const formData = new FormData()
+
+  formData.append('reqtype', 'fileupload')
+  formData.append('time', '1h')
+
+  const file = new File([data], 'chart.png')
+  formData.append('fileToUpload', file, file.name)
+
+  return fetch(url, {
+    method: 'POST',
+    body: formData,
+  }).then((res) => res.text())
+}
