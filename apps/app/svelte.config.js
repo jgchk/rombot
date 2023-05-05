@@ -1,4 +1,3 @@
-import node from '@sveltejs/adapter-node'
 import adapter from '@sveltejs/adapter-vercel'
 import preprocess from 'svelte-preprocess'
 
@@ -9,8 +8,7 @@ const config = {
   preprocess: preprocess(),
 
   kit: {
-    // adapter: adapter({ runtime: 'edge' }),
-    adapter: node(),
+    adapter: adapter({ runtime: 'edge' }),
   },
 }
 
