@@ -134,7 +134,7 @@
     </label>
   </fieldset>
   <button type="submit">Submit</button>
-  <button type="reset" on:click={() => reset()}>Reset</button>
+  <button type="reset" on:click={() => reset()} style="float: right;">Reset</button>
 </form>
 
 <style>
