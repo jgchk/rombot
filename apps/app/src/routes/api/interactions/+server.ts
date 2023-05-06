@@ -39,7 +39,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
       if (command.runtime === 'node') {
         console.log('Running with Node...')
 
-        void fetch('/api/interactions/node', {
+        await fetch('/api/interactions/node', {
           method: 'POST',
           headers: request.headers,
           body: rawBody,
