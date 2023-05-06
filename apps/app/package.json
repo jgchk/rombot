@@ -22,6 +22,7 @@
     "discord-interactions": "^3.3.0",
     "redis": "workspace:*",
     "rym": "workspace:*",
+    "sveltekit-superforms": "^0.8.5",
     "utils": "workspace:*",
     "zod": "^3.21.4"
   },
