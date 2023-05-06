@@ -11,9 +11,9 @@ import { env } from '$lib/env'
 
 import type { RequestHandler } from './$types'
 
-const getDatabase = await (DEV
+const getDatabase = DEV
   ? import('db/node').then((res) => res.getNodeDatabase)
-  : import('db/edge').then((res) => res.getEdgeDatabase))
+  : import('db/edge').then((res) => res.getEdgeDatabase)
 
 export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
   const rawBody = await request.arrayBuffer()
@@ -35,7 +35,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
       }
 
       const fetch = fetcher(fetch_)
-      const db = getDatabase({ connectionString: env.DATABASE_URL })
+      const db = (await getDatabase)({ connectionString: env.DATABASE_URL })
 
       let responded = false
       const response = await Promise.race([
