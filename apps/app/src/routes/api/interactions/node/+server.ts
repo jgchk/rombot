@@ -9,8 +9,11 @@ import { editInteractionResponse, verify } from '$lib/discord'
 import type { RequestHandler } from './$types'
 
 export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
+  console.log('Received request')
   const rawBody = await request.arrayBuffer()
+  console.log('Raw body', rawBody)
   const isVerified = verify(request, rawBody)
+  console.log('Verified', isVerified)
   if (!isVerified) throw error(401, 'Bad request signature')
 
   const message = JSON.parse(new TextDecoder().decode(rawBody)) as APIInteraction
