@@ -12,6 +12,7 @@ import { getErrorEmbed, getOption } from './utils'
 
 export const chart = cmd(
   {
+    runtime: 'node',
     name: 'chart',
     description: 'Generate a chart of your ratings',
     options: [

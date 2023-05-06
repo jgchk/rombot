@@ -13,9 +13,12 @@ import type { Fetcher } from 'utils/browser'
 export type Command<
   D extends RESTPostAPIApplicationCommandsJSONBody = RESTPostAPIApplicationCommandsJSONBody
 > = {
+  runtime?: CommandRuntime
   data: D
   handler: CommandMessageHandler<D>
 }
+
+export type CommandRuntime = 'edge' | 'node'
 
 export type CommandMessageHandler<D extends RESTPostAPIApplicationCommandsJSONBody> =
   CommandHandler<CommandMessage<D['type']>>
@@ -42,9 +45,10 @@ export type CommandMessage<T extends ApplicationCommandType | undefined> =
     : never
 
 export const cmd = <D extends RESTPostAPIApplicationCommandsJSONBody>(
-  data: D,
+  data: D & { runtime?: CommandRuntime },
   handler: CommandMessageHandler<D>
 ): Command<D> => ({
+  runtime: data.runtime,
   data,
   handler,
 })

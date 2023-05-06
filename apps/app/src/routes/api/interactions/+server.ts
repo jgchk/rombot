@@ -35,15 +35,35 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
       }
 
       const fetch = fetcher(fetch_)
+
+      if (command.runtime === 'node') {
+        console.log('Running with Node...')
+
+        void fetch('/api/interactions/node', {
+          method: 'POST',
+          headers: request.headers,
+          body: rawBody,
+        })
+
+        return json({
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: {
+            content: 'Loading...',
+          },
+        })
+      } else {
+        console.log('Running with Edge...')
+      }
+
       const db = (await getDatabase)({ connectionString: env.DATABASE_URL })
 
       let responded = false
       const response = await Promise.race([
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
         command.handler(message as any, { fetch, db }),
-        sleep(2500).then(async () => {
+        sleep(2500).then(() => {
           if (!responded) {
-            await fetch('/api/interactions/node', {
+            void fetch('/api/interactions/node', {
               method: 'POST',
               headers: request.headers,
               body: rawBody,
