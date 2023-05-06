@@ -2,10 +2,13 @@ import { error } from '@sveltejs/kit'
 import { getDatabase } from 'db'
 import { ApplicationCommandOptionType } from 'discord-api-types/v10'
 import type { APIChatInputApplicationCommandInteraction } from 'discord-api-types/v10'
-import { getLatestRatings, getReleaseFromUrl } from 'rym'
-import { createChart } from 'rym/charts'
+import { getLatestRatings } from 'rym'
+import type { Artist } from 'rym'
+import { ifDefined, ifNotNull } from 'utils'
 import { fetcher } from 'utils/browser'
 
+import { fetchChart } from '$lib/charts'
+import type { Chart } from '$lib/charts'
 import { getOption } from '$lib/commands/utils'
 import { verify } from '$lib/discord'
 import { env } from '$lib/env'
@@ -47,26 +50,32 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
 
   const ratings = await getLatestRatings(fetch)(username)
 
-  const chartReleases = await Promise.all(
-    ratings.slice(0, 9).map(async ({ rating, release }) => {
-      const fullRelease = await getReleaseFromUrl(fetch)(release.issueUrl)
-      return {
-        rating,
-        release: fullRelease,
-      }
-    })
-  )
+  const chartInput: Chart = {
+    entries: ratings.map(({ rating, release }) => ({
+      title: release.title,
+      artist: stringifyArtists(release.artists, release.artistDisplayName),
+      rating: ifNotNull(rating.rating, (r) => r * 2) ?? undefined,
+      imageUrl: release.coverThumbnail ?? undefined,
+    })),
+  }
 
   console.log('Creating chart...')
 
-  const chartSize = 3
-  const chartBuffer = await createChart(fetch)(chartReleases.slice(0, chartSize * chartSize))
+  const chartBlob = await fetchChart(fetch)(chartInput)
 
   console.log('Chart created!')
 
-  const file = new File([chartBuffer], 'chart.png', { type: 'image/png' })
+  return new Response(chartBlob)
+}
 
-  return new Response(file)
+const stringifyArtists = (artists: Artist[], displayName: string | null): string => {
+  if (displayName !== null) return displayName
+  if (artists.length === 1) return artists[0].name
+
+  const finalArtist = ifDefined(artists.pop(), (a) => a.name)
+  if (finalArtist === undefined) throw new Error('Collab has no artists')
+
+  return `${artists.map((a) => a.name).join(', ')} & ${finalArtist}`
 }
 
 export const config = {

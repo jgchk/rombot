@@ -2,6 +2,8 @@
   import { superForm } from 'sveltekit-superforms/client'
   import { fetcher } from 'utils/browser'
 
+  import { fetchChart } from '$lib/charts'
+
   import type { PageData } from './$types'
 
   export let data: PageData
@@ -12,19 +14,12 @@
     resetForm: false,
     onUpdate: async ({ form }) => {
       if (form.valid) {
-        // Fetch chart from serverless function
-        const fetch = fetcher()
-        const result = await fetch('https://charts-jgchk.vercel.app/api/chart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form.data),
-        }).then((res) => res.arrayBuffer())
-
-        const file = new File([result], 'chart.png', { type: 'image/png' })
+        // fetch chart
+        const result = await fetchChart(fetcher())(form.data)
 
         // Download chart
         const a = document.createElement('a')
-        a.href = URL.createObjectURL(file)
+        a.href = URL.createObjectURL(result)
         a.download = 'chart.png'
         a.click()
         a.remove()
