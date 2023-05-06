@@ -9,7 +9,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write . **/*.svelte && turbo run format",
     "test": "turbo run test",
-    "ci": "vercel build && turbo run lint && turbo run test",
+    "ci": "vercel pull --yes && vercel build && turbo run lint && turbo run test",
     "db:migrate": "dotenv -e .env -e .env.local -- pnpm db:migrate:inner",
     "db:migrate:inner": "cd packages/db && pnpm db:migrate",
     "db:push": "dotenv -e .env -e .env.local -e .env.development.local -- pnpm db:push:inner",
