@@ -8916,7 +8916,7 @@ packages:
       picocolors: 1.0.0
       source-map: 0.6.1
       source-map-support: 0.5.21
-      vite: 4.1.2(@types/node@14.18.33)
+      vite: 4.3.5(@types/node@14.18.33)
     transitivePeerDependencies:
       - '@types/node'
       - less
