@@ -28,7 +28,7 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-      const result = await command.handler(message as any, { fetch: fetcher(fetch), request })
+      const result = await command.handler(message as any, { fetch: fetcher(fetch) })
       console.log('Responding with', result)
       return json(result)
     }

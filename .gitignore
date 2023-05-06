@@ -34,3 +34,4 @@ yarn-error.log*
 
 # docker
 /docker-data
+.vercel

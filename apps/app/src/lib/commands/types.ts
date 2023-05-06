@@ -26,7 +26,6 @@ export type CommandHandler<C extends APIApplicationCommandInteraction> = (
 
 export type CommandContext = {
   fetch: Fetcher
-  request: Request
 }
 
 export type CommandMessage<T extends ApplicationCommandType | undefined> =
