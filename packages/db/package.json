@@ -3,6 +3,20 @@
   "version": "0.0.0",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "exports": {
+    "./edge": "./src/edge.ts",
+    "./node": "./src/node.ts"
+  },
+  "typesVersions": {
+    "*": {
+      "edge": [
+        "./src/edge.ts"
+      ],
+      "node": [
+        "./src/node.ts"
+      ]
+    }
+  },
   "license": "MIT",
   "scripts": {
     "lint": "prettier --check --ignore-path=../../.prettierignore . && tsc --noEmit && eslint \".\"",
@@ -11,16 +25,15 @@
     "db:push": "node ./migrate.js"
   },
   "devDependencies": {
-    "@types/pg": "^8.6.6",
     "dotenv-cli": "^7.2.1",
     "drizzle-kit": "^0.17.6",
-    "eslint-config-custom": "workspace:*",
-    "pg": "^8.10.0"
+    "eslint-config-custom": "workspace:*"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.4.3",
+    "@types/pg": "^8.6.6",
     "drizzle-orm": "0.24.2",
-    "esm-env": "^1.0.0",
+    "pg": "^8.10.0",
     "utils": "workspace:*"
   }
 }

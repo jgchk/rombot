@@ -1,7 +1,4 @@
-import { getDatabase } from 'db'
 import { ApplicationCommandOptionType, InteractionResponseType } from 'discord-api-types/v10'
-
-import { env } from '$lib/env'
 
 import { cmd } from './types'
 import { getErrorEmbed, getOption } from './utils'
@@ -26,7 +23,7 @@ export const setUsername = cmd(
       },
     ],
   },
-  async (command) => {
+  async (command, { db }) => {
     const {
       data: { options = [] },
     } = command
@@ -54,9 +51,7 @@ export const setUsername = cmd(
       }
     }
 
-    const account = await getDatabase({
-      connectionString: env.DATABASE_URL,
-    }).accounts.setRymUsername(discordUser.id, username)
+    const account = await db.accounts.setRymUsername(discordUser.id, username)
 
     return {
       type: InteractionResponseType.ChannelMessageWithSource,

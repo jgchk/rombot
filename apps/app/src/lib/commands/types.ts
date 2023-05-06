@@ -1,3 +1,4 @@
+import type { Database } from 'db'
 import type {
   APIApplicationCommandInteraction,
   APIChatInputApplicationCommandInteraction,
@@ -26,6 +27,7 @@ export type CommandHandler<C extends APIApplicationCommandInteraction> = (
 
 export type CommandContext = {
   fetch: Fetcher
+  db: Database
 }
 
 export type CommandMessage<T extends ApplicationCommandType | undefined> =

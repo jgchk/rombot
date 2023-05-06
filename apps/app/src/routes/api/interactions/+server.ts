@@ -1,13 +1,19 @@
 import { error, json } from '@sveltejs/kit'
 import { InteractionResponseType, InteractionType } from 'discord-api-types/v10'
 import type { APIInteraction } from 'discord-api-types/v10'
+import { DEV } from 'esm-env'
 import { sleep } from 'utils'
 import { fetcher } from 'utils/browser'
 
 import { commandMap } from '$lib/commands'
 import { verify } from '$lib/discord'
+import { env } from '$lib/env'
 
 import type { RequestHandler } from './$types'
+
+const getDatabase = await (DEV
+  ? import('db/node').then((res) => res.getNodeDatabase)
+  : import('db/edge').then((res) => res.getEdgeDatabase))
 
 export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
   const rawBody = await request.arrayBuffer()
@@ -29,16 +35,20 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
       }
 
       const fetch = fetcher(fetch_)
+      const db = getDatabase({ connectionString: env.DATABASE_URL })
 
+      let responded = false
       const response = await Promise.race([
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-        command.handler(message as any, { fetch }),
+        command.handler(message as any, { fetch, db }),
         sleep(2500).then(async () => {
-          await fetch('/api/interactions/node', {
-            method: 'POST',
-            headers: request.headers,
-            body: rawBody,
-          })
+          if (!responded) {
+            await fetch('/api/interactions/node', {
+              method: 'POST',
+              headers: request.headers,
+              body: rawBody,
+            })
+          }
 
           return {
             type: InteractionResponseType.ChannelMessageWithSource,
@@ -48,6 +58,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
           }
         }),
       ])
+      responded = true
 
       console.log('Responding with', response)
 

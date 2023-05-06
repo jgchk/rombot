@@ -1,10 +1,12 @@
 import { error, json } from '@sveltejs/kit'
+import { getNodeDatabase } from 'db/node'
 import { InteractionResponseType, InteractionType } from 'discord-api-types/v10'
 import type { APIInteraction } from 'discord-api-types/v10'
 import { fetcher } from 'utils/browser'
 
 import { commandMap } from '$lib/commands'
 import { editInteractionResponse, verify } from '$lib/discord'
+import { env } from '$lib/env'
 
 import type { RequestHandler } from './$types'
 
@@ -31,9 +33,10 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
       }
 
       const fetch = fetcher(fetch_)
+      const db = getNodeDatabase({ connectionString: env.DATABASE_URL })
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-      const res = await command.handler(message as any, { fetch })
+      const res = await command.handler(message as any, { fetch, db })
 
       if (res.type === InteractionResponseType.ChannelMessageWithSource) {
         console.log('Editing response...')

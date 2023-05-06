@@ -1,5 +1,4 @@
 import { error } from '@sveltejs/kit'
-import { getDatabase } from 'db'
 import { ApplicationCommandOptionType, InteractionResponseType } from 'discord-api-types/v10'
 import { getLatestRatings } from 'rym'
 import type { Artist } from 'rym'
@@ -7,7 +6,6 @@ import { ifDefined, ifNotNull } from 'utils'
 
 import { fetchChart } from '$lib/charts'
 import type { Chart } from '$lib/charts'
-import { env } from '$lib/env'
 
 import { cmd } from './types'
 import { getErrorEmbed, getOption } from './utils'
@@ -24,7 +22,7 @@ export const chart = cmd(
       },
     ],
   },
-  async (command, { fetch }) => {
+  async (command, { fetch, db }) => {
     try {
       const {
         data: { options = [] },
@@ -37,9 +35,7 @@ export const chart = cmd(
 
       let username = getOption('username', ApplicationCommandOptionType.String)(options)?.value
       if (!username) {
-        const account = await getDatabase({ connectionString: env.DATABASE_URL }).accounts.find(
-          discordUser.id
-        )
+        const account = await db.accounts.find(discordUser.id)
         if (account === undefined) {
           throw error(401, 'Set your RYM username with `/set username` then retry')
         }
