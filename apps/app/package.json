@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "app",
   "version": "0.0.0",
   "main": "./build/handler.js",
   "scripts": {
