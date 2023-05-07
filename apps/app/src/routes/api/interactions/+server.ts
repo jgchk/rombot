@@ -58,6 +58,8 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
               console.log('Not editing response, response is not a channel message')
             }
           }
+
+          return res
         }),
         sleep(2500).then(() => ({
           type: InteractionResponseType.ChannelMessageWithSource,
