@@ -53,15 +53,8 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
         command.handler(message as any, { fetch, db, redis })
       ).then(async ({ files, ...res }) => {
         if (responded) {
-          if (res.type === InteractionResponseType.ChannelMessageWithSource) {
-            console.log('Editing response with', res)
-            await discord
-              .editInteractionResponse(message.token, res.data, files)
-              .then(() => console.log('Response edited!', res))
-              .catch((err) => console.error('Failed to upload files (1)', err))
-          } else {
-            console.log('Not editing response, response is not a channel message')
-          }
+          // if we already responded, edit the message
+          await handleEditMessage(message.token, response, discord)
         }
 
         return { ...res, files }
@@ -74,18 +67,8 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
       if (response.files?.length) {
         // if we have files to upload, we have to edit the response.
         // just send the loading message for now and upload via editInteractionResponse
-
-        console.log('Uploading files...', response)
-        if (response.type === InteractionResponseType.ChannelMessageWithSource) {
-          const editResponse = discord
-            .editInteractionResponse(message.token, response.data, response.files)
-            .then((res) => console.log('Files uploaded!', res))
-            .catch((err) => console.error('Failed to upload files (2)', err))
-          platform?.context.waitUntil(editResponse)
-        } else {
-          console.log('Failed to upload files: response is not a channel message')
-        }
-
+        const editResponsePromise = handleEditMessage(message.token, response, discord)
+        platform?.context.waitUntil(editResponsePromise)
         response = loadingMessage
       }
       responded = true
@@ -130,4 +113,17 @@ const loadingMessage: APIInteractionResponse = {
   //   ],
   //   flags: MessageFlags.Loading,
   // },
+}
+
+const handleEditMessage = async (messageToken: string, res: CommandResponse, discord: Discord) => {
+  if (res.type === InteractionResponseType.ChannelMessageWithSource) {
+    console.log('Editing response with', res)
+    const { files, ...message } = res
+    await discord
+      .editInteractionResponse(messageToken, message.data, files)
+      .then(() => console.log('Response edited!', res))
+      .catch((err) => console.error('Failed to upload files', err))
+  } else {
+    console.log('Not editing response, response is not a channel message')
+  }
 }

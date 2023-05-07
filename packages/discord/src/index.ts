@@ -9,6 +9,8 @@ import type { Fetcher } from 'utils/browser'
 
 export * from 'discord-api-types/v10'
 
+export type Discord = ReturnType<typeof Discord>
+
 export const Discord = (
   fetch: Fetcher,
   env: { PUBLIC_KEY: string; APP_ID: string; BOT_TOKEN: string }
