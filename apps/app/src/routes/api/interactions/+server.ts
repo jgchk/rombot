@@ -68,7 +68,16 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
       const loadingPromise = sleep(DEV ? 999999 : 2500).then(() => ({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          content: 'Loading...',
+          embeds: [
+            {
+              author: {
+                name: 'Loading...',
+                icon_url:
+                  'https://cdn.discordapp.com/attachments/350830712150294528/1104876768852201472/loading.gif',
+              },
+              color: 0x195aff,
+            },
+          ],
           flags: MessageFlags.Loading,
         },
       }))
