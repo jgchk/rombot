@@ -1,7 +1,7 @@
 import { error, json } from '@sveltejs/kit'
 import { commandMap } from 'commands'
 import type { CommandResponse } from 'commands/src/types'
-import { Discord, InteractionResponseType, InteractionType, MessageFlags } from 'discord'
+import { Discord, InteractionResponseType, InteractionType } from 'discord'
 import type { APIInteraction, APIInteractionResponse } from 'discord'
 import { verifyKey } from 'discord-interactions'
 import { DEV } from 'esm-env'
