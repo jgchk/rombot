@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Set environment variables
         run: |
-          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+          if [[ $GITHUB_REF == 'refs/heads/main' ]]; then
             echo "DATABASE_URL=${{ secrets.DATABASE_URL_PROD }}" >> $GITHUB_ENV
             echo "BOT_TOKEN=${{ secrets.BOT_TOKEN_PROD }}" >> $GITHUB_ENV
             echo "BASE_URL=https://rombot.vercel.app" >> $GITHUB_ENV
