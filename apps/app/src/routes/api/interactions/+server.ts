@@ -84,6 +84,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
       }))
 
       if (platform) {
+        console.log('platform', platform)
         platform.waitUntil(commandRunnerPromise)
       }
 
