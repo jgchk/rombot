@@ -126,7 +126,7 @@ const verify = (request: Request, rawBody: ArrayBuffer) => {
 }
 
 const loadingMessage: APIInteractionResponse = {
-  type: InteractionResponseType.DeferredMessageUpdate,
+  type: InteractionResponseType.DeferredChannelMessageWithSource,
   // data: {
   //   embeds: [
   //     {
