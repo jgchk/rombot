@@ -141,6 +141,7 @@ export const chart = cmd(
       return {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
+          content: 'Chart',
           embeds: [
             {
               image: {
