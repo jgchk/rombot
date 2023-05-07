@@ -56,15 +56,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
           if (res.type === InteractionResponseType.ChannelMessageWithSource) {
             console.log('Editing response with', res)
             await discord
-              .editInteractionResponse(
-                message.token,
-                {
-                  ...res.data,
-                  embeds: res.data.embeds ?? null,
-                  content: res.data.content ?? null,
-                },
-                files
-              )
+              .editInteractionResponse(message.token, res.data, files)
               .then(() => console.log('Response edited!', res))
               .catch((err) => console.error('Failed to upload files (1)', err))
           } else {
