@@ -66,6 +66,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
                 files
               )
               .then(() => console.log('Response edited!', res))
+              .catch((err) => console.error('Failed to upload files (1)', err))
           } else {
             console.log('Not editing response, response is not a channel message')
           }
@@ -82,20 +83,12 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
         // if we have files to upload, we have to edit the response.
         // just send the loading message for now and upload via editInteractionResponse
 
-        console.log('Uploading files...', response.files)
+        console.log('Uploading files...', response)
         if (response.type === InteractionResponseType.ChannelMessageWithSource) {
           const editResponse = discord
-            .editInteractionResponse(
-              message.token,
-              {
-                ...response.data,
-                embeds: response.data.embeds ?? null,
-                content: response.data.content ?? null,
-              },
-              response.files
-            )
+            .editInteractionResponse(message.token, response.data, response.files)
             .then((res) => console.log('Files uploaded!', res))
-            .catch((err) => console.error('Failed to upload files', err))
+            .catch((err) => console.error('Failed to upload files (2)', err))
           platform?.context.waitUntil(editResponse)
         } else {
           console.log('Failed to upload files: response is not a channel message')
