@@ -59,5 +59,4 @@ export const getErrorEmbed = (error: unknown): APIEmbed => ({
   },
   description: toErrorString(error),
   color: 0xff0000,
-  timestamp: new Date().toISOString(),
 })
