@@ -61,7 +61,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
 
           return res
         }),
-        sleep(2500).then(() => ({
+        sleep(DEV ? 999999 : 2500).then(() => ({
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
             content: 'Loading...',
