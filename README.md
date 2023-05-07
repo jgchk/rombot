@@ -1,3 +1,3 @@
 # rombot
 
-A RateYourMusic Discord bot
+A RateYourMusic Discord bot :^)
