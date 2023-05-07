@@ -148,6 +148,12 @@ export const chart = cmd(
               },
             },
           ],
+          attachments: [
+            {
+              id: '0',
+              filename: chartFile.name,
+            },
+          ],
         },
         files: [chartFile],
       }
