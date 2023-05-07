@@ -139,7 +139,7 @@ export const chart = cmd(
       console.log('Chart created!')
 
       return {
-        embed: [
+        embeds: [
           {
             title: 'title',
             description: 'description',
