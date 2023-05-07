@@ -87,7 +87,14 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
         },
       }))
 
-      platform?.context.waitUntil(commandRunnerPromise)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      platform?.context
+        .waitUntil(commandRunnerPromise)
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        .then((res) => console.log('Command runner finished', res))
 
       const response = await Promise.race([commandRunnerPromise, loadingPromise])
       responded = true
