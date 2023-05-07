@@ -6,7 +6,6 @@ import type { APIInteraction, APIInteractionResponse } from 'discord'
 import { verifyKey } from 'discord-interactions'
 import { DEV } from 'esm-env'
 import { getRedis } from 'redis'
-import { sleep } from 'utils'
 import { fetcher } from 'utils/browser'
 
 import { env } from '$lib/env'
@@ -46,36 +45,16 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
       const db = (await getDatabase)({ connectionString: DATABASE_URL })
       const redis = getRedis({ url: env.REDIS_URL, token: env.REDIS_TOKEN })
 
-      let responded = false
-
       const commandRunnerPromise = Promise.resolve(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
         command.handler(message as any, { fetch, db, redis })
       ).then(async (res) => {
-        if (responded) {
-          // if we already responded, edit the message
-          await handleEditMessage(message.token, res, discord)
-        }
-
-        return res
+        await handleEditMessage(message.token, res, discord)
       })
       platform?.context.waitUntil(commandRunnerPromise)
 
-      const loadingPromise = sleep(DEV ? 999999 : 2500).then(() => loadingMessage)
-
-      let response: CommandResponse = await Promise.race([commandRunnerPromise, loadingPromise])
-      if (response.files?.length) {
-        // if we have files to upload, we have to edit the response.
-        // just send the loading message for now and upload via editInteractionResponse
-        const editResponsePromise = handleEditMessage(message.token, response, discord)
-        platform?.context.waitUntil(editResponsePromise)
-        response = loadingMessage
-      }
-      responded = true
-
-      console.log('Responding with', response)
-
-      return json(response)
+      console.log('Sending loading acknowledgement', loadingMessage)
+      return json(loadingMessage)
     }
     default: {
       throw error(400, 'Bad request type')
@@ -99,20 +78,6 @@ const loadingMessage: APIInteractionResponse = {
   data: {
     flags: MessageFlags.Loading,
   },
-  // data: {
-  //   embeds: [
-  //     {
-  //       author: {
-  //         name: 'Loading...',
-  //         icon_url:
-  //           'https://cdn.discordapp.com/attachments/350830712150294528/1104876768852201472/loading.gif',
-  //       },
-  //       description: ' ',
-  //       color: 0x195aff,
-  //     },
-  //   ],
-  //   flags: MessageFlags.Loading,
-  // },
 }
 
 const handleEditMessage = async (messageToken: string, res: CommandResponse, discord: Discord) => {
