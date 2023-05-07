@@ -35,7 +35,7 @@ export const Discord = (
             }
           ).then((res) => res.json<RESTPatchAPIInteractionOriginalResponseResult>()),
 
-    editInteractionResponseWithUploads: (
+    editInteractionResponseWithUploads: async (
       interactionToken: string,
       response: RESTPatchAPIInteractionOriginalResponseJSONBody,
       files: File[]
@@ -44,7 +44,11 @@ export const Discord = (
       formData.append('payload_json', JSON.stringify(response))
 
       for (const [index, file] of files.entries()) {
-        formData.append(`files[${index}]`, new Blob([file], { type: file.type }), file.name)
+        formData.append(
+          `files[${index}]`,
+          new Blob([`${await file.text()}`], { type: file.type }),
+          file.name
+        )
       }
 
       return fetch(
