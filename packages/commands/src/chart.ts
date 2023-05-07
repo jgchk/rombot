@@ -144,8 +144,14 @@ export const chart = cmd(
           content: 'Chart',
           embeds: [
             {
+              type: 'rich',
+              title: '',
+              description: '',
+              color: 0x00ffff,
               image: {
                 url: `attachment://${chartFile.name}`,
+                height: 0,
+                width: 0,
               },
             },
           ],
