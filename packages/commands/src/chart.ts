@@ -148,21 +148,21 @@ export const chart = cmd(
               title: 'title',
               description: 'description',
               color: 0x00ffff,
-              image: {
-                url: `attachment://${chartFile.name}`,
-                height: 100,
-                width: 100,
-              },
+              // image: {
+              //   url: `attachment://${chartFile.name}`,
+              //   height: 100,
+              //   width: 100,
+              // },
             },
           ],
-          attachments: [
-            {
-              id: '0',
-              filename: chartFile.name,
-            },
-          ],
+          // attachments: [
+          //   {
+          //     id: '0',
+          //     filename: chartFile.name,
+          //   },
+          // ],
         },
-        files: [chartFile],
+        // files: [chartFile],
       }
     } catch (e) {
       console.error('Error creating chart', e)
