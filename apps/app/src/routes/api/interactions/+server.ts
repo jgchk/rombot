@@ -51,13 +51,13 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
       const commandRunnerPromise = Promise.resolve(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
         command.handler(message as any, { fetch, db, redis })
-      ).then(async ({ files, ...res }) => {
+      ).then(async (res) => {
         if (responded) {
           // if we already responded, edit the message
-          await handleEditMessage(message.token, response, discord)
+          await handleEditMessage(message.token, res, discord)
         }
 
-        return { ...res, files }
+        return res
       })
       platform?.context.waitUntil(commandRunnerPromise)
 
