@@ -139,36 +139,30 @@ export const chart = cmd(
       console.log('Chart created!')
 
       return {
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          embed: [
-            {
-              title: 'title',
-              description: 'description',
-              color: 0x00ffff,
-              // image: {
-              //   url: `attachment://${chartFile.name}`,
-              //   height: 100,
-              //   width: 100,
-              // },
-            },
-          ],
-          // attachments: [
-          //   {
-          //     id: '0',
-          //     filename: chartFile.name,
-          //   },
-          // ],
-        },
+        embed: [
+          {
+            title: 'title',
+            description: 'description',
+            color: 0x00ffff,
+            // image: {
+            //   url: `attachment://${chartFile.name}`,
+            //   height: 100,
+            //   width: 100,
+            // },
+          },
+        ],
+        // attachments: [
+        //   {
+        //     id: '0',
+        //     filename: chartFile.name,
+        //   },
+        // ],
         // files: [chartFile],
       }
     } catch (e) {
       console.error('Error creating chart', e)
       return {
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          embeds: [getErrorEmbed('Error creating chart')],
-        },
+        embeds: [getErrorEmbed('Error creating chart')],
       }
     }
   }

@@ -2,10 +2,10 @@ import type { Database } from 'db'
 import type {
   APIApplicationCommandInteraction,
   APIChatInputApplicationCommandInteraction,
-  APIInteractionResponse,
   APIMessageApplicationCommandInteraction,
   APIUserApplicationCommandInteraction,
   ApplicationCommandType,
+  RESTPatchAPIInteractionOriginalResponseJSONBody,
   RESTPostAPIApplicationCommandsJSONBody,
 } from 'discord'
 import type { Redis } from 'redis'
@@ -26,7 +26,7 @@ export type CommandHandler<C extends APIApplicationCommandInteraction> = (
   context: CommandContext
 ) => CommandResponse | Promise<CommandResponse>
 
-export type CommandResponse = APIInteractionResponse & { files?: File[] }
+export type CommandResponse = RESTPatchAPIInteractionOriginalResponseJSONBody & { files?: File[] }
 
 export type CommandContext = {
   fetch: Fetcher

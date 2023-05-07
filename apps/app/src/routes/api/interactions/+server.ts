@@ -81,14 +81,10 @@ const loadingMessage: APIInteractionResponse = {
 }
 
 const handleEditMessage = async (messageToken: string, res: CommandResponse, discord: Discord) => {
-  if (res.type === InteractionResponseType.ChannelMessageWithSource) {
-    console.log('Editing response with', res)
-    const { files, ...message } = res
-    await discord
-      .editInteractionResponse(messageToken, message.data, files)
-      .then(() => console.log('Response edited!', res))
-      .catch((err) => console.error('Failed to upload files', err))
-  } else {
-    console.log('Not editing response, response is not a channel message')
-  }
+  console.log('Editing response with', res)
+  const { files, ...data } = res
+  await discord
+    .editInteractionResponse(messageToken, data, files)
+    .then(() => console.log('Response edited!', res))
+    .catch((err) => console.error('Failed to upload files', err))
 }
