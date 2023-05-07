@@ -52,8 +52,6 @@ export const isOption =
     option.name === name && option.type === type
 
 export const getErrorEmbed = (error: unknown): APIEmbed => ({
-  color: 3447003,
   title: 'Error',
   description: toErrorString(error),
-  timestamp: new Date().toString(),
 })
