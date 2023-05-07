@@ -128,17 +128,17 @@ const verify = (request: Request, rawBody: ArrayBuffer) => {
 const loadingMessage: APIInteractionResponse = {
   type: InteractionResponseType.ChannelMessageWithSource,
   data: {
-    embeds: [
-      {
-        author: {
-          name: 'Loading...',
-          icon_url:
-            'https://cdn.discordapp.com/attachments/350830712150294528/1104876768852201472/loading.gif',
-        },
-        description: ' ',
-        color: 0x195aff,
-      },
-    ],
+    // embeds: [
+    //   {
+    //     author: {
+    //       name: 'Loading...',
+    //       icon_url:
+    //         'https://cdn.discordapp.com/attachments/350830712150294528/1104876768852201472/loading.gif',
+    //     },
+    //     description: ' ',
+    //     color: 0x195aff,
+    //   },
+    // ],
     flags: MessageFlags.Loading,
   },
 }
