@@ -141,10 +141,8 @@ export const chart = cmd(
       return {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          content: 'hiii',
           embed: [
             {
-              type: 'rich',
               title: 'title',
               description: 'description',
               color: 0x00ffff,
