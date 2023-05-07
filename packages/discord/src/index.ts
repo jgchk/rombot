@@ -41,6 +41,7 @@ export const Discord = (
       files: File[]
     ) => {
       const formData = new FormData()
+      console.log('response', response)
       formData.append('payload_json', JSON.stringify(response))
 
       for (const [index, file] of files.entries()) {
