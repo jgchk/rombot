@@ -1,6 +1,7 @@
 import { error, json } from '@sveltejs/kit'
 import { Discord, InteractionResponseType, InteractionType } from 'discord'
 import type { APIInteraction } from 'discord'
+import { verifyKey } from 'discord-interactions'
 import { DEV } from 'esm-env'
 import { sleep } from 'utils'
 import { fetcher } from 'utils/browser'
@@ -15,11 +16,8 @@ const getDatabase = DEV
   : import('db/edge').then((res) => res.getEdgeDatabase)
 
 export const POST: RequestHandler = async ({ request, fetch: fetch_, platform }) => {
-  const fetch = fetcher(fetch_)
-  const discord = Discord(fetch, env)
-
   const rawBody = await request.arrayBuffer()
-  const isVerified = DEV || discord.verify(request, rawBody)
+  const isVerified = DEV || verify(request, rawBody)
   if (!isVerified) throw error(401, 'Bad request signature')
 
   const message = JSON.parse(new TextDecoder().decode(rawBody)) as APIInteraction
@@ -36,6 +34,8 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
         throw error(400, 'Bad request command')
       }
 
+      const fetch = fetcher(fetch_)
+      const discord = Discord(fetch, env)
       const db = (await getDatabase)({ connectionString: env.DATABASE_URL })
 
       let responded = false
@@ -78,4 +78,15 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
       throw error(400, 'Bad request type')
     }
   }
+}
+
+const verify = (request: Request, rawBody: ArrayBuffer) => {
+  const signature = request.headers.get('x-signature-ed25519')
+  const timestamp = request.headers.get('x-signature-timestamp')
+
+  if (signature === null || timestamp === null) {
+    return false
+  }
+
+  return verifyKey(rawBody, signature, timestamp, env.PUBLIC_KEY)
 }

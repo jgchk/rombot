@@ -19,6 +19,7 @@
     "@vercel/edge": "^0.3.4",
     "db": "workspace:*",
     "discord": "workspace:*",
+    "discord-interactions": "^3.3.0",
     "esm-env": "^1.0.0",
     "redis": "workspace:*",
     "rym": "workspace:*",

@@ -5,7 +5,6 @@ import type {
   RESTPostAPIApplicationCommandsJSONBody,
   RESTPostAPIApplicationCommandsResult,
 } from 'discord-api-types/v10'
-import { verifyKey } from 'discord-interactions'
 import type { Fetcher } from 'utils/browser'
 
 export * from 'discord-api-types/v10'
@@ -15,17 +14,6 @@ export const Discord = (
   env: { PUBLIC_KEY: string; APP_ID: string; BOT_TOKEN: string }
 ) => {
   const api = {
-    verify: (request: Request, rawBody: ArrayBuffer) => {
-      const signature = request.headers.get('x-signature-ed25519')
-      const timestamp = request.headers.get('x-signature-timestamp')
-
-      if (signature === null || timestamp === null) {
-        return false
-      }
-
-      return verifyKey(rawBody, signature, timestamp, env.PUBLIC_KEY)
-    },
-
     editInteractionResponse: (
       interactionToken: string,
       response: RESTPatchAPIInteractionOriginalResponseJSONBody
