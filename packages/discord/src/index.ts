@@ -16,19 +16,47 @@ export const Discord = (
   const api = {
     editInteractionResponse: (
       interactionToken: string,
-      response: RESTPatchAPIInteractionOriginalResponseJSONBody
+      response: RESTPatchAPIInteractionOriginalResponseJSONBody,
+      files?: File[]
     ) =>
-      fetch(
+      files?.length
+        ? api.editInteractionResponseWithUploads(interactionToken, response, files)
+        : fetch(
+            `https://discord.com/api/v10/webhooks/${env.APP_ID}/${interactionToken}/messages/@original`,
+            {
+              method: 'PATCH',
+              headers: {
+                Authorization: `Bot ${env.BOT_TOKEN}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(response),
+            }
+          ).then((res) => res.json<RESTPatchAPIInteractionOriginalResponseResult>()),
+
+    editInteractionResponseWithUploads: (
+      interactionToken: string,
+      response: RESTPatchAPIInteractionOriginalResponseJSONBody,
+      files: File[]
+    ) => {
+      const formData = new FormData()
+      formData.append('payload_json', JSON.stringify(response))
+
+      for (const [i, file] of files.entries()) {
+        formData.append(`files[${i}]`, file)
+      }
+
+      return fetch(
         `https://discord.com/api/v10/webhooks/${env.APP_ID}/${interactionToken}/messages/@original`,
         {
           method: 'PATCH',
           headers: {
             Authorization: `Bot ${env.BOT_TOKEN}`,
-            'Content-Type': 'application/json',
+            'Content-Type': 'multipart/form-data',
           },
-          body: JSON.stringify(response),
+          body: formData,
         }
-      ).then((res) => res.json<RESTPatchAPIInteractionOriginalResponseResult>()),
+      )
+    },
 
     createGlobalCommand: (data: RESTPostAPIApplicationCommandsJSONBody) =>
       fetch(`https://discord.com/api/v10/applications/${env.APP_ID}/commands`, {

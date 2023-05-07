@@ -24,7 +24,9 @@ export type CommandMessageHandler<D extends RESTPostAPIApplicationCommandsJSONBo
 export type CommandHandler<C extends APIApplicationCommandInteraction> = (
   command: C,
   context: CommandContext
-) => APIInteractionResponse | Promise<APIInteractionResponse>
+) => CommandResponse | Promise<CommandResponse>
+
+export type CommandResponse = APIInteractionResponse & { files?: File[] }
 
 export type CommandContext = {
   fetch: Fetcher
