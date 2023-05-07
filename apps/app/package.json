@@ -16,6 +16,7 @@
     "vercel:install": "yum install gcc-c++ cairo-devel pango-devel libjpeg-turbo-devel giflib-devel"
   },
   "dependencies": {
+    "@vercel/edge": "^0.3.4",
     "db": "workspace:*",
     "discord-api-types": "^0.37.41",
     "discord-interactions": "^3.3.0",

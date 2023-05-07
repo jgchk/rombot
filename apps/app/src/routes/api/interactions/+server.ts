@@ -15,7 +15,7 @@ const getDatabase = DEV
   ? import('db/node').then((res) => res.getNodeDatabase)
   : import('db/edge').then((res) => res.getEdgeDatabase)
 
-export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
+export const POST: RequestHandler = async ({ request, fetch: fetch_, platform }) => {
   const rawBody = await request.arrayBuffer()
   const isVerified = verify(request, rawBody)
   if (!isVerified) throw error(401, 'Bad request signature')
@@ -41,13 +41,21 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_ }) => {
       let responded = false
       const response = await Promise.race([
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-        Promise.resolve(command.handler(message as any, { fetch, db })).then(async (res) => {
+        Promise.resolve(command.handler(message as any, { fetch, db })).then((res) => {
           if (responded) {
             if (res.type === InteractionResponseType.ChannelMessageWithSource) {
               console.log('Editing response...')
-              await editInteractionResponse(fetch)(message.token, res.data)
+              if (platform) {
+                platform.waitUntil(
+                  editInteractionResponse(fetch)(message.token, res.data).then(() =>
+                    console.log('Response edited!', res)
+                  )
+                )
+              } else {
+                console.error('Platform is unavailable')
+              }
             } else {
-              console.log('Not editing response')
+              console.log('Not editing response, response is not a channel message')
             }
           }
         }),

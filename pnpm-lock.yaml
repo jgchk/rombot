@@ -38,6 +38,9 @@ importers:
 
   apps/app:
     dependencies:
+      '@vercel/edge':
+        specifier: ^0.3.4
+        version: 0.3.4
       db:
         specifier: workspace:*
         version: link:../../packages/db
@@ -2777,6 +2780,10 @@ packages:
   /@vercel/build-utils@6.7.2:
     resolution: {integrity: sha512-STSWs66rxX5pVKkhsYNeLx/Vlxjwe+dhy6PfXgBEJua7FXbWDjXjUyjzEyk63yUWysUflEBtLW9ckS/2V0QCZw==}
     dev: true
+
+  /@vercel/edge@0.3.4:
+    resolution: {integrity: sha512-dFU+yAUDQRwpuRGxRDlEO1LMq0y1LGsBgkyryQWe4w15/Fy2/lCnpvdIoAhHl3QvIGAxCLHzwRHsqfLRdpxgJQ==}
+    dev: false
 
   /@vercel/error-utils@1.0.8:
     resolution: {integrity: sha512-s+f7jP2oH1koICbQ8e3K9hOpOeUct7rbCnF9qsNwXemq850wAh2e90tp9R6oYBM0BNpiLRRm+oG5zD2sCIm3HQ==}
@@ -8916,7 +8923,7 @@ packages:
       picocolors: 1.0.0
       source-map: 0.6.1
       source-map-support: 0.5.21
-      vite: 4.3.5(@types/node@14.18.33)
+      vite: 4.1.2(@types/node@14.18.33)
     transitivePeerDependencies:
       - '@types/node'
       - less
