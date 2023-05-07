@@ -83,7 +83,9 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
         },
       }))
 
-      platform?.waitUntil(commandRunnerPromise)
+      if (platform) {
+        platform.waitUntil(commandRunnerPromise)
+      }
 
       const response = await Promise.race([commandRunnerPromise, loadingPromise])
       responded = true
