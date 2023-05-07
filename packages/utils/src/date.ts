@@ -1,5 +1,9 @@
 export const millisecondsInHour = 3600000
 
+export const secondsInDay = 86400
+export const secondsInWeek = 604800
+export const secondsInMonth = 2592000
+
 export const minutesInDay = 1440
 export const minutesInMonth = 43200
 export const minutesInYear = 525600

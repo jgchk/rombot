@@ -164,6 +164,12 @@ importers:
       '@upstash/redis':
         specifier: ^1.20.6
         version: 1.20.6
+      rym:
+        specifier: workspace:*
+        version: link:../rym
+      utils:
+        specifier: workspace:*
+        version: link:../utils
     devDependencies:
       eslint-config-custom:
         specifier: workspace:*

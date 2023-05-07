@@ -8,6 +8,7 @@ import type {
   ApplicationCommandType,
   RESTPostAPIApplicationCommandsJSONBody,
 } from 'discord'
+import type { Redis } from 'redis'
 import type { Fetcher } from 'utils/browser'
 
 export type Command<
@@ -28,6 +29,7 @@ export type CommandHandler<C extends APIApplicationCommandInteraction> = (
 export type CommandContext = {
   fetch: Fetcher
   db: Database
+  redis: Redis
 }
 
 export type CommandMessage<T extends ApplicationCommandType | undefined> =

@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from 'discord'
-import { getLatestRatings } from 'rym'
+import { getLatestRatings, getReleaseFromUrl } from 'rym'
 import type { Artist } from 'rym'
 import { ifDefined, ifNotNull } from 'utils'
 
@@ -42,7 +42,7 @@ export const chart = cmd(
       },
     ],
   },
-  async (command, { fetch, db }) => {
+  async (command, { fetch, db, redis }) => {
     try {
       const {
         data: { options = [] },
@@ -50,7 +50,8 @@ export const chart = cmd(
 
       const rows = getOption('rows', ApplicationCommandOptionType.Integer)(options)?.value
       const cols = getOption('columns', ApplicationCommandOptionType.Integer)(options)?.value
-      if (rows !== undefined && cols !== undefined && rows * cols > 25) {
+      const numEntries = rows !== undefined && cols !== undefined ? rows * cols : undefined
+      if (numEntries !== undefined && numEntries > 25) {
         return {
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
@@ -99,20 +100,38 @@ export const chart = cmd(
 
       console.log('Fetching ratings...')
 
-      const ratings = await getLatestRatings(fetch)(username)
+      let ratings = await getLatestRatings(fetch)(username)
 
+      if (numEntries !== undefined) {
+        ratings = ratings.slice(0, numEntries)
+      }
+
+      let numCached = 0
       const chartInput: Chart = {
-        entries: ratings.map(({ rating, release }) => ({
-          title: release.title,
-          artist: stringifyArtists(release.artists, release.artistDisplayName),
-          rating: ifNotNull(rating.rating, (r) => r * 2) ?? undefined,
-          imageUrl: release.coverThumbnail ?? undefined,
-        })),
+        entries: await Promise.all(
+          ratings.map(async ({ rating, release }) => {
+            let fullRelease = await redis.getRelease(release.issueUrl)
+            if (fullRelease === null) {
+              fullRelease = await getReleaseFromUrl(fetch)(release.issueUrl)
+              await redis.setRelease(release.issueUrl, fullRelease)
+            } else {
+              numCached += 1
+            }
+
+            return {
+              title: release.title,
+              artist: stringifyArtists(release.artists, release.artistDisplayName),
+              rating: ifNotNull(rating.rating, (r) => r * 2) ?? undefined,
+              imageUrl: fullRelease.cover ?? release.coverThumbnail ?? undefined,
+            }
+          })
+        ),
         coverSize,
         rows,
         cols,
       }
 
+      console.log(`Fetched ratings! (cached: ${numCached}/${chartInput.entries.length})`)
       console.log('Creating chart...')
 
       const chartBlob = await fetchChart(fetch)(chartInput)

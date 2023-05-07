@@ -3,6 +3,7 @@ import { Discord, InteractionResponseType, InteractionType, MessageFlags } from 
 import type { APIInteraction } from 'discord'
 import { verifyKey } from 'discord-interactions'
 import { DEV } from 'esm-env'
+import { getRedis } from 'redis'
 import { sleep } from 'utils'
 import { fetcher } from 'utils/browser'
 
@@ -37,11 +38,12 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
       const fetch = fetcher(fetch_)
       const discord = Discord(fetch, env)
       const db = (await getDatabase)({ connectionString: env.DATABASE_URL })
+      const redis = getRedis({ url: env.REDIS_URL, token: env.REDIS_TOKEN })
 
       let responded = false
       const response = await Promise.race([
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-        Promise.resolve(command.handler(message as any, { fetch, db })).then((res) => {
+        Promise.resolve(command.handler(message as any, { fetch, db, redis })).then((res) => {
           if (responded) {
             if (res.type === InteractionResponseType.ChannelMessageWithSource) {
               console.log('Editing response...')
