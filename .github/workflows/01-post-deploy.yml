@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Set environment variables
         run: |
-          if [ "${{ github.ref_name }}" == "main" ]; then
+          if [ "${{ github.event.deployment.environment }}" == "production" ]; then
             echo "BOT_TOKEN=${{ secrets.BOT_TOKEN_PROD }}" >> $GITHUB_ENV
             echo "BASE_URL=https://rombot.vercel.app" >> $GITHUB_ENV
           else
@@ -33,7 +33,7 @@ jobs:
     steps:
       - name: Set environment variables
         run: |
-          if [[ $GITHUB_REF == 'refs/heads/main' ]]; then
+          if [ "${{ github.event.deployment.environment }}" == "production" ]; then
             echo "DATABASE_URL=${{ secrets.DATABASE_URL_PROD }}" >> $GITHUB_ENV
           else
             echo "DATABASE_URL=${{ secrets.DATABASE_URL_DEV }}" >> $GITHUB_ENV
