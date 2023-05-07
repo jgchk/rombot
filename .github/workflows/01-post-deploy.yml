@@ -2,9 +2,6 @@ name: Post-deploy
 
 on: deployment_status
 
-env:
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
 jobs:
   register_commands:
     if: ${{ github.event.deployment_status.state == 'success' }}
@@ -12,7 +9,7 @@ jobs:
     steps:
       - name: Set environment variables
         run: |
-          if [[ $GITHUB_REF == 'refs/heads/main' ]]; then
+          if [ "${{ github.ref_name }}" == "main" ]; then
             echo "BOT_TOKEN=${{ secrets.BOT_TOKEN_PROD }}" >> $GITHUB_ENV
             echo "BASE_URL=https://rombot.vercel.app" >> $GITHUB_ENV
           else
