@@ -1,8 +1,7 @@
 <script lang="ts">
+  import { fetchChart } from 'commands'
   import { superForm } from 'sveltekit-superforms/client'
   import { fetcher } from 'utils/browser'
-
-  import { fetchChart } from '$lib/charts'
 
   import type { PageData } from './$types'
 

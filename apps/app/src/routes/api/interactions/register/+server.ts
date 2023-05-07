@@ -1,8 +1,8 @@
 import { error, json } from '@sveltejs/kit'
+import { commands, oldCommands } from 'commands'
 import { Discord } from 'discord'
 import { fetcher } from 'utils/browser'
 
-import { commands, oldCommands } from '$lib/commands'
 import { env } from '$lib/env'
 
 import type { RequestHandler } from './$types'

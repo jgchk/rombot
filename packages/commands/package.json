@@ -1,0 +1,22 @@
+{
+  "name": "commands",
+  "version": "0.0.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "scripts": {
+    "lint": "prettier --check --ignore-path=../../.prettierignore . && tsc --noEmit && eslint \".\"",
+    "format": "prettier --write --ignore-path=../../.prettierignore ."
+  },
+  "devDependencies": {
+    "eslint-config-custom": "workspace:*"
+  },
+  "dependencies": {
+    "db": "workspace:*",
+    "discord": "workspace:*",
+    "redis": "workspace:*",
+    "rym": "workspace:*",
+    "utils": "workspace:*",
+    "zod": "^3.21.4"
+  }
+}

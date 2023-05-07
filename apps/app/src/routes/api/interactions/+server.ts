@@ -1,4 +1,5 @@
 import { error, json } from '@sveltejs/kit'
+import { commandMap } from 'commands'
 import { Discord, InteractionResponseType, InteractionType, MessageFlags } from 'discord'
 import type { APIInteraction } from 'discord'
 import { verifyKey } from 'discord-interactions'
@@ -7,7 +8,6 @@ import { getRedis } from 'redis'
 import { sleep } from 'utils'
 import { fetcher } from 'utils/browser'
 
-import { commandMap } from '$lib/commands'
 import { env } from '$lib/env'
 
 import type { RequestHandler } from './$types'

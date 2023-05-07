@@ -1,7 +1,6 @@
 import { fail } from '@sveltejs/kit'
+import { Chart } from 'commands'
 import { superValidate } from 'sveltekit-superforms/server'
-
-import { Chart } from '$lib/charts'
 
 import type { Actions } from './$types'
 

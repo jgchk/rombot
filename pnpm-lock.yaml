@@ -41,6 +41,9 @@ importers:
       '@vercel/edge':
         specifier: ^0.3.4
         version: 0.3.4
+      commands:
+        specifier: workspace:*
+        version: link:../../packages/commands
       db:
         specifier: workspace:*
         version: link:../../packages/db
@@ -93,6 +96,31 @@ importers:
       vite:
         specifier: 4.1.2
         version: 4.1.2(@types/node@14.18.33)
+
+  packages/commands:
+    dependencies:
+      db:
+        specifier: workspace:*
+        version: link:../db
+      discord:
+        specifier: workspace:*
+        version: link:../discord
+      redis:
+        specifier: workspace:*
+        version: link:../redis
+      rym:
+        specifier: workspace:*
+        version: link:../rym
+      utils:
+        specifier: workspace:*
+        version: link:../utils
+      zod:
+        specifier: ^3.21.4
+        version: 3.21.4
+    devDependencies:
+      eslint-config-custom:
+        specifier: workspace:*
+        version: link:../eslint-config-custom
 
   packages/db:
     dependencies:

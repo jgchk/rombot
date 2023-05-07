@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@vercel/edge": "^0.3.4",
+    "commands": "workspace:*",
     "db": "workspace:*",
     "discord": "workspace:*",
     "discord-interactions": "^3.3.0",
