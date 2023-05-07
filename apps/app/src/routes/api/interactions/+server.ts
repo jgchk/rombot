@@ -16,6 +16,11 @@ const getDatabase = DEV
   ? import('db/node').then((res) => res.getNodeDatabase)
   : import('db/edge').then((res) => res.getEdgeDatabase)
 
+let DATABASE_URL = env.DATABASE_URL
+if (DEV && !DATABASE_URL.endsWith('?sslmode=require')) {
+  DATABASE_URL += '?sslmode=require'
+}
+
 export const POST: RequestHandler = async ({ request, fetch: fetch_, platform }) => {
   const rawBody = await request.arrayBuffer()
   const isVerified = DEV || verify(request, rawBody)
@@ -37,40 +42,40 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
 
       const fetch = fetcher(fetch_)
       const discord = Discord(fetch, env)
-      const db = (await getDatabase)({ connectionString: env.DATABASE_URL })
+      const db = (await getDatabase)({ connectionString: DATABASE_URL })
       const redis = getRedis({ url: env.REDIS_URL, token: env.REDIS_TOKEN })
 
       let responded = false
-      const response = await Promise.race([
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-        Promise.resolve(command.handler(message as any, { fetch, db, redis })).then((res) => {
-          if (responded) {
-            if (res.type === InteractionResponseType.ChannelMessageWithSource) {
-              console.log('Editing response...')
-              if (platform) {
-                platform.waitUntil(
-                  discord
-                    .editInteractionResponse(message.token, res.data)
-                    .then(() => console.log('Response edited!', res))
-                )
-              } else {
-                console.error('Platform is unavailable')
-              }
-            } else {
-              console.log('Not editing response, response is not a channel message')
-            }
-          }
 
-          return res
-        }),
-        sleep(DEV ? 999999 : 1).then(() => ({
-          type: InteractionResponseType.ChannelMessageWithSource,
-          data: {
-            content: 'Loading...',
-            flags: MessageFlags.Loading,
-          },
-        })),
-      ])
+      const commandRunnerPromise = Promise.resolve(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+        command.handler(message as any, { fetch, db, redis })
+      ).then(async (res) => {
+        if (responded) {
+          if (res.type === InteractionResponseType.ChannelMessageWithSource) {
+            console.log('Editing response with', res)
+            await discord
+              .editInteractionResponse(message.token, res.data)
+              .then(() => console.log('Response edited!', res))
+          } else {
+            console.log('Not editing response, response is not a channel message')
+          }
+        }
+
+        return res
+      })
+
+      const loadingPromise = sleep(DEV ? 999999 : 2500).then(() => ({
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: {
+          content: 'Loading...',
+          flags: MessageFlags.Loading,
+        },
+      }))
+
+      platform?.waitUntil(commandRunnerPromise)
+
+      const response = await Promise.race([commandRunnerPromise, loadingPromise])
       responded = true
 
       console.log('Responding with', response)
