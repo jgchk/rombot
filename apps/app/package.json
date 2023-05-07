@@ -18,8 +18,7 @@
   "dependencies": {
     "@vercel/edge": "^0.3.4",
     "db": "workspace:*",
-    "discord-api-types": "^0.37.41",
-    "discord-interactions": "^3.3.0",
+    "discord": "workspace:*",
     "esm-env": "^1.0.0",
     "redis": "workspace:*",
     "rym": "workspace:*",

@@ -1,12 +1,11 @@
 import { error, json } from '@sveltejs/kit'
-import { InteractionResponseType, InteractionType } from 'discord-api-types/v10'
-import type { APIInteraction } from 'discord-api-types/v10'
+import { Discord, InteractionResponseType, InteractionType } from 'discord'
+import type { APIInteraction } from 'discord'
 import { DEV } from 'esm-env'
 import { sleep } from 'utils'
 import { fetcher } from 'utils/browser'
 
 import { commandMap } from '$lib/commands'
-import { editInteractionResponse, verify } from '$lib/discord'
 import { env } from '$lib/env'
 
 import type { RequestHandler } from './$types'
@@ -16,8 +15,11 @@ const getDatabase = DEV
   : import('db/edge').then((res) => res.getEdgeDatabase)
 
 export const POST: RequestHandler = async ({ request, fetch: fetch_, platform }) => {
+  const fetch = fetcher(fetch_)
+  const discord = Discord(fetch, env)
+
   const rawBody = await request.arrayBuffer()
-  const isVerified = verify(request, rawBody)
+  const isVerified = DEV || discord.verify(request, rawBody)
   if (!isVerified) throw error(401, 'Bad request signature')
 
   const message = JSON.parse(new TextDecoder().decode(rawBody)) as APIInteraction
@@ -34,8 +36,6 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
         throw error(400, 'Bad request command')
       }
 
-      const fetch = fetcher(fetch_)
-
       const db = (await getDatabase)({ connectionString: env.DATABASE_URL })
 
       let responded = false
@@ -47,9 +47,9 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
               console.log('Editing response...')
               if (platform) {
                 platform.waitUntil(
-                  editInteractionResponse(fetch)(message.token, res.data).then(() =>
-                    console.log('Response edited!', res)
-                  )
+                  discord
+                    .editInteractionResponse(message.token, res.data)
+                    .then(() => console.log('Response edited!', res))
                 )
               } else {
                 console.error('Platform is unavailable')

@@ -13,7 +13,7 @@ import type {
   APIApplicationCommandInteractionDataUserOption,
   APIEmbed,
   ApplicationCommandOptionType,
-} from 'discord-api-types/v10'
+} from 'discord'
 
 export type OptionType<T extends ApplicationCommandOptionType> =
   T extends ApplicationCommandOptionType.Subcommand

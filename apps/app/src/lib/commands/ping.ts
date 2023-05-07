@@ -1,4 +1,4 @@
-import { InteractionResponseType } from 'discord-api-types/v10'
+import { InteractionResponseType } from 'discord'
 
 import { cmd } from './types'
 

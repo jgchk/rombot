@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit'
-import { ApplicationCommandOptionType, InteractionResponseType } from 'discord-api-types/v10'
+import { ApplicationCommandOptionType, InteractionResponseType } from 'discord'
 import { getLatestRatings } from 'rym'
 import type { Artist } from 'rym'
 import { ifDefined, ifNotNull } from 'utils'
@@ -12,7 +12,6 @@ import { getErrorEmbed, getOption } from './utils'
 
 export const chart = cmd(
   {
-    runtime: 'node',
     name: 'chart',
     description: 'Generate a chart of your ratings',
     options: [
