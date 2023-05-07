@@ -141,13 +141,14 @@ export const chart = cmd(
       return {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          embeds: [
-            {
-              image: {
-                url: `attachment://${chartFile.name}`,
-              },
-            },
-          ],
+          // content: 'Chart',
+          // embeds: [
+          //   {
+          //     image: {
+          //       url: `attachment://${chartFile.name}`,
+          //     },
+          //   },
+          // ],
           attachments: [
             {
               id: '0',
