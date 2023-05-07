@@ -75,6 +75,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
                 icon_url:
                   'https://cdn.discordapp.com/attachments/350830712150294528/1104876768852201472/loading.gif',
               },
+              description: ' ',
               color: 0x195aff,
             },
           ],
