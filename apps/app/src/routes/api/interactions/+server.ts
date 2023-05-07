@@ -55,7 +55,11 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
           if (res.type === InteractionResponseType.ChannelMessageWithSource) {
             console.log('Editing response with', res)
             await discord
-              .editInteractionResponse(message.token, res.data)
+              .editInteractionResponse(message.token, {
+                ...res.data,
+                embeds: res.data.embeds ?? null,
+                content: res.data.content ?? null,
+              })
               .then(() => console.log('Response edited!', res))
           } else {
             console.log('Not editing response, response is not a channel message')
