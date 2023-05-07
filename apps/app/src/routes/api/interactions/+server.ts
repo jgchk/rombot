@@ -1,5 +1,5 @@
 import { error, json } from '@sveltejs/kit'
-import { Discord, InteractionResponseType, InteractionType } from 'discord'
+import { Discord, InteractionResponseType, InteractionType, MessageFlags } from 'discord'
 import type { APIInteraction } from 'discord'
 import { verifyKey } from 'discord-interactions'
 import { DEV } from 'esm-env'
@@ -65,6 +65,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
             content: 'Loading...',
+            flags: MessageFlags.Loading,
           },
         })),
       ])
