@@ -2,7 +2,7 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "build": "dotenv -e .env -e .env.local -e .env.production.local -- turbo run build",
+    "build": "dotenv -e .env -e .env.local -e .env.production.local -- turbo run build --scope=app",
     "start": "dotenv -e .env -e .env.local -e .env.production.local -- pnpm --filter server start",
     "docker": "pnpm docker:build && pnpm docker:run",
     "dev": "NODE_ENV=development dotenv -e .env -e .env.local -e .env.development.local -- turbo run dev",
