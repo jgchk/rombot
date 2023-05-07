@@ -53,5 +53,12 @@ export const isOption =
 
 export const getErrorEmbed = (error: unknown): APIEmbed => ({
   title: 'Error',
-  description: toErrorString(error),
+  description: `\`${toErrorString(error)}\``,
+  color: 0xff0000,
+  timestamp: new Date().toISOString(),
+  author: {
+    name: 'Error',
+    icon_url:
+      'https://cdn.discordapp.com/attachments/640977957288017933/1104862233562988741/emoji.png',
+  },
 })
