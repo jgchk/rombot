@@ -55,7 +55,7 @@ export const Discord = (
           },
           body: formData,
         }
-      )
+      ).then((res) => res.text())
     },
 
     createGlobalCommand: (data: RESTPostAPIApplicationCommandsJSONBody) =>

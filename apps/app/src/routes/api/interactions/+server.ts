@@ -94,7 +94,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
               },
               response.files
             )
-            .then(() => console.log('Files uploaded!'))
+            .then((res) => console.log('Files uploaded!', res))
           platform?.context.waitUntil(editResponse)
         } else {
           console.log('Failed to upload files: response is not a channel message')
