@@ -1,5 +1,4 @@
-import { error } from '@sveltejs/kit'
-import { ApplicationCommandOptionType, InteractionResponseType } from 'discord'
+import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from 'discord'
 import { getLatestRatings } from 'rym'
 import type { Artist } from 'rym'
 import { ifDefined, ifNotNull } from 'utils'
@@ -20,6 +19,27 @@ export const chart = cmd(
         description: 'The RYM username to generate a chart for (defaults to self)',
         type: ApplicationCommandOptionType.String,
       },
+      {
+        name: 'cover-size',
+        description: 'The size of each cover in the chart in px',
+        type: ApplicationCommandOptionType.Integer,
+        min_value: 100,
+        max_value: 800,
+      },
+      {
+        name: 'rows',
+        description: 'The number of rows in the chart',
+        type: ApplicationCommandOptionType.Integer,
+        min_value: 1,
+        max_value: 25,
+      },
+      {
+        name: 'columns',
+        description: 'The number of columns in the chart',
+        type: ApplicationCommandOptionType.Integer,
+        min_value: 1,
+        max_value: 25,
+      },
     ],
   },
   async (command, { fetch, db }) => {
@@ -28,16 +48,51 @@ export const chart = cmd(
         data: { options = [] },
       } = command
 
+      const rows = getOption('rows', ApplicationCommandOptionType.Integer)(options)?.value
+      const cols = getOption('columns', ApplicationCommandOptionType.Integer)(options)?.value
+      if (rows !== undefined && cols !== undefined && rows * cols > 25) {
+        return {
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: {
+            embeds: [
+              getErrorEmbed(
+                "Due to RYM rate limiting, you can't have more than 25 albums in a chart. Blame sharifi."
+              ),
+            ],
+            flags: MessageFlags.Ephemeral,
+          },
+        }
+      }
+
+      const coverSize = getOption(
+        'cover-size',
+        ApplicationCommandOptionType.Integer
+      )(options)?.value
+
       const discordUser = command.user ?? command.member?.user
       if (!discordUser) {
-        throw error(400, 'Could not extract user from command')
+        return {
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: {
+            embeds: [
+              getErrorEmbed(
+                'Could not extract user from command. This is a bug, please report it.'
+              ),
+            ],
+          },
+        }
       }
 
       let username = getOption('username', ApplicationCommandOptionType.String)(options)?.value
       if (!username) {
         const account = await db.accounts.find(discordUser.id)
         if (account === undefined) {
-          throw error(401, 'Set your RYM username with `/set username` then retry')
+          return {
+            type: InteractionResponseType.ChannelMessageWithSource,
+            data: {
+              embeds: [getErrorEmbed('Set your RYM username with `/set username` then retry')],
+            },
+          }
         }
         username = account.rymUsername
       }
@@ -53,6 +108,9 @@ export const chart = cmd(
           rating: ifNotNull(rating.rating, (r) => r * 2) ?? undefined,
           imageUrl: release.coverThumbnail ?? undefined,
         })),
+        coverSize,
+        rows,
+        cols,
       }
 
       console.log('Creating chart...')
