@@ -33,7 +33,9 @@ export const setUsername = cmd(
     if (!discordUser) {
       return {
         embeds: [
-          getErrorEmbed('Could not extract user from command. This is a bug, please report it.'),
+          getErrorEmbed({
+            error: 'Could not extract user from command. This is a bug, please report it.',
+          }),
         ],
         private: true,
       }

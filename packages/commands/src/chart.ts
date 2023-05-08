@@ -53,9 +53,11 @@ export const chart = cmd(
       if (numEntries !== undefined && numEntries > 25) {
         return {
           embeds: [
-            getWarningEmbed(
-              "Due to RYM rate limiting, you can't have more than 25 albums in a chart. Blame sharifi."
-            ),
+            getWarningEmbed({
+              title: 'Chart too big',
+              warning:
+                "Due to RYM rate limiting, you can't have more than 25 albums in a chart. Blame sharifi.",
+            }),
           ],
           private: true,
         }
@@ -70,7 +72,9 @@ export const chart = cmd(
       if (!discordUser) {
         return {
           embeds: [
-            getErrorEmbed('Could not extract user from command. This is a bug, please report it.'),
+            getErrorEmbed({
+              error: 'Could not extract user from command. This is a bug, please report it.',
+            }),
           ],
           private: true,
         }
@@ -140,7 +144,9 @@ export const chart = cmd(
     } catch (e) {
       console.error('Error creating chart', e)
       return {
-        embeds: [getErrorEmbed('Error creating chart. This is a bug, please report it.')],
+        embeds: [
+          getErrorEmbed({ error: 'Error creating chart. This is a bug, please report it.' }),
+        ],
         private: true,
       }
     }

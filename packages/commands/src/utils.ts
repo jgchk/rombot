@@ -51,9 +51,9 @@ export const isOption =
   (option: APIApplicationCommandInteractionDataOption): option is OptionType<T> =>
     option.name === name && option.type === type
 
-export const getErrorEmbed = (error: unknown): APIEmbed => ({
+export const getErrorEmbed = ({ title, error }: { title?: string; error: unknown }): APIEmbed => ({
   author: {
-    name: 'Error',
+    name: title ?? 'Error',
     icon_url:
       'https://cdn.discordapp.com/attachments/640977957288017933/1104862233562988741/emoji.png',
   },
@@ -61,9 +61,15 @@ export const getErrorEmbed = (error: unknown): APIEmbed => ({
   color: 0xf92313,
 })
 
-export const getWarningEmbed = (warning: unknown): APIEmbed => ({
+export const getWarningEmbed = ({
+  title,
+  warning,
+}: {
+  title?: string
+  warning: unknown
+}): APIEmbed => ({
   author: {
-    name: 'Warning',
+    name: title ?? 'Warning',
     icon_url:
       'https://cdn.discordapp.com/attachments/640977957288017933/1105150000046030939/emoji.png',
   },
