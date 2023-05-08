@@ -88,7 +88,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
         return json(response)
       } catch (e) {
         console.error(`Error processing message ${message.token}`, e)
-        return {
+        return json({
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
             embeds: [
@@ -98,7 +98,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
             ],
             private: true,
           },
-        }
+        })
       }
     }
     default: {
