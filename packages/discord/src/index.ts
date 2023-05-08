@@ -40,18 +40,9 @@ export const Discord = (
       response: RESTPatchAPIInteractionOriginalResponseJSONBody,
       files: File[]
     ) => {
-      console.log('response', response)
       const formData = new FormData()
 
-      formData.append(
-        'payload_json',
-        JSON.stringify({
-          content: response.content ?? 'howdy',
-          embeds: response.embeds ?? [],
-          allowed_methods: response.allowed_mentions ?? [],
-          attachments: response.attachments ?? [],
-        })
-      )
+      formData.append('payload_json', JSON.stringify(response))
 
       for (const [index, file] of files.entries()) {
         formData.append(`files[${index}]`, file, file.name)
