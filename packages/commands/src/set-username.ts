@@ -56,7 +56,11 @@ export const setUsername = cmd(
     const account = await db.accounts.setRymUsername(discordUser.id, username)
 
     return {
-      embeds: [getSuccessEmbed({ description: `RYM username set to **${account.rymUsername}**` })],
+      embeds: [
+        getSuccessEmbed({
+          description: `RYM username set to [**${account.rymUsername}**](https://rateyourmusic.com/~${account.rymUsername})`,
+        }),
+      ],
     }
   }
 )

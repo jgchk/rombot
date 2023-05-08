@@ -107,7 +107,7 @@ export const chart = cmd(
         return {
           embeds: [
             getErrorEmbed({
-              error: `Error getting ratings for **${username}**. Is it typed correctly?`,
+              error: `Error getting ratings for [**${username}**](https://rateyourmusic.com/~${username}). Is it typed correctly?`,
             }),
           ],
           private: true,
