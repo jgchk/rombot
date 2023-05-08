@@ -6,7 +6,7 @@ import type { Fetcher } from 'utils/browser'
 import { z } from 'zod'
 
 import { cmd } from './types'
-import { getErrorEmbed, getOption } from './utils'
+import { getErrorEmbed, getInfoEmbed, getOption, getWarningEmbed } from './utils'
 
 export const chart = cmd(
   {
@@ -53,10 +53,11 @@ export const chart = cmd(
       if (numEntries !== undefined && numEntries > 25) {
         return {
           embeds: [
-            getErrorEmbed(
+            getWarningEmbed(
               "Due to RYM rate limiting, you can't have more than 25 albums in a chart. Blame sharifi."
             ),
           ],
+          private: true,
         }
       }
 
@@ -71,6 +72,7 @@ export const chart = cmd(
           embeds: [
             getErrorEmbed('Could not extract user from command. This is a bug, please report it.'),
           ],
+          private: true,
         }
       }
 
@@ -79,7 +81,8 @@ export const chart = cmd(
         const account = await db.accounts.find(discordUser.id)
         if (account === undefined) {
           return {
-            embeds: [getErrorEmbed('Set your RYM username with `/set username` then retry')],
+            embeds: [getInfoEmbed('Set your RYM username with `/set username` then retry')],
+            private: true,
           }
         }
         username = account.rymUsername
@@ -132,7 +135,8 @@ export const chart = cmd(
     } catch (e) {
       console.error('Error creating chart', e)
       return {
-        embeds: [getErrorEmbed('Error creating chart')],
+        embeds: [getErrorEmbed('Error creating chart. This is a bug, please report it.')],
+        private: true,
       }
     }
   }

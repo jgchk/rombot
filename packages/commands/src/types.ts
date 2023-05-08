@@ -27,7 +27,10 @@ export type CommandHandler<C extends APIApplicationCommandInteraction> = (
   context: CommandContext
 ) => CommandResponse | Promise<CommandResponse>
 
-export type CommandResponse = RESTPatchAPIInteractionOriginalResponseJSONBody & { files?: File[] }
+export type CommandResponse = RESTPatchAPIInteractionOriginalResponseJSONBody & {
+  files?: File[]
+  private?: boolean
+}
 
 export type CommandContext = {
   fetch: Fetcher

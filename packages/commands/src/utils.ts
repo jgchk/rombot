@@ -58,5 +58,25 @@ export const getErrorEmbed = (error: unknown): APIEmbed => ({
       'https://cdn.discordapp.com/attachments/640977957288017933/1104862233562988741/emoji.png',
   },
   description: toErrorString(error),
-  color: 0xff0000,
+  color: 0xf92313,
+})
+
+export const getWarningEmbed = (warning: unknown): APIEmbed => ({
+  author: {
+    name: 'Warning',
+    icon_url:
+      'https://cdn.discordapp.com/attachments/640977957288017933/1105150000046030939/emoji.png',
+  },
+  description: toErrorString(warning),
+  color: 0xfccf19,
+})
+
+export const getInfoEmbed = (description: string): APIEmbed => ({
+  author: {
+    name: 'Info',
+    icon_url:
+      'https://cdn.discordapp.com/attachments/640977957288017933/1105151748248719461/emoji.png',
+  },
+  description,
+  color: 0x1d49f7,
 })

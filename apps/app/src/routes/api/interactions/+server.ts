@@ -64,7 +64,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
             embeds: res.embeds ?? undefined,
             allowed_mentions: res.allowed_mentions ?? undefined,
             components: res.components ?? undefined,
-            flags: command.private ? MessageFlags.Ephemeral : undefined,
+            flags: command.private || res.private ? MessageFlags.Ephemeral : undefined,
           },
         }
         if (responded) {
