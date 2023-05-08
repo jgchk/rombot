@@ -20,7 +20,7 @@ export const chart = cmd(
       },
       {
         name: 'cover-size',
-        description: 'The size of each cover in the chart in px',
+        description: 'The size of each cover in the chart in px (defaults to 300)',
         type: ApplicationCommandOptionType.Integer,
         min_value: 100,
         max_value: 300,
