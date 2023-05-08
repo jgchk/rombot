@@ -100,5 +100,5 @@ export const getSuccessEmbed = ({
       'https://cdn.discordapp.com/attachments/640977957288017933/1105154077484122122/emoji.png',
   },
   description,
-  color: 0x22d83a,
+  color: 0x21b735,
 })
