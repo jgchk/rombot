@@ -12,6 +12,7 @@ const defineConfig = ({ mode }) => ({
           external: [
             '@neondatabase/serverless',
             'boolbase',
+            'discord-api-types/v10',
             'drizzle-orm',
             'drizzle-orm/neon-serverless',
             'drizzle-orm/node-postgres',

@@ -1,11 +1,11 @@
 import { error, json } from '@sveltejs/kit'
 import { commandMap } from 'commands'
+import type { CommandResponse } from 'commands/src/types'
 import { Discord, InteractionResponseType, InteractionType, MessageFlags } from 'discord'
-import type { APIInteraction } from 'discord'
+import type { APIInteraction, APIInteractionResponse } from 'discord'
 import { verifyKey } from 'discord-interactions'
 import { DEV } from 'esm-env'
 import { getRedis } from 'redis'
-import { sleep } from 'utils'
 import { fetcher } from 'utils/browser'
 
 import { env } from '$lib/env'
@@ -15,6 +15,11 @@ import type { RequestHandler } from './$types'
 const getDatabase = DEV
   ? import('db/node').then((res) => res.getNodeDatabase)
   : import('db/edge').then((res) => res.getEdgeDatabase)
+
+let DATABASE_URL = env.DATABASE_URL
+if (DEV && !DATABASE_URL.endsWith('?sslmode=require')) {
+  DATABASE_URL += '?sslmode=require'
+}
 
 export const POST: RequestHandler = async ({ request, fetch: fetch_, platform }) => {
   const rawBody = await request.arrayBuffer()
@@ -37,45 +42,19 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
 
       const fetch = fetcher(fetch_)
       const discord = Discord(fetch, env)
-      const db = (await getDatabase)({ connectionString: env.DATABASE_URL })
+      const db = (await getDatabase)({ connectionString: DATABASE_URL })
       const redis = getRedis({ url: env.REDIS_URL, token: env.REDIS_TOKEN })
 
-      let responded = false
-      const response = await Promise.race([
+      const commandRunnerPromise = Promise.resolve(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-        Promise.resolve(command.handler(message as any, { fetch, db, redis })).then((res) => {
-          if (responded) {
-            if (res.type === InteractionResponseType.ChannelMessageWithSource) {
-              console.log('Editing response...')
-              if (platform) {
-                platform.waitUntil(
-                  discord
-                    .editInteractionResponse(message.token, res.data)
-                    .then(() => console.log('Response edited!', res))
-                )
-              } else {
-                console.error('Platform is unavailable')
-              }
-            } else {
-              console.log('Not editing response, response is not a channel message')
-            }
-          }
+        command.handler(message as any, { fetch, db, redis })
+      ).then(async (res) => {
+        await handleEditMessage(message.token, res, discord)
+      })
+      platform?.context.waitUntil(commandRunnerPromise)
 
-          return res
-        }),
-        sleep(DEV ? 999999 : 2500).then(() => ({
-          type: InteractionResponseType.ChannelMessageWithSource,
-          data: {
-            content: 'Loading...',
-            flags: MessageFlags.Loading,
-          },
-        })),
-      ])
-      responded = true
-
-      console.log('Responding with', response)
-
-      return json(response)
+      console.log('Sending loading acknowledgement', loadingMessage)
+      return json(loadingMessage)
     }
     default: {
       throw error(400, 'Bad request type')
@@ -92,4 +71,20 @@ const verify = (request: Request, rawBody: ArrayBuffer) => {
   }
 
   return verifyKey(rawBody, signature, timestamp, env.PUBLIC_KEY)
+}
+
+const loadingMessage: APIInteractionResponse = {
+  type: InteractionResponseType.DeferredChannelMessageWithSource,
+  data: {
+    flags: MessageFlags.Loading,
+  },
+}
+
+const handleEditMessage = async (messageToken: string, res: CommandResponse, discord: Discord) => {
+  console.log('Editing response with', res)
+  const { files, ...data } = res
+  await discord
+    .editInteractionResponse(messageToken, data, files)
+    .then(() => console.log('Response edited!', res))
+    .catch((err) => console.error('Failed to upload files', err))
 }

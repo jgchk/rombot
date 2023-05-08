@@ -46,16 +46,14 @@ export const setUsername = cmd(
 
     if (!username) {
       return {
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: { content: 'You must provide a username' },
+        content: 'You must provide a username',
       }
     }
 
     const account = await db.accounts.setRymUsername(discordUser.id, username)
 
     return {
-      type: InteractionResponseType.ChannelMessageWithSource,
-      data: { content: `Set your RYM username to ${account.rymUsername}` },
+      content: `Set your RYM username to ${account.rymUsername}`,
     }
   }
 )

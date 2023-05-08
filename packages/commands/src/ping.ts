@@ -1,5 +1,3 @@
-import { InteractionResponseType } from 'discord'
-
 import { cmd } from './types'
 
 export const ping = cmd(
@@ -8,7 +6,6 @@ export const ping = cmd(
     description: 'Replies with Pong!',
   },
   () => ({
-    type: InteractionResponseType.ChannelMessageWithSource,
-    data: { content: 'Pong!' },
+    content: 'Pong!',
   })
 )

@@ -52,8 +52,11 @@ export const isOption =
     option.name === name && option.type === type
 
 export const getErrorEmbed = (error: unknown): APIEmbed => ({
-  color: 3447003,
-  title: 'Error',
+  author: {
+    name: 'Error',
+    icon_url:
+      'https://cdn.discordapp.com/attachments/640977957288017933/1104862233562988741/emoji.png',
+  },
   description: toErrorString(error),
-  timestamp: new Date().toString(),
+  color: 0xff0000,
 })

@@ -8,7 +8,7 @@ declare global {
     // interface Locals {}
     // interface PageData {}
     interface Platform {
-      waitUntil: RequestContext['waitUntil']
+      context: RequestContext
     }
   }
 }

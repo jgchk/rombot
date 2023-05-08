@@ -134,25 +134,17 @@ export const chart = cmd(
       console.log('Creating chart...')
 
       const chartBlob = await fetchChart(fetch)(chartInput)
+      const chartFile = new File([chartBlob], 'chart.png', { type: 'image/png' })
 
       console.log('Chart created!')
-      console.log('Uploading chart...')
-
-      const url = await uploadImage(chartBlob)
-
-      console.log('Chart uploaded!')
 
       return {
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: { content: url },
+        files: [chartFile],
       }
     } catch (e) {
       console.error('Error creating chart', e)
       return {
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          embeds: [getErrorEmbed('Error creating chart')],
-        },
+        embeds: [getErrorEmbed('Error creating chart')],
       }
     }
   }
@@ -166,22 +158,6 @@ const stringifyArtists = (artists: Artist[], displayName: string | null): string
   if (finalArtist === undefined) throw new Error('Collab has no artists')
 
   return `${artists.map((a) => a.name).join(', ')} & ${finalArtist}`
-}
-
-const uploadImage = async (data: Blob) => {
-  const url = 'https://litterbox.catbox.moe/resources/internals/api.php'
-  const formData = new FormData()
-
-  formData.append('reqtype', 'fileupload')
-  formData.append('time', '1h')
-
-  const file = new File([data], 'chart.png')
-  formData.append('fileToUpload', file, file.name)
-
-  return fetch(url, {
-    method: 'POST',
-    body: formData,
-  }).then((res) => res.text())
 }
 
 export type ChartEntry = z.infer<typeof ChartEntry>
