@@ -56,7 +56,7 @@ export const chart = cmd(
             getWarningEmbed({
               title: 'Chart too big',
               warning:
-                "Due to RYM rate limiting, you can't have more than 25 albums in a chart. Blame sharifi.",
+                'RYM prevents us from putting more than 25 albums in a chart. Blame sharifi.',
             }),
           ],
           private: true,
