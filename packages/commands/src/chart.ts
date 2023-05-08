@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from 'discord'
+import { ApplicationCommandOptionType } from 'discord'
 import { getLatestRatings, getReleaseFromUrl } from 'rym'
 import type { Artist } from 'rym'
 import { ifDefined, ifNotNull } from 'utils'
@@ -52,15 +52,11 @@ export const chart = cmd(
       const numEntries = rows !== undefined && cols !== undefined ? rows * cols : undefined
       if (numEntries !== undefined && numEntries > 25) {
         return {
-          type: InteractionResponseType.ChannelMessageWithSource,
-          data: {
-            embeds: [
-              getErrorEmbed(
-                "Due to RYM rate limiting, you can't have more than 25 albums in a chart. Blame sharifi."
-              ),
-            ],
-            flags: MessageFlags.Ephemeral,
-          },
+          embeds: [
+            getErrorEmbed(
+              "Due to RYM rate limiting, you can't have more than 25 albums in a chart. Blame sharifi."
+            ),
+          ],
         }
       }
 
@@ -72,14 +68,9 @@ export const chart = cmd(
       const discordUser = command.user ?? command.member?.user
       if (!discordUser) {
         return {
-          type: InteractionResponseType.ChannelMessageWithSource,
-          data: {
-            embeds: [
-              getErrorEmbed(
-                'Could not extract user from command. This is a bug, please report it.'
-              ),
-            ],
-          },
+          embeds: [
+            getErrorEmbed('Could not extract user from command. This is a bug, please report it.'),
+          ],
         }
       }
 
@@ -88,10 +79,7 @@ export const chart = cmd(
         const account = await db.accounts.find(discordUser.id)
         if (account === undefined) {
           return {
-            type: InteractionResponseType.ChannelMessageWithSource,
-            data: {
-              embeds: [getErrorEmbed('Set your RYM username with `/set username` then retry')],
-            },
+            embeds: [getErrorEmbed('Set your RYM username with `/set username` then retry')],
           }
         }
         username = account.rymUsername

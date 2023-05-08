@@ -31,10 +31,7 @@ export const setUsername = cmd(
     const discordUser = command.user ?? command.member?.user
     if (!discordUser) {
       return {
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          embeds: [getErrorEmbed('Could not extract user from command')],
-        },
+        embeds: [getErrorEmbed('Could not extract user from command')],
       }
     }
 
