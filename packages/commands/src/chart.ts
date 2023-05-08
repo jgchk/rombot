@@ -99,7 +99,20 @@ export const chart = cmd(
 
       console.log('Fetching ratings...')
 
-      let ratings = await getLatestRatings(fetch)(username)
+      let ratings: Awaited<ReturnType<ReturnType<typeof getLatestRatings>>>
+      try {
+        ratings = await getLatestRatings(fetch)(username)
+      } catch (e) {
+        console.error(`Error getting ratings for ${username}`, e)
+        return {
+          embeds: [
+            getErrorEmbed({
+              error: `Error getting ratings for **${username}**. Is it typed correctly?`,
+            }),
+          ],
+          private: true,
+        }
+      }
 
       if (numEntries !== undefined) {
         ratings = ratings.slice(0, numEntries)
