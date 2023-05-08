@@ -63,7 +63,6 @@ export const Discord = (
           method: 'PATCH',
           headers: {
             Authorization: `Bot ${env.BOT_TOKEN}`,
-            'Content-Type': 'multipart/form-data',
           },
           body: formData,
         }
