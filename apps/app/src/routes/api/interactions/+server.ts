@@ -1,6 +1,7 @@
 import { error, json } from '@sveltejs/kit'
 import { commandMap } from 'commands'
 import type { CommandResponse } from 'commands/src/types'
+import { getErrorEmbed } from 'commands/src/utils'
 import { Discord, InteractionResponseType, InteractionType, MessageFlags } from 'discord'
 import type {
   APIInteraction,
@@ -39,51 +40,66 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
       return json({ type: InteractionResponseType.Pong })
     }
     case InteractionType.ApplicationCommand: {
-      const command = commandMap.get(message.data.name)
+      try {
+        const command = commandMap.get(message.data.name)
 
-      if (command === undefined) {
-        throw error(400, 'Bad request command')
-      }
+        if (command === undefined) {
+          throw error(400, 'Bad request command')
+        }
 
-      const fetch = fetcher(fetch_)
-      const discord = Discord(fetch, env)
-      const db = (await getDatabase)({ connectionString: DATABASE_URL })
-      const redis = getRedis({ url: env.REDIS_URL, token: env.REDIS_TOKEN })
+        const fetch = fetcher(fetch_)
+        const discord = Discord(fetch, env)
+        const db = (await getDatabase)({ connectionString: DATABASE_URL })
+        const redis = getRedis({ url: env.REDIS_URL, token: env.REDIS_TOKEN })
 
-      let responded = false
+        let responded = false
 
-      const commandRunnerPromise: Promise<APIInteractionResponse> = Promise.resolve(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-        command.handler(message as any, { fetch, db, redis })
-      ).then(async (res) => {
-        let response: APIInteractionResponse = {
+        const commandRunnerPromise: Promise<APIInteractionResponse> = Promise.resolve(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+          command.handler(message as any, { fetch, db, redis })
+        ).then(async (res) => {
+          let response: APIInteractionResponse = {
+            type: InteractionResponseType.ChannelMessageWithSource,
+            data: {
+              ...res,
+              content: res.content ?? undefined,
+              embeds: res.embeds ?? undefined,
+              allowed_mentions: res.allowed_mentions ?? undefined,
+              components: res.components ?? undefined,
+              flags: command.private || res.private ? MessageFlags.Ephemeral : undefined,
+            },
+          }
+          if (responded) {
+            await handleEditMessage(message.token, res, discord)
+          } else if (res.files?.length) {
+            await handleEditMessage(message.token, res, discord)
+            response = getLoadingMessage(command.private)
+          }
+          return response
+        })
+        platform?.context.waitUntil(commandRunnerPromise)
+
+        const loadingPromise = sleep(2500).then(() => getLoadingMessage(command.private))
+
+        const response = await Promise.race([commandRunnerPromise, loadingPromise])
+        responded = true
+
+        console.log('Sending response:', response)
+        return json(response)
+      } catch (e) {
+        console.error(`Error processing message ${message.token}`, e)
+        return {
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
-            ...res,
-            content: res.content ?? undefined,
-            embeds: res.embeds ?? undefined,
-            allowed_mentions: res.allowed_mentions ?? undefined,
-            components: res.components ?? undefined,
-            flags: command.private || res.private ? MessageFlags.Ephemeral : undefined,
+            embeds: [
+              getErrorEmbed({
+                error: 'Error processing command. This is a bug, please report it.',
+              }),
+            ],
+            private: true,
           },
         }
-        if (responded) {
-          await handleEditMessage(message.token, res, discord)
-        } else if (res.files?.length) {
-          await handleEditMessage(message.token, res, discord)
-          response = getLoadingMessage(command.private)
-        }
-        return response
-      })
-      platform?.context.waitUntil(commandRunnerPromise)
-
-      const loadingPromise = sleep(2500).then(() => getLoadingMessage(command.private))
-
-      const response = await Promise.race([commandRunnerPromise, loadingPromise])
-      responded = true
-
-      console.log('Sending response:', response)
-      return json(response)
+      }
     }
     default: {
       throw error(400, 'Bad request type')
@@ -117,5 +133,12 @@ const handleEditMessage = async (messageToken: string, res: CommandResponse, dis
   await discord
     .editInteractionResponse(messageToken, data, files)
     .then(() => console.log('Response edited!', res))
-    .catch((err) => console.error('Failed to upload files', err))
+    .catch(() =>
+      // sometimes we edit too fast. try one more time
+      handleEditMessage(messageToken, res, discord)
+    )
+    .catch((err) =>
+      // if we error again, just log it
+      console.error('Failed to edit response', err)
+    )
 }
