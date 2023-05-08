@@ -107,7 +107,7 @@ export const chart = cmd(
           return {
             embeds: [
               getErrorEmbed({
-                error: `No ratings found for [**${username}**](https://rateyourmusic.com/collection/${username}). If you changed your username, you'll need to set it again with \`/set username\``,
+                error: `No ratings found for [**${username}**](https://rateyourmusic.com/collection/${username}). If you changed your username, you'll need to updated it with \`/set username\``,
               }),
             ],
             private: true,
