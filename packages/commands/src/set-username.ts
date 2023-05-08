@@ -7,6 +7,7 @@ export const setUsername = cmd(
   {
     name: 'set',
     description: 'Set your RYM username',
+    private: true,
     options: [
       {
         name: 'username',
