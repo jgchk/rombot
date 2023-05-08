@@ -81,7 +81,12 @@ export const chart = cmd(
         const account = await db.accounts.find(discordUser.id)
         if (account === undefined) {
           return {
-            embeds: [getInfoEmbed('Set your RYM username with `/set username` then retry')],
+            embeds: [
+              getInfoEmbed({
+                title: 'Need username',
+                description: 'Set your RYM username with `/set username` then retry',
+              }),
+            ],
             private: true,
           }
         }

@@ -71,9 +71,15 @@ export const getWarningEmbed = (warning: unknown): APIEmbed => ({
   color: 0xfccf19,
 })
 
-export const getInfoEmbed = (description: string): APIEmbed => ({
+export const getInfoEmbed = ({
+  title,
+  description,
+}: {
+  title?: string
+  description: string
+}): APIEmbed => ({
   author: {
-    name: 'Info',
+    name: title ?? 'Info',
     icon_url:
       'https://cdn.discordapp.com/attachments/640977957288017933/1105151748248719461/emoji.png',
   },
