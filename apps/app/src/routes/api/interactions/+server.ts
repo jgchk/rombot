@@ -1,10 +1,10 @@
 import { error, json } from '@sveltejs/kit'
 import { commandMap } from 'commands'
 import type { CommandResponse } from 'commands/src/types'
-import { Discord, InteractionResponseType, InteractionType, MessageFlags  } from 'discord'
-import type {APIInteractionResponse} from 'discord';
+import { Discord, InteractionResponseType, InteractionType, MessageFlags } from 'discord'
 import type {
-  APIInteraction
+  APIInteraction,
+  APIInteractionResponse,
   APIInteractionResponseDeferredChannelMessageWithSource,
 } from 'discord'
 import { verifyKey } from 'discord-interactions'
@@ -63,8 +63,8 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
             content: res.content ?? undefined,
             embeds: res.embeds ?? undefined,
             allowed_mentions: res.allowed_mentions ?? undefined,
-            components: res.components ?? undefined
-          }
+            components: res.components ?? undefined,
+          },
         }
         if (responded) {
           await handleEditMessage(message.token, res, discord)
