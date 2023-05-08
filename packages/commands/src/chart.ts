@@ -102,12 +102,23 @@ export const chart = cmd(
       let ratings: Awaited<ReturnType<ReturnType<typeof getLatestRatings>>>
       try {
         ratings = await getLatestRatings(fetch)(username)
+        if (ratings.length === 0) {
+          console.error(`No ratings found for ${username}`)
+          return {
+            embeds: [
+              getErrorEmbed({
+                error: `No ratings found for [**${username}**](https://rateyourmusic.com/collection/${username}). If you changed your username, you'll need to update it with \`/set username\``,
+              }),
+            ],
+            private: true,
+          }
+        }
       } catch (e) {
         console.error(`Error getting ratings for ${username}`, e)
         return {
           embeds: [
             getErrorEmbed({
-              error: `Error getting ratings for [**${username}**](https://rateyourmusic.com/~${username}). Is it typed correctly?`,
+              error: `Error getting ratings for [**${username}**](https://rateyourmusic.com/collection/${username}). Is it typed correctly?`,
             }),
           ],
           private: true,
