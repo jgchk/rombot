@@ -19,7 +19,7 @@
         // Download chart
         const a = document.createElement('a')
         a.href = URL.createObjectURL(result)
-        a.download = 'chart.png'
+        a.download = 'chart.jpg'
         a.click()
         a.remove()
       }

@@ -122,7 +122,7 @@ export const chart = cmd(
       console.log('Creating chart...')
 
       const chartBlob = await fetchChart(fetch)(chartInput)
-      const chartFile = new File([chartBlob], 'chart.png', { type: 'image/png' })
+      const chartFile = new File([chartBlob], 'chart.jpg', { type: 'image/jpeg' })
 
       console.log('Chart created!')
 
