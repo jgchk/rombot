@@ -139,24 +139,6 @@ export const chart = cmd(
       console.log('Chart created!')
 
       return {
-        embeds: [
-          {
-            title: 'title',
-            description: 'description',
-            color: 0x00ffff,
-            // image: {
-            //   url: `attachment://${chartFile.name}`,
-            //   height: 100,
-            //   width: 100,
-            // },
-          },
-        ],
-        // attachments: [
-        //   {
-        //     id: '0',
-        //     filename: chartFile.name,
-        //   },
-        // ],
         files: [chartFile],
       }
     } catch (e) {
