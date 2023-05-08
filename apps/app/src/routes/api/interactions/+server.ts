@@ -1,8 +1,9 @@
 import { error, json } from '@sveltejs/kit'
 import { commandMap } from 'commands'
 import type { CommandResponse } from 'commands/src/types'
-import { Discord, InteractionResponseType, InteractionType, MessageFlags } from 'discord'
-import type { APIInteraction, APIInteractionResponse } from 'discord'
+import { Discord, InteractionResponseType, InteractionType, MessageFlags, type APIInteractionResponseDeferredMessageUpdate, type APIInteractionResponseDeferredChannelMessageWithSource  } from 'discord'
+import type {APIInteractionResponseChannelMessageWithSource} from 'discord';
+import type { APIInteraction APIInteractionResponse } from 'discord'
 import { verifyKey } from 'discord-interactions'
 import { DEV } from 'esm-env'
 import { getRedis } from 'redis'
@@ -55,7 +56,7 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
 
       const response = loadingMessage
       if (command.private) {
-        response.data.flags += MessageFlags.Ephemeral
+        response.data = { flags: MessageFlags.Ephemeral }
       }
       console.log(
         `Sending loading acknowledgement${command.private ? ' (private)' : ''}`,
@@ -80,12 +81,9 @@ const verify = (request: Request, rawBody: ArrayBuffer) => {
   return verifyKey(rawBody, signature, timestamp, env.PUBLIC_KEY)
 }
 
-const loadingMessage = {
+const loadingMessage: APIInteractionResponseDeferredChannelMessageWithSource = {
   type: InteractionResponseType.DeferredChannelMessageWithSource,
-  data: {
-    flags: MessageFlags.Loading,
-  },
-} satisfies APIInteractionResponse
+}
 
 const handleEditMessage = async (messageToken: string, res: CommandResponse, discord: Discord) => {
   console.log('Editing response with', res)
