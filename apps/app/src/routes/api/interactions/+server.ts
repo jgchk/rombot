@@ -56,15 +56,9 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
       })
       platform?.context.waitUntil(commandRunnerPromise)
 
-      const response = loadingMessage
-      if (command.private) {
-        response.data = { flags: MessageFlags.Ephemeral }
-      }
-      console.log(
-        `Sending loading acknowledgement${command.private ? ' (private)' : ''}`,
-        loadingMessage
-      )
-      return json(loadingMessage)
+      const response = getLoadingMessage(command.private ?? false)
+      console.log(`Sending loading acknowledgement${command.private ? ' (private)' : ''}`, response)
+      return json(response)
     }
     default: {
       throw error(400, 'Bad request type')
@@ -83,9 +77,14 @@ const verify = (request: Request, rawBody: ArrayBuffer) => {
   return verifyKey(rawBody, signature, timestamp, env.PUBLIC_KEY)
 }
 
-const loadingMessage: APIInteractionResponseDeferredChannelMessageWithSource = {
+const getLoadingMessage = (
+  isPrivate: boolean
+): APIInteractionResponseDeferredChannelMessageWithSource => ({
   type: InteractionResponseType.DeferredChannelMessageWithSource,
-}
+  data: {
+    flags: isPrivate ? MessageFlags.Ephemeral : undefined,
+  },
+})
 
 const handleEditMessage = async (messageToken: string, res: CommandResponse, discord: Discord) => {
   console.log('Editing response with', res)
