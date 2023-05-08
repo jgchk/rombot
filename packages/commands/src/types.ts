@@ -15,6 +15,7 @@ export type Command<
   D extends RESTPostAPIApplicationCommandsJSONBody = RESTPostAPIApplicationCommandsJSONBody
 > = {
   data: D
+  private?: boolean
   handler: CommandMessageHandler<D>
 }
 
@@ -46,9 +47,10 @@ export type CommandMessage<T extends ApplicationCommandType | undefined> =
     : never
 
 export const cmd = <D extends RESTPostAPIApplicationCommandsJSONBody>(
-  data: D,
+  data: D & { private?: boolean },
   handler: CommandMessageHandler<D>
 ): Command<D> => ({
   data,
+  private: data.private,
   handler,
 })

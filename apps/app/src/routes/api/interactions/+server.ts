@@ -53,7 +53,14 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
       })
       platform?.context.waitUntil(commandRunnerPromise)
 
-      console.log('Sending loading acknowledgement', loadingMessage)
+      const response = loadingMessage
+      if (command.private) {
+        response.data.flags += MessageFlags.Ephemeral
+      }
+      console.log(
+        `Sending loading acknowledgement${command.private ? ' (private)' : ''}`,
+        loadingMessage
+      )
       return json(loadingMessage)
     }
     default: {
@@ -73,12 +80,12 @@ const verify = (request: Request, rawBody: ArrayBuffer) => {
   return verifyKey(rawBody, signature, timestamp, env.PUBLIC_KEY)
 }
 
-const loadingMessage: APIInteractionResponse = {
+const loadingMessage = {
   type: InteractionResponseType.DeferredChannelMessageWithSource,
   data: {
     flags: MessageFlags.Loading,
   },
-}
+} satisfies APIInteractionResponse
 
 const handleEditMessage = async (messageToken: string, res: CommandResponse, discord: Discord) => {
   console.log('Editing response with', res)
