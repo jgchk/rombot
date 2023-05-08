@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, InteractionResponseType } from 'discord'
+import { ApplicationCommandOptionType } from 'discord'
 
 import { cmd } from './types'
 import { getErrorEmbed, getOption } from './utils'
@@ -31,10 +31,7 @@ export const setUsername = cmd(
     const discordUser = command.user ?? command.member?.user
     if (!discordUser) {
       return {
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          embeds: [getErrorEmbed('Could not extract user from command')],
-        },
+        embeds: [getErrorEmbed('Could not extract user from command')],
       }
     }
 
