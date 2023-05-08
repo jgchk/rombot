@@ -86,3 +86,19 @@ export const getInfoEmbed = ({
   description,
   color: 0x1d49f7,
 })
+
+export const getSuccessEmbed = ({
+  title,
+  description,
+}: {
+  title?: string
+  description: string
+}): APIEmbed => ({
+  author: {
+    name: title ?? 'Success',
+    icon_url:
+      'https://cdn.discordapp.com/attachments/640977957288017933/1105154077484122122/emoji.png',
+  },
+  description,
+  color: 0x22d83a,
+})

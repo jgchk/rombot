@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionType } from 'discord'
 
 import { cmd } from './types'
-import { getErrorEmbed, getOption } from './utils'
+import { getErrorEmbed, getOption, getSuccessEmbed } from './utils'
 
 export const setUsername = cmd(
   {
@@ -54,7 +54,7 @@ export const setUsername = cmd(
     const account = await db.accounts.setRymUsername(discordUser.id, username)
 
     return {
-      content: `Set your RYM username to ${account.rymUsername}`,
+      embeds: [getSuccessEmbed({ description: `RYM username set to **${account.rymUsername}**` })],
     }
   }
 )
