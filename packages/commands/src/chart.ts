@@ -6,7 +6,7 @@ import type { Fetcher } from 'utils/browser'
 import { z } from 'zod'
 
 import { cmd } from './types'
-import { getErrorEmbed, getOption } from './utils'
+import { getErrorEmbed, getInfoEmbed, getOption, getWarningEmbed } from './utils'
 
 export const chart = cmd(
   {
@@ -20,7 +20,7 @@ export const chart = cmd(
       },
       {
         name: 'cover-size',
-        description: 'The size of each cover in the chart in px',
+        description: 'The size of each cover in the chart in px (defaults to 300)',
         type: ApplicationCommandOptionType.Integer,
         min_value: 100,
         max_value: 300,
@@ -53,10 +53,13 @@ export const chart = cmd(
       if (numEntries !== undefined && numEntries > 25) {
         return {
           embeds: [
-            getErrorEmbed(
-              "Due to RYM rate limiting, you can't have more than 25 albums in a chart. Blame sharifi."
-            ),
+            getWarningEmbed({
+              title: 'Chart too big',
+              warning:
+                'RYM prevents us from putting more than 25 albums in a chart. Blame sharifi.',
+            }),
           ],
+          private: true,
         }
       }
 
@@ -69,8 +72,11 @@ export const chart = cmd(
       if (!discordUser) {
         return {
           embeds: [
-            getErrorEmbed('Could not extract user from command. This is a bug, please report it.'),
+            getErrorEmbed({
+              error: 'Could not extract user from command. This is a bug, please report it.',
+            }),
           ],
+          private: true,
         }
       }
 
@@ -79,7 +85,13 @@ export const chart = cmd(
         const account = await db.accounts.find(discordUser.id)
         if (account === undefined) {
           return {
-            embeds: [getErrorEmbed('Set your RYM username with `/set username` then retry')],
+            embeds: [
+              getInfoEmbed({
+                title: 'Need username',
+                description: 'Set your RYM username with `/set username` then retry',
+              }),
+            ],
+            private: true,
           }
         }
         username = account.rymUsername
@@ -87,7 +99,20 @@ export const chart = cmd(
 
       console.log('Fetching ratings...')
 
-      let ratings = await getLatestRatings(fetch)(username)
+      let ratings: Awaited<ReturnType<ReturnType<typeof getLatestRatings>>>
+      try {
+        ratings = await getLatestRatings(fetch)(username)
+      } catch (e) {
+        console.error(`Error getting ratings for ${username}`, e)
+        return {
+          embeds: [
+            getErrorEmbed({
+              error: `Error getting ratings for [**${username}**](https://rateyourmusic.com/~${username}). Is it typed correctly?`,
+            }),
+          ],
+          private: true,
+        }
+      }
 
       if (numEntries !== undefined) {
         ratings = ratings.slice(0, numEntries)
@@ -132,7 +157,10 @@ export const chart = cmd(
     } catch (e) {
       console.error('Error creating chart', e)
       return {
-        embeds: [getErrorEmbed('Error creating chart')],
+        embeds: [
+          getErrorEmbed({ error: 'Error creating chart. This is a bug, please report it.' }),
+        ],
+        private: true,
       }
     }
   }

@@ -15,6 +15,7 @@ export type Command<
   D extends RESTPostAPIApplicationCommandsJSONBody = RESTPostAPIApplicationCommandsJSONBody
 > = {
   data: D
+  private?: boolean
   handler: CommandMessageHandler<D>
 }
 
@@ -26,7 +27,10 @@ export type CommandHandler<C extends APIApplicationCommandInteraction> = (
   context: CommandContext
 ) => CommandResponse | Promise<CommandResponse>
 
-export type CommandResponse = RESTPatchAPIInteractionOriginalResponseJSONBody & { files?: File[] }
+export type CommandResponse = RESTPatchAPIInteractionOriginalResponseJSONBody & {
+  files?: File[]
+  private?: boolean
+}
 
 export type CommandContext = {
   fetch: Fetcher
@@ -46,9 +50,10 @@ export type CommandMessage<T extends ApplicationCommandType | undefined> =
     : never
 
 export const cmd = <D extends RESTPostAPIApplicationCommandsJSONBody>(
-  data: D,
+  data: D & { private?: boolean },
   handler: CommandMessageHandler<D>
 ): Command<D> => ({
   data,
+  private: data.private,
   handler,
 })

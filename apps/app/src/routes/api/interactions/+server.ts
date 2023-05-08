@@ -2,10 +2,15 @@ import { error, json } from '@sveltejs/kit'
 import { commandMap } from 'commands'
 import type { CommandResponse } from 'commands/src/types'
 import { Discord, InteractionResponseType, InteractionType, MessageFlags } from 'discord'
-import type { APIInteraction, APIInteractionResponse } from 'discord'
+import type {
+  APIInteraction,
+  APIInteractionResponse,
+  APIInteractionResponseDeferredChannelMessageWithSource,
+} from 'discord'
 import { verifyKey } from 'discord-interactions'
 import { DEV } from 'esm-env'
 import { getRedis } from 'redis'
+import { sleep } from 'utils'
 import { fetcher } from 'utils/browser'
 
 import { env } from '$lib/env'
@@ -45,16 +50,40 @@ export const POST: RequestHandler = async ({ request, fetch: fetch_, platform })
       const db = (await getDatabase)({ connectionString: DATABASE_URL })
       const redis = getRedis({ url: env.REDIS_URL, token: env.REDIS_TOKEN })
 
-      const commandRunnerPromise = Promise.resolve(
+      let responded = false
+
+      const commandRunnerPromise: Promise<APIInteractionResponse> = Promise.resolve(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
         command.handler(message as any, { fetch, db, redis })
       ).then(async (res) => {
-        await handleEditMessage(message.token, res, discord)
+        let response: APIInteractionResponse = {
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: {
+            ...res,
+            content: res.content ?? undefined,
+            embeds: res.embeds ?? undefined,
+            allowed_mentions: res.allowed_mentions ?? undefined,
+            components: res.components ?? undefined,
+            flags: command.private || res.private ? MessageFlags.Ephemeral : undefined,
+          },
+        }
+        if (responded) {
+          await handleEditMessage(message.token, res, discord)
+        } else if (res.files?.length) {
+          await handleEditMessage(message.token, res, discord)
+          response = getLoadingMessage(command.private)
+        }
+        return response
       })
       platform?.context.waitUntil(commandRunnerPromise)
 
-      console.log('Sending loading acknowledgement', loadingMessage)
-      return json(loadingMessage)
+      const loadingPromise = sleep(2500).then(() => getLoadingMessage(command.private))
+
+      const response = await Promise.race([commandRunnerPromise, loadingPromise])
+      responded = true
+
+      console.log('Sending response:', response)
+      return json(response)
     }
     default: {
       throw error(400, 'Bad request type')
@@ -73,12 +102,14 @@ const verify = (request: Request, rawBody: ArrayBuffer) => {
   return verifyKey(rawBody, signature, timestamp, env.PUBLIC_KEY)
 }
 
-const loadingMessage: APIInteractionResponse = {
+const getLoadingMessage = (
+  isPrivate?: boolean
+): APIInteractionResponseDeferredChannelMessageWithSource => ({
   type: InteractionResponseType.DeferredChannelMessageWithSource,
   data: {
-    flags: MessageFlags.Loading,
+    flags: isPrivate ? MessageFlags.Ephemeral : undefined,
   },
-}
+})
 
 const handleEditMessage = async (messageToken: string, res: CommandResponse, discord: Discord) => {
   console.log('Editing response with', res)

@@ -51,12 +51,60 @@ export const isOption =
   (option: APIApplicationCommandInteractionDataOption): option is OptionType<T> =>
     option.name === name && option.type === type
 
-export const getErrorEmbed = (error: unknown): APIEmbed => ({
+export const getErrorEmbed = ({ title, error }: { title?: string; error: unknown }): APIEmbed => ({
   author: {
-    name: 'Error',
+    name: title ?? 'Error',
     icon_url:
       'https://cdn.discordapp.com/attachments/640977957288017933/1104862233562988741/emoji.png',
   },
   description: toErrorString(error),
-  color: 0xff0000,
+  color: 0xf92313,
+})
+
+export const getWarningEmbed = ({
+  title,
+  warning,
+}: {
+  title?: string
+  warning: unknown
+}): APIEmbed => ({
+  author: {
+    name: title ?? 'Warning',
+    icon_url:
+      'https://cdn.discordapp.com/attachments/640977957288017933/1105150000046030939/emoji.png',
+  },
+  description: toErrorString(warning),
+  color: 0xfccf19,
+})
+
+export const getInfoEmbed = ({
+  title,
+  description,
+}: {
+  title?: string
+  description: string
+}): APIEmbed => ({
+  author: {
+    name: title ?? 'Info',
+    icon_url:
+      'https://cdn.discordapp.com/attachments/640977957288017933/1105151748248719461/emoji.png',
+  },
+  description,
+  color: 0x1d49f7,
+})
+
+export const getSuccessEmbed = ({
+  title,
+  description,
+}: {
+  title?: string
+  description: string
+}): APIEmbed => ({
+  author: {
+    name: title ?? 'Success',
+    icon_url:
+      'https://cdn.discordapp.com/attachments/640977957288017933/1105154077484122122/emoji.png',
+  },
+  description,
+  color: 0x21b735,
 })
