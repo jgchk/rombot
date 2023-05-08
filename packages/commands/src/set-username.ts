@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, InteractionResponseType } from 'discord'
+import { ApplicationCommandOptionType } from 'discord'
 
 import { cmd } from './types'
 import { getErrorEmbed, getOption } from './utils'
